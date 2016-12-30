@@ -13,9 +13,9 @@ namespace Statistics.ViewModel
 
         public override string ToString()
         {
-            if (string.IsNullOrEmpty(this.UserName))
-                return string.Format("{0} - {1}", (object)this.Name, (object)this.Played.ToString("d", (IFormatProvider)Thread.CurrentThread.CurrentCulture));
-            return string.Format("{0} - {1} - Viewed by {2}", (object)this.Name, (object)this.Played.ToString("d", (IFormatProvider)Thread.CurrentThread.CurrentCulture), (object)this.UserName);
+            if (string.IsNullOrEmpty(UserName))
+                return string.Format("{0} - {1}", Name, Played.ToString("d", Thread.CurrentThread.CurrentCulture));
+            return string.Format("{0} - {1} - Viewed by {2}", Name, Played.ToString("d", Thread.CurrentThread.CurrentCulture), UserName);
         }
     }
 }

@@ -1,18 +1,18 @@
-﻿using Statistics.Enum;
-using System;
+﻿using System;
+using Statistics.Enum;
 
 namespace Statistics.ViewModel
 {
     public class RunTime
     {
         private TimeSpan _timeSpan;
-        private VideoStateEnum _watched;
+        public VideoStateEnum Watched { get; }
 
         public int Days
         {
             get
             {
-                return this._timeSpan.Days;
+                return _timeSpan.Days;
             }
         }
 
@@ -20,7 +20,7 @@ namespace Statistics.ViewModel
         {
             get
             {
-                return this._timeSpan.Hours;
+                return _timeSpan.Hours;
             }
         }
 
@@ -28,7 +28,7 @@ namespace Statistics.ViewModel
         {
             get
             {
-                return this._timeSpan.Minutes;
+                return _timeSpan.Minutes;
             }
         }
 
@@ -36,7 +36,7 @@ namespace Statistics.ViewModel
         {
             get
             {
-                return this._timeSpan.Seconds;
+                return _timeSpan.Seconds;
             }
         }
 
@@ -44,26 +44,26 @@ namespace Statistics.ViewModel
         {
             get
             {
-                return this._timeSpan.Ticks;
+                return _timeSpan.Ticks;
             }
         }
 
         public RunTime(TimeSpan timeSpan, VideoStateEnum watched)
         {
-            this._timeSpan = timeSpan;
-            this._watched = watched;
+            _timeSpan = timeSpan;
+            Watched = watched;
         }
 
         public void Add(TimeSpan timespan)
         {
-            this._timeSpan = this._timeSpan.Add(timespan);
+            _timeSpan = _timeSpan.Add(timespan);
         }
 
         public override string ToString()
         {
-            string str1 = string.Format("{0} days, ", (object)this.Days);
-            string str2 = this.Hours.ToString().Length != 1 ? str1 + string.Format("{0} hours, ", (object)this.Hours) : str1 + string.Format("{0} hour, ", (object)this.Hours);
-            return this.Minutes.ToString().Length != 1 ? str2 + string.Format("and {0} minutes ", (object)this.Minutes) : str2 + string.Format("and {0} minute ", (object)this.Minutes);
+            string str1 = string.Format("{0} days, ", Days);
+            string str2 = Hours.ToString().Length != 1 ? str1 + string.Format("{0} hours, ", Hours) : str1 + string.Format("{0} hour, ", Hours);
+            return Minutes.ToString().Length != 1 ? str2 + string.Format("and {0} minutes ", Minutes) : str2 + string.Format("and {0} minute ", Minutes);
         }
     }
 }
