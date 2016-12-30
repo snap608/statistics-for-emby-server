@@ -4,6 +4,6 @@
     {
         Movies,
         Shows,
-        All,
+        All
     }
 }

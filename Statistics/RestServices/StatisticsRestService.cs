@@ -227,30 +227,22 @@ namespace Statistics.RestServices
                     var list1 = _libraryManager.RootFolder.Children.OfType<Movie>().ToList();
                     if (user != null)
                         list1 = list1.Where(m => m.IsVisible(user)).ToList();
-                    using (var enumerator = list1.SelectMany(m => m.Genres).Distinct().ToList().GetEnumerator())
+                    foreach (var genre in list1.SelectMany(m => m.Genres).Distinct())
                     {
-                        while (enumerator.MoveNext())
-                        {
-                            var genre = enumerator.Current;
-                            var num = list1.Count(m => m.Genres.Contains(genre));
-                            source.Add(genre, num);
-                        }
-                        break;
+                        var num = list1.Count(m => m.Genres.Contains(genre));
+                        source.Add(genre, num);
                     }
+                    break;
                 case RequestTypeEnum.Shows:
                     var list2 = _libraryManager.RootFolder.Children.OfType<Series>().ToList();
                     if (user != null)
                         list2 = list2.Where(e => e.IsVisible(user)).ToList();
-                    using (var enumerator = list2.SelectMany(m => m.Genres).Distinct().ToList().GetEnumerator())
+                    foreach (var genre in list2.SelectMany(m => m.Genres).Distinct())
                     {
-                        while (enumerator.MoveNext())
-                        {
-                            var genre = enumerator.Current;
-                            var num = list2.Count(m => m.Genres.Contains(genre));
-                            source.Add(genre, num);
-                        }
-                        break;
+                        var num = list2.Count(m => m.Genres.Contains(genre));
+                        source.Add(genre, num);
                     }
+                    break;
             }
             return source.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList();
         }
@@ -316,21 +308,21 @@ namespace Statistics.RestServices
             switch (type)
             {
                 case RequestTypeEnum.Movies:
-                    var movies = user == null ? _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => _userManager.Users.Any(m.IsPlayed)).ToList() : _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsPlayed(user));
+                    var movies = user == null ? _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => _userManager.Users.Any(m.IsPlayed)): _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsPlayed(user));
                     foreach (var movie in movies)
                     {
                         runTime.Add(new TimeSpan(movie.RunTimeTicks ?? 0));
                     }
                     break;
                 case RequestTypeEnum.Shows:
-                    var shows = user == null ? _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => _userManager.Users.Any(((BaseItem)m).IsPlayed)).ToList() : _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => m.IsPlayed(user)).ToList();
+                    var shows = user == null ? _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => _userManager.Users.Any(((BaseItem)m).IsPlayed)): _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => m.IsPlayed(user));
                     foreach (var show in shows)
                     {
                         runTime.Add(new TimeSpan(show.RunTimeTicks ?? 0));
                     }
                     break;
                 case RequestTypeEnum.All:
-                    var items = user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(m.IsPlayed)).ToList() : GetAllBaseItems().Where(m => m.IsPlayed(user)).ToList();
+                    var items = user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllBaseItems().Where(m => m.IsPlayed(user));
                     foreach (var item in items)
                     {
                         runTime.Add(new TimeSpan(item.RunTimeTicks ?? 0));
@@ -346,35 +338,26 @@ namespace Statistics.RestServices
             switch (type)
             {
                 case RequestTypeEnum.Movies:
-                    using (var enumerator = (user == null ? _libraryManager.RootFolder.Children.OfType<Movie>().ToList() : _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsVisible(user)).ToList()).GetEnumerator())
+                    var movies = user == null ? _libraryManager.RootFolder.Children.OfType<Movie>() : _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsVisible(user));
+                    foreach (var movie in movies)
                     {
-                        while (enumerator.MoveNext())
-                        {
-                            var current = enumerator.Current;
-                            runTime.Add(new TimeSpan(current.RunTimeTicks ?? 0L));
-                        }
-                        break;
+                        runTime.Add(new TimeSpan(movie.RunTimeTicks ?? 0L));
                     }
+                    break;
                 case RequestTypeEnum.Shows:
-                    using (var enumerator = (user == null ? _libraryManager.RootFolder.Children.OfType<Episode>().ToList() : _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => m.IsVisible(user)).ToList()).GetEnumerator())
+                    var shows = user == null ? _libraryManager.RootFolder.Children.OfType<Episode>() : _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => m.IsVisible(user));
+                    foreach (var show in shows)
                     {
-                        while (enumerator.MoveNext())
-                        {
-                            var current = enumerator.Current;
-                            runTime.Add(new TimeSpan(current.RunTimeTicks ?? 0L));
-                        }
-                        break;
+                        runTime.Add(new TimeSpan(show.RunTimeTicks ?? 0L));
                     }
+                    break;
                 case RequestTypeEnum.All:
-                    using (var enumerator = (user == null ? GetAllBaseItems() : GetAllBaseItems().Where(m => m.IsVisible(user)).ToList()).GetEnumerator())
+                    var items = user == null ? GetAllBaseItems() : GetAllBaseItems().Where(m => m.IsVisible(user));
+                    foreach (var item in items)
                     {
-                        while (enumerator.MoveNext())
-                        {
-                            var current = enumerator.Current;
-                            runTime.Add(new TimeSpan(current.RunTimeTicks ?? 0L));
-                        }
-                        break;
+                        runTime.Add(new TimeSpan(item.RunTimeTicks ?? 0L));
                     }
+                    break;
             }
             return runTime;
         }
@@ -460,9 +443,7 @@ namespace Statistics.RestServices
                                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                                 return false;
                             }), m).LastPlayedDate.Value));
-                            Func<IGrouping<int, BaseItem>, int> func1 = k => k.Key;
-                            Func<IGrouping<int, BaseItem>, int> keySelector1;
-                            var list1 = CalculateTimeRange(source2.ToDictionary(keySelector1, g => g.ToList().Count), request.TimeRange).ToList();
+                            var list1 = CalculateTimeRange(source2.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
                             var count1 = list1.Count > 12 ? list1.Count - 12 : 0;
                             graphValueList.AddRange(list1.Skip(count1).Select(item => new GraphValue(_cul.DateTimeFormat.GetAbbreviatedMonthName(item.Key), item.Value)));
                             break;
@@ -473,9 +454,7 @@ namespace Statistics.RestServices
                                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                                 return false;
                             }), m).LastPlayedDate.Value, CalendarWeekRule.FirstDay, DayOfWeek.Monday));
-                            Func<IGrouping<int, BaseItem>, int> func2 = k => k.Key;
-                            Func<IGrouping<int, BaseItem>, int> keySelector2;
-                            var list2 = CalculateTimeRange(source3.ToDictionary(keySelector2, g => g.ToList().Count), request.TimeRange).ToList();
+                            var list2 = CalculateTimeRange(source3.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
                             var count2 = list2.Count > 20 ? list2.Count - 20 : 0;
                             graphValueList.AddRange(list2.Skip(count2).Select(item => new GraphValue(item.Key, item.Value)));
                             break;
@@ -486,9 +465,7 @@ namespace Statistics.RestServices
                                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                                 return false;
                             }), m).LastPlayedDate.Value)).OrderByDescending(x => x.Key);
-                            Func<IGrouping<int, BaseItem>, int> func3 = k => k.Key;
-                            Func<IGrouping<int, BaseItem>, int> keySelector3;
-                            var list3 = CalculateTimeRange(orderedEnumerable.ToDictionary(keySelector3, g => g.ToList().Count), request.TimeRange).ToList();
+                            var list3 = CalculateTimeRange(orderedEnumerable.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
                             var count3 = list3.Count > 7 ? list3.Count - 7 : 0;
                             graphValueList.AddRange(list3.Skip(count3).Select(item =>
                             {

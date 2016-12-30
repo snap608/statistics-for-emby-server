@@ -10,7 +10,7 @@ namespace Statistics.Extentions
         {
             if (obj == null)
                 return string.Empty;
-            using (MemoryStream memoryStream = new MemoryStream())
+            using (var memoryStream = new MemoryStream())
             {
                 new DataContractJsonSerializer(obj.GetType()).WriteObject((Stream)memoryStream, obj);
                 return Encoding.UTF8.GetString(memoryStream.ToArray());

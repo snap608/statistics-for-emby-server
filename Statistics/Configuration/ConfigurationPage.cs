@@ -1,7 +1,7 @@
-﻿using MediaBrowser.Common.Plugins;
-using MediaBrowser.Controller.Plugins;
-using System;
+﻿using System;
 using System.IO;
+using MediaBrowser.Common.Plugins;
+using MediaBrowser.Controller.Plugins;
 
 namespace Statistics.Configuration
 {
@@ -27,13 +27,13 @@ namespace Statistics.Configuration
         {
             get
             {
-                return (IPlugin)Statistics.Plugin.Instance;
+                return Statistics.Plugin.Instance;
             }
         }
 
         public Stream GetHtmlStream()
         {
-            Type type = this.GetType();
+            var type = GetType();
             return type.Assembly.GetManifestResourceStream(type.Namespace + ".configPage.html");
         }
     }

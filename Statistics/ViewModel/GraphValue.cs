@@ -8,8 +8,8 @@
 
         public GraphValue(object key, object value)
         {
-            this.Key = key;
-            this.Value = value;
+            Key = key;
+            Value = value;
         }
     }
 }

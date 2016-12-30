@@ -1,5 +1,4 @@
-﻿using System;
-using MediaBrowser.Common.Configuration;
+﻿using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Model.Serialization;
 using Statistics.Configuration;
@@ -29,7 +28,7 @@ namespace Statistics
         public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
             : base(applicationPaths, xmlSerializer)
         {
-            Plugin.Instance = this;
+            Instance = this;
         }
     }
 }

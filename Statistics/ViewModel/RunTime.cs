@@ -61,8 +61,8 @@ namespace Statistics.ViewModel
 
         public override string ToString()
         {
-            string str1 = string.Format("{0} days, ", Days);
-            string str2 = Hours.ToString().Length != 1 ? str1 + string.Format("{0} hours, ", Hours) : str1 + string.Format("{0} hour, ", Hours);
+            var str1 = string.Format("{0} days, ", Days);
+            var str2 = Hours.ToString().Length != 1 ? str1 + string.Format("{0} hours, ", Hours) : str1 + string.Format("{0} hour, ", Hours);
             return Minutes.ToString().Length != 1 ? str2 + string.Format("and {0} minutes ", Minutes) : str2 + string.Format("and {0} minute ", Minutes);
         }
     }

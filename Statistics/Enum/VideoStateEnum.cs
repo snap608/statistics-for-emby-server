@@ -4,6 +4,6 @@
     {
         All,
         Watched,
-        Unwatched,
+        Unwatched
     }
 }
