@@ -1,0 +1,516 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Statistics</title>
+</head>
+<body>
+    <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
+    <div data-role="page" class="page type-interior pluginConfigurationPage statisticsConfigurationPage">
+        <div data-role="content">
+            <div class="content-primary">
+                <div style="max-width: 900px;">
+                    <h2>User</h2>
+                    <label for="selectUser">Get statistics for:</label>
+                    <select id="selectUser" data-mini="true"></select>
+
+                    <button id="btnSyncStats" type="submit" data-icon="arrow-d" data-theme="b">Get statistics</button>
+                    <h2>Numbers</h2>
+                    <div id="stats">
+                        <div id="MovieTotalBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="ShowTotalBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="EpisodeTotalBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="TopMovieGenreBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="TopShowGenreBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="TopYearBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="MovieTimePlayedBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="ShowTimePlayedBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="TotalTimePlayedBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="MovieTimeBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="ShowTimeBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="TotalTimeBox" class="box stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="LastMovies" class="bigbox stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                        <div id="LastShows" class="bigbox stat">
+                            <div class="layer">
+                                <div class="MainValue"><span></span></div>
+                                <div class="SubValue"><span></span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="clear: both;"></div>
+                    <h2>Charts</h2>
+                    <div id="charts">
+                        <select id="selectViewType" data-mini="true">
+                            <option value="0">Last 12 month</option>
+                            <option value="1">Last 20 weeks</option>
+                            <option value="2">Last 7 days</option>
+                        </select>
+                        <svg id="views"></svg>
+                        <svg id="week"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            #stats, #charts {
+                margin: 0 0 40px 0;
+            }
+
+            .layer {
+                width: 100%;
+                height: 100%;
+            }
+
+            .box {
+                float: left;
+                width: 300px;
+                height: 140px;
+                -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+                -moz-animation: fadein 2s; /* Firefox < 16 */
+                -ms-animation: fadein 2s; /* Internet Explorer */
+                -o-animation: fadein 2s; /* Opera < 12.1 */
+                animation: fadein 2s;
+            }
+
+                .box .MainValue {
+                    height: 50%;
+                    font-size: 20px;
+                    position: relative;
+                    padding: 0 3.5%;
+                }
+
+                    .box .MainValue span {
+                        position: absolute;
+                        bottom: 0px;
+                        width: 93%;
+                    }
+
+                .box .SubValue {
+                    height: 50%;
+                    font-size: 15px;
+                    text-align: center;
+                    display: block;
+                    padding: 0 3.5%;
+                }
+
+                    .box .SubValue span, .box .MainValue span {
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        vertical-align: middle;
+                        text-align: center;
+                    }
+
+            .bigbox {
+                float: left;
+                width: 900px;
+                height: 140px;
+            }
+
+                .bigbox .MainValue {
+                    font-size: 20px;
+                    position: relative;
+                    padding: 10px;
+                }
+
+                .bigbox .SubValue {
+                    font-size: 15px;
+                    display: block;
+                    padding: 0 10px;
+                }
+
+                .bigbox .MainValue span {
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+
+                .bigbox .SubValue span {
+                    font-weight: bold;
+                    text-transform: none;
+                }
+
+            .fadeIn {
+                -webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
+                -moz-animation: fadein 2s; /* Firefox < 16 */
+                -ms-animation: fadein 2s; /* Internet Explorer */
+                -o-animation: fadein 2s; /* Opera < 12.1 */
+                animation: fadein 2s;
+            }
+
+            @keyframes fadein {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* Firefox < 16 */
+            @-moz-keyframes fadein {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* Safari, Chrome and Opera > 12.1 */
+            @-webkit-keyframes fadein {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* Internet Explorer */
+            @-ms-keyframes fadein {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            /* Opera < 12.1 */
+            @-o-keyframes fadein {
+                from {
+                    opacity: 0;
+                }
+
+                to {
+                    opacity: 1;
+                }
+            }
+
+            .bar {
+                fill: #52B54B;
+            }
+
+            .axis {
+                font: 10px sans-serif;
+            }
+
+                .axis path,
+                .axis line {
+                    fill: none;
+                    stroke: #000;
+                    shape-rendering: crispEdges;
+                }
+
+            .x.axis path {
+                display: none;
+            }
+
+            .chart {
+                float: left;
+                width: 900px;
+            }
+
+            .bartext {
+                font: 10px sans-serif;
+                fill: #ffffff;
+                font-weight: bold;
+            }
+        </style>
+        <!-- ReSharper disable once PossiblyUnassignedProperty -->
+        <script type="text/javascript">
+            (function () {
+                require.config({
+                    paths: {
+                        d3: "http://d3js.org/d3.v3.min"
+                    },
+                    waitSeconds: 2
+                });
+
+                var pluginId = 'cb998b93-7c97-4389-8051-a68cbb5a8876';
+
+                function syncMovieStats() {
+                    console.log("Start sync");
+                    Dashboard.showLoadingMsg();
+                    clearStats();
+                    var userId = $("#selectUser :selected").val();
+                    if (userId == 0) { //all users
+                        console.log("total users");
+                        ApiClient.getJSON(ApiClient.getUrl('Statistics/MainStatistics/')).then(function (data) {
+                            Dashboard.hideLoadingMsg();
+                            addValuesToBox(data.MovieTotal, '#MovieTotalBox');
+                            addValuesToBox(data.ShowTotal, '#ShowTotalBox');
+                            addValuesToBox(data.EpisodeTotal, '#EpisodeTotalBox');
+                            addValuesToBox(data.TopMovieGenres, '#TopMovieGenreBox');
+                            addValuesToBox(data.TopShowGenres, '#TopShowGenreBox');
+                            addValuesToBox(data.TopYears, '#TopYearBox');
+                            addValuesToBox(data.MovieLastViewed, '#LastMovies');
+                            addValuesToBox(data.ShowLastViewed, '#LastShows');
+                            addValuesToBox(data.MoviePlayedViewTime, '#MovieTimePlayedBox');
+                            addValuesToBox(data.ShowPlayedViewTime, '#ShowTimePlayedBox');
+                            addValuesToBox(data.TotalPlayedViewTime, '#TotalTimePlayedBox');
+                            addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
+                            addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
+                            addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
+                            console.log(data);
+                        });
+
+                        ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function (data) {
+                            console.log(data);
+                            $(".stat:even").each(function (i) {
+                                $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
+                                    .css('background-size', 'cover');
+                            });
+                            $(".stat:nth-child(odd) .layer").each(function (i) {
+                                $(this).css('background-color', 'rgba(50, 50, 50, 0.55)')
+                                    .css('color', 'white');
+                            });
+                            $(".stat:nth-child(even) .layer").each(function (i) {
+                                $(this).css('color', 'black');
+                            });
+                        });
+
+                        var ViewTypeId = parseInt($("#selectViewType :selected").val());
+                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/ViewChart/'+ ViewTypeId + '/' + userId)).then(function (root) {
+                            var data = JSON.parse(root);
+                            buildChart(data, "svg#views", ViewTypeId === 0 ? "Views per year" : ViewTypeId === 1 ? "Views per week" : "Views per day");
+                        });
+
+                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/WeekChart/' + userId)).then(function (root) {
+                            console.log("RAW: " + root);
+                            var data = JSON.parse(root);
+                            buildChart(data, "svg#week", "Views per day of the week");
+                        });
+
+                    } else {
+                        ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/' + userId)).then(function (data) {
+                            Dashboard.hideLoadingMsg();
+                            addValuesToBox(data.MovieTotal, '#MovieTotalBox');
+                            addValuesToBox(data.ShowTotal, '#ShowTotalBox');
+                            addValuesToBox(data.EpisodeTotal, '#EpisodeTotalBox');
+                            addValuesToBox(data.TopMovieGenres, '#TopMovieGenreBox');
+                            addValuesToBox(data.TopShowGenres, '#TopShowGenreBox');
+                            addValuesToBox(data.TopYears, '#TopYearBox');
+                            addValuesToBox(data.MovieLastViewed, '#LastMovies');
+                            addValuesToBox(data.ShowLastViewed, '#LastShows');
+                            addValuesToBox(data.MoviePlayedViewTime, '#MovieTimePlayedBox');
+                            addValuesToBox(data.ShowPlayedViewTime, '#ShowTimePlayedBox');
+                            addValuesToBox(data.TotalPlayedViewTime, '#TotalTimePlayedBox');
+                            addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
+                            addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
+                            addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
+                            console.log(data);
+                        });
+
+                        ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function(data) {
+                            console.log(data);
+                            $(".stat:even").each(function(i) {
+                                $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
+                                    .css('background-size', 'cover');
+                            });
+                            $(".stat:nth-child(odd) .layer").each(function(i) {
+                                $(this).css('background-color', 'rgba(50, 50, 50, 0.55)')
+                                    .css('color', 'white');
+                            });
+                            $(".stat:nth-child(even) .layer").each(function(i) {
+                                $(this).css('color', 'black');
+                            });
+                        });
+
+                        var ViewTypeId = parseInt($("#selectViewType :selected").val());
+                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/ViewChart/' + ViewTypeId + '/' + userId)).then(function (root) {
+                            var data = JSON.parse(root);
+                            buildChart(data, "svg#views", ViewTypeId === 0 ? "Views per year" : ViewTypeId === 1 ? "Views per week" : "Views per day");
+                        });
+
+                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/WeekChart/' + userId)).then(function(root) {
+                            console.log("RAW: " + root);
+                            var data = JSON.parse(root);
+                            buildChart(data, "svg#week", "Views per day of the week");
+                        });
+                    }
+                }
+
+                function buildChart(data, div, yText) {
+                    require(["d3"], function (d3) {
+                        d3.selectAll(div + " > *").remove();
+
+                        console.log(data);
+                        var margin = { top: 20, right: 20, bottom: 30, left: 40 },
+                            width = 900 - margin.left - margin.right,
+                            height = 200 - margin.top - margin.bottom;
+
+                        var x = d3.scale.ordinal()
+                            .domain(data.map(function (d) { return d.Key; }))
+                            .rangeRoundBands([0, width], .05);
+
+                        var y = d3.scale.linear()
+                            .domain([0, d3.max(data, function (d) { return d.Value; })])
+                            .range([height, 0]);
+
+                        var xAxis = d3.svg.axis()
+                            .scale(x)
+                            .orient("bottom");
+
+                        var yAxis = d3.svg.axis()
+                            .scale(y)
+                            .orient("left")
+                            .ticks(10);
+
+                        var svg = d3.select(div)
+                            .attr("width", width + margin.left + margin.right)
+                            .attr("height", height + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                        svg.append("g")
+                            .attr("class", "x axis")
+                            .attr("transform", "translate(0," + height + ")")
+                            .call(xAxis);
+
+                        svg.append("g")
+                            .attr("class", "y axis")
+                            .call(yAxis)
+                            .append("text")
+                            .attr("y", -15)
+                            .attr("x", 6)
+                            .attr("dy", ".71em")
+                            .style("text-anchor", "begin")
+                            .text(yText);
+
+                        svg.selectAll("rect")
+                           .data(data)
+                           .enter()
+                           .append("svg:rect")
+                           .attr("class", "bar")
+                           .attr("x", function (d) { return x(d.Key); })
+                           .attr("width", x.rangeBand())
+                           .attr("y", function (d) { return y(d.Value) })
+                           .attr("height", function (d) { return height - y(d.Value); });
+
+                        svg.selectAll(".bartext")
+                            .data(data)
+                            .enter()
+                            .append("text")
+                            .attr("class", "bartext")
+                            .attr("text-anchor", "middle")
+                            .attr("x", function (d, i) {
+                                return x(d.Key) + x.rangeBand() / 2;
+                            })
+                            .attr("y", function (d) {
+                                return y(d.Value) + 12;
+                            })
+                            .text(function (d) {
+                                return d.Value == 0 ? "" : d.Value;
+                            });
+                    });
+                }
+
+                function addValuesToBox(data, divId) {
+                    $(divId + ' .MainValue span').html(data.MainValue).addClass("fadeIn");
+                    $(divId + ' .SubValue span').html(data.SubValue).addClass("fadeIn");
+                }
+
+                function clearStats() {
+                    $('.MainValue span').html("").removeClass("fadeIn");
+                    $('.SubValue span').html("").removeClass("fadeIn");
+                }
+
+
+                $('.statisticsConfigurationPage').on('pageshow', function (event) {
+                    $('#btnSyncStats').on('click', function () {
+                        syncMovieStats();
+                    });
+
+                    $('#selectViewType').change(function() {
+                        var ViewTypeId = parseInt($("#selectViewType :selected").val());
+                        var userId = $("#selectUser :selected").val();
+                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/ViewChart/' + ViewTypeId + '/' + userId)).then(function (root) {
+                            var data = JSON.parse(root);
+                            buildChart(data, "svg#views", ViewTypeId === 0 ? "Views per year" : ViewTypeId === 1 ? "Views per week" : "Views per day");
+                        });
+                    });
+
+                    ApiClient.getUsers().then(function (users) {
+                        $('#selectUser').html(users.map(function (user) {
+                            return '<option value="' + user.Id + '">' + user.Name + '</option>';
+                        })).selectmenu('refresh').trigger('change');
+                        $('#selectUser').append(
+                            $('<option></option>').val("0").html("All users")
+                        );
+
+                    });
+                });
+            })();
+        </script>
+    </div>
+</body>
+</html>
