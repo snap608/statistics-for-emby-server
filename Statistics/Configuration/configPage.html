@@ -5,113 +5,113 @@
 </head>
 <body>
     <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
-    <div data-role="page" class="page type-interior pluginConfigurationPage statisticsConfigurationPage">
+    <div data-role="page" class="page type-interior pluginConfigurationPage statisticsConfigurationPage" data-require="emby-button,emby-select">
         <div data-role="content">
-            <div class="content-primary">
-                <div style="max-width: 900px;">
-                    <h2>User</h2>
-                    <label for="selectUser">Get statistics for:</label>
-                    <select id="selectUser" data-mini="true"></select>
+            <div class="content-primary" style="max-width: 900px;">
+                <h2>User</h2>
+                <div class="selectContainer">
+                    <label class="selectLabel selectLabelUnfocused" for="selectUser">Get statistics for:</label>
+                    <select is="emby-select" id="selectUser" label="Get statistics for:" class="emby-select-withoptioncolor emby-select"></select>
+                </div>
 
-                    <button id="btnSyncStats" type="submit" data-icon="arrow-d" data-theme="b">Get statistics</button>
-                    <h2>Numbers</h2>
-                    <div id="stats">
-                        <div id="MovieTotalBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="ShowTotalBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="EpisodeTotalBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="TopMovieGenreBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="TopShowGenreBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="TopYearBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="MovieTimePlayedBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="ShowTimePlayedBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="TotalTimePlayedBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="MovieTimeBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="ShowTimeBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="TotalTimeBox" class="box stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="LastMovies" class="bigbox stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
-                        </div>
-                        <div id="LastShows" class="bigbox stat">
-                            <div class="layer">
-                                <div class="MainValue"><span></span></div>
-                                <div class="SubValue"><span></span></div>
-                            </div>
+                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="btnSyncStats" data-icon="arrow-d" data-theme="b">Get statistics</button>
+                <h2>Numbers</h2>
+                <div id="stats">
+                    <div id="MovieTotalBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
                         </div>
                     </div>
-                    <div style="clear: both;"></div>
-                    <h2>Charts</h2>
-                    <div id="charts">
-                        <select id="selectViewType" data-mini="true">
-                            <option value="0">Last 12 month</option>
-                            <option value="1">Last 20 weeks</option>
-                            <option value="2">Last 7 days</option>
-                        </select>
-                        <svg id="views"></svg>
-                        <svg id="week"></svg>
+                    <div id="ShowTotalBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
                     </div>
+                    <div id="EpisodeTotalBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="TopMovieGenreBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="TopShowGenreBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="TopYearBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="MovieTimePlayedBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="ShowTimePlayedBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="TotalTimePlayedBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="MovieTimeBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="ShowTimeBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="TotalTimeBox" class="box stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="LastMovies" class="bigbox stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                    <div id="LastShows" class="bigbox stat">
+                        <div class="layer">
+                            <div class="MainValue"><span></span></div>
+                            <div class="SubValue"><span></span></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="clear: both;"></div>
+                <h2>Charts</h2>
+                <div id="charts">
+                    <select id="selectViewType" data-mini="true">
+                        <option value="0">Last 12 month</option>
+                        <option value="1">Last 20 weeks</option>
+                        <option value="2">Last 7 days</option>
+                    </select>
+                    <svg id="views"></svg>
+                    <svg id="week"></svg>
                 </div>
             </div>
         </div>
