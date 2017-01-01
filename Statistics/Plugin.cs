@@ -9,24 +9,11 @@ namespace Statistics
     {
         public static Plugin Instance { get; private set; }
 
-        public override string Name
-        {
-            get
-            {
-                return "Statistics";
-            }
-        }
+        public override string Name => "Statistics";
 
-        public override string Description
-        {
-            get
-            {
-                return "Get funny statistics from your collection";
-            }
-        }
+        public override string Description => "Get funny statistics from your collection";
 
-        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
-            : base(applicationPaths, xmlSerializer)
+        public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer)
         {
             Instance = this;
         }

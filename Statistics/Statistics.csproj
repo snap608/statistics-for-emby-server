@@ -56,7 +56,7 @@
     <Compile Include="Configuration\ConfigurationPage.cs" />
     <Compile Include="Configuration\PLuginConfiguration.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Enum\REquestTypeEnum.cs" />
+    <Compile Include="Enum\RequestTypeEnum.cs" />
     <Compile Include="Enum\TimeRangeEnum.cs" />
     <Compile Include="Enum\VideoStateEnum.cs" />
     <Compile Include="Extentions\OrderByWeekOfyear.cs" />
@@ -78,13 +78,14 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Configuration\configPage.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>xcopy "$(TargetPath)" "%25AppData%25\Emby-Server\Plugins\" /y</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -27,6 +27,10 @@ namespace Statistics.RestServices
         private readonly IUserDataManager _userDataManager;
         private readonly IActivityManager _activityManager;
 
+        private IEnumerable<Movie> cachedMovieList;
+        private IEnumerable<Series> cachedSerieList;
+        private IEnumerable<Episode> cachedEpisodeList;
+
         private static PluginConfiguration _pluginConfiguration => Plugin.Instance.Configuration;
 
         public StatisticsRestfulService(ILibraryManager libraryManager, IJsonSerializer JsonSerializer, IUserManager userManager, IUserDataManager userDataManager, IActivityManager activityManager)
@@ -51,45 +55,73 @@ namespace Statistics.RestServices
                     EpisodeTotal = GetTotalEpisodes(userById),
                     ShowTotal = GetTotalShows(userById)
                 };
-                var valueGroup1 = new ValueGroup {MainValue = "Top Movie genres"};
-                var str1 = string.Join(", ", GetTopGenres(RequestTypeEnum.Movies, userById));
-                valueGroup1.SubValue = str1;
-                statViewModel.TopMovieGenres = valueGroup1;
-                var valueGroup2 = new ValueGroup {MainValue = "Top Show genres"};
-                var str2 = string.Join(", ", GetTopGenres(RequestTypeEnum.Shows, userById));
-                valueGroup2.SubValue = str2;
-                statViewModel.TopShowGenres = valueGroup2;
-                var valueGroup3 = new ValueGroup {MainValue = "last seen movies"};
-                var str3 = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Movies, userById));
-                valueGroup3.SubValue = str3;
+
+                statViewModel.TopMovieGenres = new ValueGroup
+                {
+                    MainValue = "Top Movie genres",
+                    SubValue = string.Join(", ", GetTopGenres(RequestTypeEnum.Movies, userById))
+                };
+
+                statViewModel.TopShowGenres = new ValueGroup
+                {
+                    MainValue = "Top Show genres",
+                    SubValue = string.Join(", ", GetTopGenres(RequestTypeEnum.Shows, userById))
+                };
+
+                var valueGroup3 = new ValueGroup
+                {
+                    MainValue = "last seen movies",
+                    SubValue = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Movies, userById))
+                };
+
                 statViewModel.MovieLastViewed = valueGroup3;
-                var valueGroup4 = new ValueGroup {MainValue = "last seen shows"};
-                var str4 = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Shows, userById));
-                valueGroup4.SubValue = str4;
+                var valueGroup4 = new ValueGroup
+                {
+                    MainValue = "last seen shows",
+                    SubValue = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Shows, userById))
+                };
+
                 statViewModel.ShowLastViewed = valueGroup4;
-                var valueGroup5 = new ValueGroup {MainValue = "Movies watched"};
-                var str5 = GetPlayedViewTime(RequestTypeEnum.Movies, userById).ToString();
-                valueGroup5.SubValue = str5;
+                var valueGroup5 = new ValueGroup
+                {
+                    MainValue = "Movies watched",
+                    SubValue = GetPlayedViewTime(RequestTypeEnum.Movies, userById).ToString()
+                };
+
                 statViewModel.MoviePlayedViewTime = valueGroup5;
-                var valueGroup6 = new ValueGroup {MainValue = "Shows watched"};
-                var str6 = GetPlayedViewTime(RequestTypeEnum.Shows, userById).ToString();
-                valueGroup6.SubValue = str6;
+                var valueGroup6 = new ValueGroup
+                {
+                    MainValue = "Shows watched",
+                    SubValue = GetPlayedViewTime(RequestTypeEnum.Shows, userById).ToString()
+                };
+
                 statViewModel.ShowPlayedViewTime = valueGroup6;
-                var valueGroup7 = new ValueGroup {MainValue = "Total watched"};
-                var str7 = GetPlayedViewTime(RequestTypeEnum.All, userById).ToString();
-                valueGroup7.SubValue = str7;
+                var valueGroup7 = new ValueGroup
+                {
+                    MainValue = "Total watched",
+                    SubValue = GetPlayedViewTime(RequestTypeEnum.All, userById).ToString()
+                };
+
                 statViewModel.TotalPlayedViewTime = valueGroup7;
-                var valueGroup8 = new ValueGroup {MainValue = "Total movies time"};
-                var str8 = GetViewTime(RequestTypeEnum.Movies, userById).ToString();
-                valueGroup8.SubValue = str8;
+                var valueGroup8 = new ValueGroup
+                {
+                    MainValue = "Total movies time",
+                    SubValue = GetViewTime(RequestTypeEnum.Movies, userById).ToString()
+                };
+
                 statViewModel.MovieViewTime = valueGroup8;
-                var valueGroup9 = new ValueGroup {MainValue = "Total shows time"};
-                var str9 = GetViewTime(RequestTypeEnum.Shows, userById).ToString();
-                valueGroup9.SubValue = str9;
+                var valueGroup9 = new ValueGroup
+                {
+                    MainValue = "Total shows time",
+                    SubValue = GetViewTime(RequestTypeEnum.Shows, userById).ToString()
+                };
                 statViewModel.ShowViewTime = valueGroup9;
-                var valueGroup10 = new ValueGroup {MainValue = "Total time"};
-                var str10 = GetViewTime(RequestTypeEnum.All, userById).ToString();
-                valueGroup10.SubValue = str10;
+                var valueGroup10 = new ValueGroup
+                {
+                    MainValue = "Total time",
+                    SubValue = GetViewTime(RequestTypeEnum.All, userById).ToString()
+                };
+
                 statViewModel.TotalViewTime = valueGroup10;
                 var topYears = GetTopYears(userById);
                 statViewModel.TopYears = topYears;
@@ -115,46 +147,67 @@ namespace Statistics.RestServices
                     EpisodeTotal = GetTotalEpisodes(),
                     ShowTotal = GetTotalShows()
                 };
-                var valueGroup1 = new ValueGroup {MainValue = "Top Movie genres"};
-                var str1 = string.Join(", ", GetTopGenres(RequestTypeEnum.Movies));
-                valueGroup1.SubValue = str1;
-                statViewModel.TopMovieGenres = valueGroup1;
-                var valueGroup2 = new ValueGroup {MainValue = "Top Show genres"};
-                var str2 = string.Join(", ", GetTopGenres(RequestTypeEnum.Shows));
-                valueGroup2.SubValue = str2;
-                statViewModel.TopShowGenres = valueGroup2;
-                var valueGroup3 = new ValueGroup {MainValue = "last seen movies"};
-                var str3 = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Movies));
-                valueGroup3.SubValue = str3;
-                statViewModel.MovieLastViewed = valueGroup3;
-                var valueGroup4 = new ValueGroup {MainValue = "last seen shows"};
-                var str4 = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Shows));
-                valueGroup4.SubValue = str4;
-                statViewModel.ShowLastViewed = valueGroup4;
-                var valueGroup5 = new ValueGroup {MainValue = "Movies watched"};
-                var str5 = GetPlayedViewTime(RequestTypeEnum.Movies).ToString();
-                valueGroup5.SubValue = str5;
-                statViewModel.MoviePlayedViewTime = valueGroup5;
-                var valueGroup6 = new ValueGroup {MainValue = "Show watched"};
-                var str6 = GetPlayedViewTime(RequestTypeEnum.Shows).ToString();
-                valueGroup6.SubValue = str6;
-                statViewModel.ShowPlayedViewTime = valueGroup6;
-                var valueGroup7 = new ValueGroup {MainValue = "Total watched"};
-                var str7 = GetPlayedViewTime(RequestTypeEnum.All).ToString();
-                valueGroup7.SubValue = str7;
-                statViewModel.TotalPlayedViewTime = valueGroup7;
-                var valueGroup8 = new ValueGroup {MainValue = "Total movies time"};
-                var str8 = GetViewTime(RequestTypeEnum.Movies).ToString();
-                valueGroup8.SubValue = str8;
-                statViewModel.MovieViewTime = valueGroup8;
-                var valueGroup9 = new ValueGroup {MainValue = "Total show time"};
-                var str9 = GetViewTime(RequestTypeEnum.Shows).ToString();
-                valueGroup9.SubValue = str9;
-                statViewModel.ShowViewTime = valueGroup9;
-                var valueGroup10 = new ValueGroup {MainValue = "Total time"};
-                var str10 = GetViewTime(RequestTypeEnum.All).ToString();
-                valueGroup10.SubValue = str10;
-                statViewModel.TotalViewTime = valueGroup10;
+
+                statViewModel.TopMovieGenres = new ValueGroup
+                {
+                    MainValue = "Top Movie genres",
+                    SubValue = string.Join(", ", GetTopGenres(RequestTypeEnum.Movies))
+                };
+
+                statViewModel.TopShowGenres = new ValueGroup
+                {
+                    MainValue = "Top Show genres",
+                    SubValue = string.Join(", ", GetTopGenres(RequestTypeEnum.Shows))
+                };
+
+                statViewModel.MovieLastViewed = new ValueGroup
+                {
+                    MainValue = "last seen movies",
+                    SubValue = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Movies))
+                };
+
+                statViewModel.ShowLastViewed = new ValueGroup
+                {
+                    MainValue = "last seen shows",
+                    SubValue = string.Join("<br/>", GetLastViewed(RequestTypeEnum.Shows))
+                };
+
+                statViewModel.MoviePlayedViewTime = new ValueGroup
+                {
+                    MainValue = "Movies watched",
+                    SubValue = GetPlayedViewTime(RequestTypeEnum.Movies).ToString()
+                };
+
+                statViewModel.ShowPlayedViewTime = new ValueGroup
+                {
+                    MainValue = "Show watched",
+                    SubValue = GetPlayedViewTime(RequestTypeEnum.Shows).ToString()
+                };
+
+                statViewModel.TotalPlayedViewTime = new ValueGroup
+                {
+                    MainValue = "Total watched",
+                    SubValue = GetPlayedViewTime(RequestTypeEnum.All).ToString()
+                };
+
+                statViewModel.MovieViewTime = new ValueGroup
+                {
+                    MainValue = "Total movies time",
+                    SubValue = GetViewTime(RequestTypeEnum.Movies).ToString()
+                };
+
+                statViewModel.ShowViewTime = new ValueGroup
+                {
+                    MainValue = "Total show time",
+                    SubValue = GetViewTime(RequestTypeEnum.Shows).ToString()
+                };
+
+                statViewModel.TotalViewTime = new ValueGroup
+                {
+                    MainValue = "Total time",
+                    SubValue = GetViewTime(RequestTypeEnum.All).ToString()
+                };
+
                 var topYears = GetTopYears();
                 statViewModel.TopYears = topYears;
                 return _JsonSerializer.SerializeToString(statViewModel);
@@ -171,62 +224,51 @@ namespace Statistics.RestServices
 
         private ValueGroup GetTotalMovies(User user = null)
         {
-            var list = _libraryManager.RootFolder.Children.OfType<Movie>().ToList();
-            var str = "";
-            if (user != null)
-            {
-                str = $"{list.Count(m => m.IsPlayed(user))} watched";
-                list = list.Where(m => m.IsVisible(user)).ToList();
-            }
+            var list = GetAllMovies(user);
+            list = user != null ? list.Where(m => m.IsVisible(user)) : list;
+
             return new ValueGroup
             {
-                MainValue = $"{list.Count} movies",
-                SubValue = str
+                MainValue = $"{list.Count()} movies",
+                SubValue = user != null ? $"{list.Count(m => m.IsPlayed(user))} watched" : ""
             };
         }
 
         private ValueGroup GetTotalEpisodes(User user = null)
         {
-            var list = _libraryManager.RootFolder.Children.OfType<Episode>().ToList();
-            var str = "";
-            if (user != null)
-            {
-                str = $"{list.Count(e => e.IsPlayed(user))} watched";
-                list = list.Where(e => e.IsVisible(user)).ToList();
-            }
+            var list = GetAllEpisodes(user);
+            list = user != null ? list.Where(e => e.IsVisible(user)) : list;
+
             return new ValueGroup
             {
-                MainValue = $"{list.Count} episodes",
-                SubValue = str
+                MainValue = $"{list.Count()} episodes",
+                SubValue = user != null ? $"{list.Count(e => e.IsPlayed(user))} watched" : ""
             };
         }
 
         private ValueGroup GetTotalShows(User user = null)
         {
-            var list = _libraryManager.RootFolder.Children.OfType<Series>().ToList();
-            var str = "";
-            if (user != null)
-            {
-                str =
-                    $"{list.Count(s => { if (s.GetEpisodes(user).Any()) return s.GetEpisodes(user).All(e => e.IsPlayed(user)); return false; })} completed";
-                list = list.Where(m => m.IsVisible(user)).ToList();
-            }
+            var list = GetAllSeries(user);
+            list = user != null ? list.Where(m => m.IsVisible(user)) : list;
+
             return new ValueGroup
             {
-                MainValue = $"{list.Count} shows",
-                SubValue = str
+                MainValue = $"{list.Count()} shows",
+                SubValue = user != null ? $"{list.Count(s => { return s.GetEpisodes(user).Any() && s.GetEpisodes(user).All(e => e.IsPlayed(user)); })} completed" : ""
             };
         }
 
         private List<string> GetTopGenres(RequestTypeEnum type, User user = null)
         {
             var source = new Dictionary<string, int>();
+
             switch (type)
             {
                 case RequestTypeEnum.Movies:
-                    var list1 = _libraryManager.RootFolder.Children.OfType<Movie>().ToList();
+                    var list1 = GetAllMovies(user);
                     if (user != null)
                         list1 = list1.Where(m => m.IsVisible(user)).ToList();
+
                     foreach (var genre in list1.SelectMany(m => m.Genres).Distinct())
                     {
                         var num = list1.Count(m => m.Genres.Contains(genre));
@@ -234,9 +276,10 @@ namespace Statistics.RestServices
                     }
                     break;
                 case RequestTypeEnum.Shows:
-                    var list2 = _libraryManager.RootFolder.Children.OfType<Series>().ToList();
+                    var list2 =GetAllSeries(user);
                     if (user != null)
                         list2 = list2.Where(e => e.IsVisible(user)).ToList();
+
                     foreach (var genre in list2.SelectMany(m => m.Genres).Distinct())
                     {
                         var num = list2.Count(m => m.Genres.Contains(genre));
@@ -259,6 +302,7 @@ namespace Statistics.RestServices
                             return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                         return false;
                     }), m).LastPlayedDate).Take(5).ToList();
+
                     movieViewModelList.AddRange(list1.Select(item =>
                     {
                         var user1 = user ?? _userManager.Users.First(u =>
@@ -277,11 +321,12 @@ namespace Statistics.RestServices
                     break;
                 case RequestTypeEnum.Shows:
                     var list2 = (user == null ? GetAllViewedEpisodesByAllUsers() : GetAllViewedEpisodesByUser(user))
-                        .OrderByDescending(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u => {
-                        if (m.IsPlayed(u))
-                            return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                        return false;
-                    }), m).LastPlayedDate).Take(5).ToList();
+                        .OrderByDescending(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
+                        {
+                            if (m.IsPlayed(u))
+                                return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
+                            return false;
+                        }), m).LastPlayedDate).Take(5).ToList();
                     movieViewModelList.AddRange(list2.Select(item =>
                     {
                         var user1 = user ?? _userManager.Users.First(u =>
@@ -308,14 +353,14 @@ namespace Statistics.RestServices
             switch (type)
             {
                 case RequestTypeEnum.Movies:
-                    var movies = user == null ? _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => _userManager.Users.Any(m.IsPlayed)): _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsPlayed(user));
+                    var movies = user == null ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllMovies(user).Where(m => m.IsPlayed(user));
                     foreach (var movie in movies)
                     {
                         runTime.Add(new TimeSpan(movie.RunTimeTicks ?? 0));
                     }
                     break;
                 case RequestTypeEnum.Shows:
-                    var shows = user == null ? _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => _userManager.Users.Any(((BaseItem)m).IsPlayed)): _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => m.IsPlayed(user));
+                    var shows = user == null ? GetAllEpisodes().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllEpisodes(user).Where(m => m.IsPlayed(user));
                     foreach (var show in shows)
                     {
                         runTime.Add(new TimeSpan(show.RunTimeTicks ?? 0));
@@ -364,7 +409,7 @@ namespace Statistics.RestServices
 
         private ValueGroup GetTopYears(User user = null)
         {
-            var movieList = user == null ? _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => _userManager.Users.Any(((BaseItem)m).IsPlayed)).ToList() : _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsPlayed(user)).ToList();
+            var movieList = user == null ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllMovies(user).Where(m => m.IsPlayed(user));
             var list = movieList.Select(m => m.ProductionYear ?? 0).Distinct().ToList();
             var source = new Dictionary<int, int>();
             foreach (var num1 in list)
@@ -373,9 +418,12 @@ namespace Statistics.RestServices
                 var num2 = movieList.Count(m => (m.ProductionYear ?? 0) == year);
                 source.Add(year, num2);
             }
-            var valueGroup = new ValueGroup {MainValue = "top movie years"};
-            var str = string.Join(", ", source.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList());
-            valueGroup.SubValue = str;
+            var valueGroup = new ValueGroup
+            {
+                MainValue = "top movie years",
+                SubValue = string.Join(", ", source.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList())
+            };
+
             return valueGroup;
         }
 
@@ -385,7 +433,7 @@ namespace Statistics.RestServices
             var random = new Random();
             for (var index1 = 0; index1 < int.Parse(request.Count); ++index1)
             {
-                var list = _libraryManager.RootFolder.Children.OfType<Movie>().ToList();
+                var list = GetAllMovies().ToList();
                 int index2;
                 Guid id;
                 int num;
@@ -396,8 +444,7 @@ namespace Statistics.RestServices
                     {
                         var stringList2 = stringList1;
                         id = list[index2].Id;
-                        var str = id.ToString();
-                        num = stringList2.Contains(str) ? 1 : 0;
+                        num = stringList2.Contains(id.ToString()) ? 1 : 0;
                     }
                     else
                         num = 0;
@@ -419,10 +466,10 @@ namespace Statistics.RestServices
                 if (request.Id != "0")
                     user = _userManager.GetUserById(request.Id);
 
-                if (DateTimeFormatInfo.CurrentInfo != null) {
+                if (DateTimeFormatInfo.CurrentInfo != null)
+                {
                     var cal = DateTimeFormatInfo.CurrentInfo.Calendar;
                     var graphValueList = new List<GraphValue>();
-                    var keyValuePairList = new List<KeyValuePair<int, int>>();
                     var source1 = user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(u =>
                     {
                         if (m.IsPlayed(u))
@@ -443,9 +490,11 @@ namespace Statistics.RestServices
                                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                                 return false;
                             }), m).LastPlayedDate.Value));
-                            var list1 = CalculateTimeRange(source2.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
-                            var count1 = list1.Count > 12 ? list1.Count - 12 : 0;
-                            graphValueList.AddRange(list1.Skip(count1).Select(item => new GraphValue(_cul.DateTimeFormat.GetAbbreviatedMonthName(item.Key), item.Value)));
+                            if (source2.Any()) { 
+                                var list1 = CalculateTimeRange(source2.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
+                                var count1 = list1.Count > 12 ? list1.Count - 12 : 0;
+                                graphValueList.AddRange(list1.Skip(count1).Select(item => new GraphValue(_cul.DateTimeFormat.GetAbbreviatedMonthName(item.Key), item.Value)));
+                            }
                             break;
                         case TimeRangeEnum.Weekly:
                             var source3 = source1.GroupBy(m => cal.GetWeekOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
@@ -454,9 +503,11 @@ namespace Statistics.RestServices
                                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                                 return false;
                             }), m).LastPlayedDate.Value, CalendarWeekRule.FirstDay, DayOfWeek.Monday));
-                            var list2 = CalculateTimeRange(source3.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
-                            var count2 = list2.Count > 20 ? list2.Count - 20 : 0;
-                            graphValueList.AddRange(list2.Skip(count2).Select(item => new GraphValue(item.Key, item.Value)));
+                            if (source3.Any()) {
+                                var list2 = CalculateTimeRange(source3.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
+                                var count2 = list2.Count > 20 ? list2.Count - 20 : 0;
+                                graphValueList.AddRange(list2.Skip(count2).Select(item => new GraphValue(item.Key, item.Value)));
+                            }
                             break;
                         case TimeRangeEnum.Daily:
                             var orderedEnumerable = source1.GroupBy(m => cal.GetDayOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
@@ -465,17 +516,20 @@ namespace Statistics.RestServices
                                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                                 return false;
                             }), m).LastPlayedDate.Value)).OrderByDescending(x => x.Key);
-                            var list3 = CalculateTimeRange(orderedEnumerable.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
-                            var count3 = list3.Count > 7 ? list3.Count - 7 : 0;
-                            graphValueList.AddRange(list3.Skip(count3).Select(item =>
+                            if (orderedEnumerable.Any())
                             {
-                                var dateTimeFormat = _cul.DateTimeFormat;
-                                var dateTime = DateTime.Now;
-                                dateTime = new DateTime(dateTime.Year, 1, 1);
-                                dateTime = dateTime.AddDays(item.Key - 1);
-                                var dayOfWeek = (int)dateTime.DayOfWeek;
-                                return new GraphValue(dateTimeFormat.GetAbbreviatedDayName((DayOfWeek)dayOfWeek), item.Value);
-                            }));
+                                var list3 = CalculateTimeRange(orderedEnumerable.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
+                                var count3 = list3.Count > 7 ? list3.Count - 7 : 0;
+                                graphValueList.AddRange(list3.Skip(count3).Select(item =>
+                                {
+                                    var dateTimeFormat = _cul.DateTimeFormat;
+                                    var dateTime = DateTime.Now;
+                                    dateTime = new DateTime(dateTime.Year, 1, 1);
+                                    dateTime = dateTime.AddDays(item.Key - 1);
+                                    var dayOfWeek = (int)dateTime.DayOfWeek;
+                                    return new GraphValue(dateTimeFormat.GetAbbreviatedDayName((DayOfWeek)dayOfWeek), item.Value);
+                                }));
+                            }
                             break;
                     }
                     return _JsonSerializer.SerializeToString(graphValueList.ToJSON());
@@ -510,7 +564,8 @@ namespace Statistics.RestServices
                     if (m.IsPlayed(user))
                         return _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue;
                     return false;
-                })).GroupBy(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u => {
+                })).GroupBy(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
+                {
                     if (m.IsPlayed(u))
                         return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
                     return false;
@@ -526,14 +581,29 @@ namespace Statistics.RestServices
             }
         }
 
+        private IEnumerable<Movie> GetAllMovies(User user = null)
+        {
+            return cachedMovieList ?? (cachedMovieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Movie>());
+        }
+
+        private IEnumerable<Series> GetAllSeries(User user = null)
+        {
+            return cachedSerieList ?? (cachedSerieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Series>());
+        }
+
+        private IEnumerable<Episode> GetAllEpisodes(User user = null)
+        {
+            return cachedEpisodeList ?? (cachedEpisodeList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Episode>());
+        }
+
         private IEnumerable<BaseItem> GetAllBaseItems()
         {
-            return _libraryManager.RootFolder.Children.OfType<Movie>().Union(_libraryManager.RootFolder.Children.OfType<Episode>().Cast<BaseItem>());
+            return GetAllMovies().Union(GetAllEpisodes().Cast<BaseItem>());
         }
 
         private IEnumerable<Movie> GetAllViewedMoviesByAllUsers()
         {
-            return _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => _userManager.Users.Any(u =>
+            return GetAllMovies().Where(m => _userManager.Users.Any(u =>
             {
                 if (m.IsPlayed(u))
                     return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
@@ -543,7 +613,7 @@ namespace Statistics.RestServices
 
         private IEnumerable<Movie> GetAllViewedMoviesByUser(User user)
         {
-            return _libraryManager.RootFolder.Children.OfType<Movie>().Where(m =>
+            return GetAllMovies(user).Where(m =>
             {
                 if (m.IsPlayed(user))
                     return _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue;
@@ -553,7 +623,7 @@ namespace Statistics.RestServices
 
         private IEnumerable<Episode> GetAllViewedEpisodesByAllUsers()
         {
-            return _libraryManager.RootFolder.Children.OfType<Episode>().Where(s => _userManager.Users.Any(u =>
+            return GetAllEpisodes().Where(s => _userManager.Users.Any(u =>
             {
                 if (s.IsPlayed(u))
                     return _userDataManager.GetUserData(u, s).LastPlayedDate.HasValue;
@@ -563,7 +633,7 @@ namespace Statistics.RestServices
 
         private IEnumerable<Episode> GetAllViewedEpisodesByUser(User user)
         {
-            return _libraryManager.RootFolder.Children.OfType<Episode>().Where(m =>
+            return GetAllEpisodes(user).Where(m =>
             {
                 if (m.IsPlayed(user))
                     return _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue;

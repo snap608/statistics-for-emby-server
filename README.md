@@ -1,1 +1,1 @@
-# statistics-for-emby-server
+# Statistics plugin for Emby Server
