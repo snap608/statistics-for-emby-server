@@ -22,21 +22,21 @@ namespace Statistics.RestServices
     {
         private readonly CultureInfo _cul = Thread.CurrentThread.CurrentCulture;
         private readonly ILibraryManager _libraryManager;
-        private readonly IJsonSerializer _JsonSerializer;
+        private readonly IJsonSerializer _jsonSerializer;
         private readonly IUserManager _userManager;
         private readonly IUserDataManager _userDataManager;
         private readonly IActivityManager _activityManager;
 
-        private IEnumerable<Movie> cachedMovieList;
-        private IEnumerable<Series> cachedSerieList;
-        private IEnumerable<Episode> cachedEpisodeList;
+        private IEnumerable<Movie> _cachedMovieList;
+        private IEnumerable<Series> _cachedSerieList;
+        private IEnumerable<Episode> _cachedEpisodeList;
 
-        private static PluginConfiguration _pluginConfiguration => Plugin.Instance.Configuration;
+        private static PluginConfiguration PluginConfiguration => Plugin.Instance.Configuration;
 
-        public StatisticsRestfulService(ILibraryManager libraryManager, IJsonSerializer JsonSerializer, IUserManager userManager, IUserDataManager userDataManager, IActivityManager activityManager)
+        public StatisticsRestfulService(ILibraryManager libraryManager, IJsonSerializer jsonSerializer, IUserManager userManager, IUserDataManager userDataManager, IActivityManager activityManager)
         {
             _libraryManager = libraryManager;
-            _JsonSerializer = JsonSerializer;
+            _jsonSerializer = jsonSerializer;
             _userManager = userManager;
             _userDataManager = userDataManager;
             _activityManager = activityManager;
@@ -125,11 +125,11 @@ namespace Statistics.RestServices
                 statViewModel.TotalViewTime = valueGroup10;
                 var topYears = GetTopYears(userById);
                 statViewModel.TopYears = topYears;
-                return _JsonSerializer.SerializeToString(statViewModel);
+                return _jsonSerializer.SerializeToString(statViewModel);
             }
             catch (Exception ex)
             {
-                return _JsonSerializer.SerializeToString(new
+                return _jsonSerializer.SerializeToString(new
                 {
                     message = ex.Message,
                     stackTrace = ex.StackTrace
@@ -210,11 +210,11 @@ namespace Statistics.RestServices
 
                 var topYears = GetTopYears();
                 statViewModel.TopYears = topYears;
-                return _JsonSerializer.SerializeToString(statViewModel);
+                return _jsonSerializer.SerializeToString(statViewModel);
             }
             catch (Exception ex)
             {
-                return _JsonSerializer.SerializeToString(new
+                return _jsonSerializer.SerializeToString(new
                 {
                     message = ex.Message,
                     stackTrace = ex.StackTrace
@@ -276,7 +276,7 @@ namespace Statistics.RestServices
                     }
                     break;
                 case RequestTypeEnum.Shows:
-                    var list2 =GetAllSeries(user);
+                    var list2 = GetAllSeries(user);
                     if (user != null)
                         list2 = list2.Where(e => e.IsVisible(user)).ToList();
 
@@ -296,45 +296,29 @@ namespace Statistics.RestServices
             switch (type)
             {
                 case RequestTypeEnum.Movies:
-                    var list1 = (user == null ? GetAllViewedMoviesByAllUsers() : GetAllViewedMoviesByUser(user)).OrderByDescending(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
-                    {
-                        if (m.IsPlayed(u))
-                            return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                        return false;
-                    }), m).LastPlayedDate).Take(5).ToList();
+                    var list1 = (user == null ? GetAllViewedMoviesByAllUsers() : GetAllViewedMoviesByUser(user))
+                        .OrderByDescending(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate)
+                        .Take(5).ToList();
 
                     movieViewModelList.AddRange(list1.Select(item =>
                     {
-                        var user1 = user ?? _userManager.Users.First(u =>
-                        {
-                            if (item.IsPlayed(u))
-                                return _userDataManager.GetUserData(u, item).LastPlayedDate.HasValue;
-                            return false;
-                        });
+                        var localUser = user ?? _userManager.Users.First(u => item.IsPlayed(u) && _userDataManager.GetUserData(u, item).LastPlayedDate.HasValue);
                         return new MovieViewModel
                         {
                             Name = item.Name,
-                            Played = _userDataManager.GetUserData(user1, item).LastPlayedDate ?? DateTime.MinValue,
-                            UserName = user1.Name
+                            Played = _userDataManager.GetUserData(localUser, item).LastPlayedDate ?? DateTime.MinValue,
+                            UserName = localUser.Name
                         };
                     }));
                     break;
                 case RequestTypeEnum.Shows:
                     var list2 = (user == null ? GetAllViewedEpisodesByAllUsers() : GetAllViewedEpisodesByUser(user))
-                        .OrderByDescending(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
-                        {
-                            if (m.IsPlayed(u))
-                                return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                            return false;
-                        }), m).LastPlayedDate).Take(5).ToList();
+                        .OrderByDescending(m => _userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate)
+                        .Take(5).ToList();
+
                     movieViewModelList.AddRange(list2.Select(item =>
                     {
-                        var user1 = user ?? _userManager.Users.First(u =>
-                        {
-                            if (item.IsPlayed(u))
-                                return _userDataManager.GetUserData(u, item).LastPlayedDate.HasValue;
-                            return false;
-                        });
+                        var user1 = user ?? _userManager.Users.First(u => item.IsPlayed(u) && _userDataManager.GetUserData(u, item).LastPlayedDate.HasValue);
                         return new MovieViewModel
                         {
                             Name = $"{item.SeriesName} - S{item.AiredSeasonNumber}xE{item.IndexNumber} - {item.Name}",
@@ -409,7 +393,7 @@ namespace Statistics.RestServices
 
         private ValueGroup GetTopYears(User user = null)
         {
-            var movieList = user == null ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllMovies(user).Where(m => m.IsPlayed(user));
+            var movieList = user == null ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllMovies(user).Where(m => m.IsPlayed(user)).ToList();
             var list = movieList.Select(m => m.ProductionYear ?? 0).Distinct().ToList();
             var source = new Dictionary<int, int>();
             foreach (var num1 in list)
@@ -470,77 +454,31 @@ namespace Statistics.RestServices
                 {
                     var cal = DateTimeFormatInfo.CurrentInfo.Calendar;
                     var graphValueList = new List<GraphValue>();
-                    var source1 = user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(u =>
-                    {
-                        if (m.IsPlayed(u))
-                            return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                        return false;
-                    })) : GetAllBaseItems().Where(m =>
-                    {
-                        if (m.IsPlayed(user))
-                            return _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue;
-                        return false;
-                    });
+
+                    var sourceBaseItemList = user == null
+                        ? GetAllBaseItems().Where(m => _userManager.Users.Any(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue)).ToList()
+                        : GetAllBaseItems().Where(m => m.IsPlayed(user) && _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue).ToList();
+
                     switch (request.TimeRange)
                     {
                         case TimeRangeEnum.Monthly:
-                            var source2 = source1.GroupBy(m => cal.GetMonth(_userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
-                            {
-                                if (m.IsPlayed(u))
-                                    return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                                return false;
-                            }), m).LastPlayedDate.Value));
-                            if (source2.Any()) { 
-                                var list1 = CalculateTimeRange(source2.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
-                                var count1 = list1.Count > 12 ? list1.Count - 12 : 0;
-                                graphValueList.AddRange(list1.Skip(count1).Select(item => new GraphValue(_cul.DateTimeFormat.GetAbbreviatedMonthName(item.Key), item.Value)));
-                            }
+                            graphValueList = CalculateMonthlyViewChart(sourceBaseItemList, cal, user, request.TimeRange);
                             break;
                         case TimeRangeEnum.Weekly:
-                            var source3 = source1.GroupBy(m => cal.GetWeekOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
-                            {
-                                if (m.IsPlayed(u))
-                                    return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                                return false;
-                            }), m).LastPlayedDate.Value, CalendarWeekRule.FirstDay, DayOfWeek.Monday));
-                            if (source3.Any()) {
-                                var list2 = CalculateTimeRange(source3.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
-                                var count2 = list2.Count > 20 ? list2.Count - 20 : 0;
-                                graphValueList.AddRange(list2.Skip(count2).Select(item => new GraphValue(item.Key, item.Value)));
-                            }
+                            graphValueList = CalculateWeeklyViewChart(sourceBaseItemList, cal, user, request.TimeRange);
                             break;
                         case TimeRangeEnum.Daily:
-                            var orderedEnumerable = source1.GroupBy(m => cal.GetDayOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u =>
-                            {
-                                if (m.IsPlayed(u))
-                                    return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
-                                return false;
-                            }), m).LastPlayedDate.Value)).OrderByDescending(x => x.Key);
-                            if (orderedEnumerable.Any())
-                            {
-                                var list3 = CalculateTimeRange(orderedEnumerable.ToDictionary(k => k.Key, g => g.ToList().Count), request.TimeRange).ToList();
-                                var count3 = list3.Count > 7 ? list3.Count - 7 : 0;
-                                graphValueList.AddRange(list3.Skip(count3).Select(item =>
-                                {
-                                    var dateTimeFormat = _cul.DateTimeFormat;
-                                    var dateTime = DateTime.Now;
-                                    dateTime = new DateTime(dateTime.Year, 1, 1);
-                                    dateTime = dateTime.AddDays(item.Key - 1);
-                                    var dayOfWeek = (int)dateTime.DayOfWeek;
-                                    return new GraphValue(dateTimeFormat.GetAbbreviatedDayName((DayOfWeek)dayOfWeek), item.Value);
-                                }));
-                            }
+                            graphValueList = CalculateDailyViewChart(sourceBaseItemList, cal, user, request.TimeRange);
                             break;
                     }
-                    return _JsonSerializer.SerializeToString(graphValueList.ToJSON());
+                    return _jsonSerializer.SerializeToString(graphValueList.ToJSON());
                 }
 
-                return _JsonSerializer.SerializeToString("");
+                return _jsonSerializer.SerializeToString("");
             }
             catch (Exception ex)
             {
-                return _JsonSerializer.SerializeToString(new
-                {
+                return _jsonSerializer.SerializeToString(new {
                     message = ex.Message,
                     stackTrace = ex.StackTrace
                 });
@@ -554,7 +492,7 @@ namespace Statistics.RestServices
                 User user = null;
                 if (request.Id != "0")
                     user = _userManager.GetUserById(request.Id);
-                return _JsonSerializer.SerializeToString((user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(u =>
+                return _jsonSerializer.SerializeToString((user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(u =>
                 {
                     if (m.IsPlayed(u))
                         return _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue;
@@ -573,7 +511,7 @@ namespace Statistics.RestServices
             }
             catch (Exception ex)
             {
-                return _JsonSerializer.SerializeToString(new
+                return _jsonSerializer.SerializeToString(new
                 {
                     message = ex.Message,
                     stackTrace = ex.StackTrace
@@ -581,19 +519,65 @@ namespace Statistics.RestServices
             }
         }
 
+
+        private List<GraphValue> CalculateMonthlyViewChart(List<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
+        {
+            var returnList = new List<GraphValue>();
+            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetMonth(_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime())).ToList();
+            if (lastPlayedDGrouping.Any())
+            {
+                var timeRangeList = CalculateTimeRange(lastPlayedDGrouping.ToDictionary(k => k.Key, g => g.ToList().Count), timeRange).ToList();
+                var overflow = timeRangeList.Count > 12 ? timeRangeList.Count - 12 : 0;
+                returnList.AddRange(timeRangeList.Skip(overflow).Select(item => new GraphValue(_cul.DateTimeFormat.GetAbbreviatedMonthName(item.Key), item.Value)));
+            }
+
+            return returnList;
+        }
+
+        private List<GraphValue> CalculateWeeklyViewChart(List<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
+        {
+            var returnList = new List<GraphValue>();
+            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetWeekOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime(), CalendarWeekRule.FirstDay, DayOfWeek.Monday)).ToList();
+            if (lastPlayedDGrouping.Any())
+            {
+                var timeRangeList = CalculateTimeRange(lastPlayedDGrouping.ToDictionary(k => k.Key, g => g.ToList().Count), timeRange).ToList();
+                var overflow = timeRangeList.Count > 20 ? timeRangeList.Count - 20 : 0;
+                returnList.AddRange(timeRangeList.Skip(overflow).Select(item => new GraphValue(item.Key, item.Value)));
+            }
+
+            return returnList;
+        }
+
+        private List<GraphValue> CalculateDailyViewChart(List<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
+        {
+            var returnList = new List<GraphValue>();
+            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetDayOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime())).OrderByDescending(x => x.Key).ToList();
+            if (lastPlayedDGrouping.Any())
+            {
+                var timeRangeList = CalculateTimeRange(lastPlayedDGrouping.ToDictionary(k => k.Key, g => g.ToList().Count), timeRange).ToList();
+                var overflowCount = timeRangeList.Count > 7 ? timeRangeList.Count - 7 : 0;
+                returnList.AddRange(timeRangeList.Skip(overflowCount).Select(item =>
+                {
+                    var dateTime = new DateTime(DateTime.Now.Year, 1, 1).AddDays(item.Key - 1);
+                    return new GraphValue(_cul.DateTimeFormat.GetAbbreviatedDayName(dateTime.DayOfWeek), item.Value);
+                }));
+            }
+            return returnList;
+        }
+
         private IEnumerable<Movie> GetAllMovies(User user = null)
         {
-            return cachedMovieList ?? (cachedMovieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Movie>());
+            return _cachedMovieList ?? (_cachedMovieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Movie>());
         }
 
         private IEnumerable<Series> GetAllSeries(User user = null)
         {
-            return cachedSerieList ?? (cachedSerieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Series>());
+            return _cachedSerieList ?? (_cachedSerieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Series>());
         }
 
         private IEnumerable<Episode> GetAllEpisodes(User user = null)
         {
-            return cachedEpisodeList ?? (cachedEpisodeList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Episode>());
+            return _cachedEpisodeList ?? (_cachedEpisodeList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Episode>());
         }
 
         private IEnumerable<BaseItem> GetAllBaseItems()
