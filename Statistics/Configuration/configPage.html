@@ -303,101 +303,51 @@
                     Dashboard.showLoadingMsg();
                     clearStats();
                     var userId = $("#selectUser :selected").val();
-                    if (userId == 0) { //all users
-                        console.log("total users");
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/MainStatistics/')).then(function (data) {
-                            Dashboard.hideLoadingMsg();
-                            addValuesToBox(data.MovieTotal, '#MovieTotalBox');
-                            addValuesToBox(data.ShowTotal, '#ShowTotalBox');
-                            addValuesToBox(data.EpisodeTotal, '#EpisodeTotalBox');
-                            addValuesToBox(data.TopMovieGenres, '#TopMovieGenreBox');
-                            addValuesToBox(data.TopShowGenres, '#TopShowGenreBox');
-                            addValuesToBox(data.TopYears, '#TopYearBox');
-                            addValuesToBox(data.MovieLastViewed, '#LastMovies');
-                            addValuesToBox(data.ShowLastViewed, '#LastShows');
-                            addValuesToBox(data.MoviePlayedViewTime, '#MovieTimePlayedBox');
-                            addValuesToBox(data.ShowPlayedViewTime, '#ShowTimePlayedBox');
-                            addValuesToBox(data.TotalPlayedViewTime, '#TotalTimePlayedBox');
-                            addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
-                            addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
-                            addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
-                            console.log(data);
-                        });
+                    ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/' + userId)).then(function (data) {
+                        Dashboard.hideLoadingMsg();
+                        addValuesToBox(data.MovieTotal, '#MovieTotalBox');
+                        addValuesToBox(data.ShowTotal, '#ShowTotalBox');
+                        addValuesToBox(data.EpisodeTotal, '#EpisodeTotalBox');
+                        addValuesToBox(data.TopMovieGenres, '#TopMovieGenreBox');
+                        addValuesToBox(data.TopShowGenres, '#TopShowGenreBox');
+                        addValuesToBox(data.TopYears, '#TopYearBox');
+                        addValuesToBox(data.MovieLastViewed, '#LastMovies');
+                        addValuesToBox(data.ShowLastViewed, '#LastShows');
+                        addValuesToBox(data.MoviePlayedViewTime, '#MovieTimePlayedBox');
+                        addValuesToBox(data.ShowPlayedViewTime, '#ShowTimePlayedBox');
+                        addValuesToBox(data.TotalPlayedViewTime, '#TotalTimePlayedBox');
+                        addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
+                        addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
+                        addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
+                        console.log(data);
+                    });
 
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function (data) {
-                            console.log(data);
-                            $(".stat:even").each(function (i) {
-                                $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
-                                    .css('background-size', 'cover');
-                            });
-                            $(".stat:nth-child(odd) .layer").each(function (i) {
-                                $(this).css('background-color', 'rgba(50, 50, 50, 0.55)')
-                                    .css('color', 'white');
-                            });
-                            $(".stat:nth-child(even) .layer").each(function (i) {
-                                $(this).css('color', 'black');
-                            });
+                    ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function(data) {
+                        console.log(data);
+                        $(".stat:even").each(function(i) {
+                            $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
+                                .css('background-size', 'cover');
                         });
+                        $(".stat:nth-child(odd) .layer").each(function(i) {
+                            $(this).css('background-color', 'rgba(50, 50, 50, 0.55)')
+                                .css('color', 'white');
+                        });
+                        $(".stat:nth-child(even) .layer").each(function(i) {
+                            $(this).css('color', 'black');
+                        });
+                    });
 
-                        var ViewTypeId = parseInt($("#selectViewType :selected").val());
-                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/ViewChart/'+ ViewTypeId + '/' + userId)).then(function (root) {
-                            var data = JSON.parse(root);
-                            buildChart(data, "svg#views", ViewTypeId === 0 ? "Views per year" : ViewTypeId === 1 ? "Views per week" : "Views per day");
-                        });
+                    var ViewTypeId = parseInt($("#selectViewType :selected").val());
+                    ApiClient.getJSON(ApiClient.getUrl('/Statistics/ViewChart/' + ViewTypeId + '/' + userId)).then(function (root) {
+                        var data = JSON.parse(root);
+                        buildChart(data, "svg#views", ViewTypeId === 0 ? "Views per year" : ViewTypeId === 1 ? "Views per week" : "Views per day");
+                    });
 
-                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/WeekChart/' + userId)).then(function (root) {
-                            console.log("RAW: " + root);
-                            var data = JSON.parse(root);
-                            buildChart(data, "svg#week", "Views per day of the week");
-                        });
-
-                    } else {
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/' + userId)).then(function (data) {
-                            Dashboard.hideLoadingMsg();
-                            addValuesToBox(data.MovieTotal, '#MovieTotalBox');
-                            addValuesToBox(data.ShowTotal, '#ShowTotalBox');
-                            addValuesToBox(data.EpisodeTotal, '#EpisodeTotalBox');
-                            addValuesToBox(data.TopMovieGenres, '#TopMovieGenreBox');
-                            addValuesToBox(data.TopShowGenres, '#TopShowGenreBox');
-                            addValuesToBox(data.TopYears, '#TopYearBox');
-                            addValuesToBox(data.MovieLastViewed, '#LastMovies');
-                            addValuesToBox(data.ShowLastViewed, '#LastShows');
-                            addValuesToBox(data.MoviePlayedViewTime, '#MovieTimePlayedBox');
-                            addValuesToBox(data.ShowPlayedViewTime, '#ShowTimePlayedBox');
-                            addValuesToBox(data.TotalPlayedViewTime, '#TotalTimePlayedBox');
-                            addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
-                            addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
-                            addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
-                            console.log(data);
-                        });
-
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function(data) {
-                            console.log(data);
-                            $(".stat:even").each(function(i) {
-                                $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
-                                    .css('background-size', 'cover');
-                            });
-                            $(".stat:nth-child(odd) .layer").each(function(i) {
-                                $(this).css('background-color', 'rgba(50, 50, 50, 0.55)')
-                                    .css('color', 'white');
-                            });
-                            $(".stat:nth-child(even) .layer").each(function(i) {
-                                $(this).css('color', 'black');
-                            });
-                        });
-
-                        var ViewTypeId = parseInt($("#selectViewType :selected").val());
-                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/ViewChart/' + ViewTypeId + '/' + userId)).then(function (root) {
-                            var data = JSON.parse(root);
-                            buildChart(data, "svg#views", ViewTypeId === 0 ? "Views per year" : ViewTypeId === 1 ? "Views per week" : "Views per day");
-                        });
-
-                        ApiClient.getJSON(ApiClient.getUrl('/Statistics/WeekChart/' + userId)).then(function(root) {
-                            console.log("RAW: " + root);
-                            var data = JSON.parse(root);
-                            buildChart(data, "svg#week", "Views per day of the week");
-                        });
-                    }
+                    ApiClient.getJSON(ApiClient.getUrl('/Statistics/WeekChart/' + userId)).then(function(root) {
+                        console.log("RAW: " + root);
+                        var data = JSON.parse(root);
+                        buildChart(data, "svg#week", "Views per day of the week");
+                    });
                 }
 
                 function buildChart(data, div, yText) {
