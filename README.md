@@ -4,4 +4,4 @@ This is a plugin for Emby server. If you do not already have Emby server install
 
 ## Build
 
-When you build the project it will copy the dll to the Emby server plugin folder (%appdata%/Emby/Plugins). Just restart Emby after you build and you should see the plugin installed. If not, check the copy command or copy the dll yourself.
+When you build the project it will copy the dll to the Emby server plugin folder (%appdata%/Emby-Server/Plugins). Just restart Emby after you build and you should see the plugin installed. If not, check the copy command or copy the dll yourself.
