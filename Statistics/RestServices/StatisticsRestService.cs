@@ -380,7 +380,7 @@ namespace Statistics.RestServices
                         : GetAllBaseItems().Where(m => m.IsPlayed(user) && _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue).ToList();
 
                 var groupedList = sourceBaseItemList
-                    .GroupBy(m => (_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime()).DayOfWeek)
+                    .GroupBy(m => (GetUserItemData(m, user).LastPlayedDate ?? new DateTime()).DayOfWeek)
                     .OrderBy(d => d.Key)
                     .ToDictionary(k => _cul.DateTimeFormat.GetAbbreviatedDayName(k.Key), g => g.ToList().Count);
 
@@ -397,10 +397,10 @@ namespace Statistics.RestServices
         }
 
 
-        private List<GraphValue> CalculateMonthlyViewChart(List<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
+        private List<GraphValue> CalculateMonthlyViewChart(IEnumerable<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
         {
             var returnList = new List<GraphValue>();
-            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetMonth(_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime())).ToList();
+            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetMonth(GetUserItemData(m, user).LastPlayedDate ?? new DateTime())).ToList();
             if (lastPlayedDGrouping.Any())
             {
                 var timeRangeList = CalculateTimeRange(lastPlayedDGrouping.ToDictionary(k => k.Key, g => g.ToList().Count), timeRange).ToList();
@@ -411,10 +411,10 @@ namespace Statistics.RestServices
             return returnList;
         }
 
-        private List<GraphValue> CalculateWeeklyViewChart(List<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
+        private List<GraphValue> CalculateWeeklyViewChart(IEnumerable<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
         {
             var returnList = new List<GraphValue>();
-            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetWeekOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime(), CalendarWeekRule.FirstDay, DayOfWeek.Monday)).ToList();
+            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetWeekOfYear(GetUserItemData(m, user).LastPlayedDate ?? new DateTime(), CalendarWeekRule.FirstDay, DayOfWeek.Monday)).ToList();
             if (lastPlayedDGrouping.Any())
             {
                 var timeRangeList = CalculateTimeRange(lastPlayedDGrouping.ToDictionary(k => k.Key, g => g.ToList().Count), timeRange).ToList();
@@ -425,10 +425,10 @@ namespace Statistics.RestServices
             return returnList;
         }
 
-        private List<GraphValue> CalculateDailyViewChart(List<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
+        private List<GraphValue> CalculateDailyViewChart(IEnumerable<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
         {
             var returnList = new List<GraphValue>();
-            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetDayOfYear(_userDataManager.GetUserData(user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate ?? new DateTime())).OrderByDescending(x => x.Key).ToList();
+            var lastPlayedDGrouping = sourceBaseItemList.GroupBy(m => cal.GetDayOfYear(GetUserItemData(m, user).LastPlayedDate ?? new DateTime())).OrderByDescending(x => x.Key).ToList();
             if (lastPlayedDGrouping.Any())
             {
                 var timeRangeList = CalculateTimeRange(lastPlayedDGrouping.ToDictionary(k => k.Key, g => g.ToList().Count), timeRange).ToList();
@@ -440,6 +440,11 @@ namespace Statistics.RestServices
                 }));
             }
             return returnList;
+        }
+
+        private UserItemData GetUserItemData(BaseItem item, User user)
+        {
+            return _userDataManager.GetUserData(user ?? _userManager.Users.First(u => item.IsPlayed(u) && _userDataManager.GetUserData(u, item).LastPlayedDate.HasValue), item);
         }
 
         private IEnumerable<Movie> GetAllMovies(User user = null)

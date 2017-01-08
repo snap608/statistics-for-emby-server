@@ -10,12 +10,12 @@
             <div class="content-primary" style="max-width: 900px;">
                 <h2>User</h2>
                 <div class="selectContainer">
-                    <label class="selectLabel selectLabelUnfocused" for="selectUser">Get statistics for:</label>
-                    <select is="emby-select" id="selectUser" label="Get statistics for:" class="emby-select-withoptioncolor emby-select"></select>
+                    <label class="selectLabel selectLabelUnfocused" for="selectUser">Load statistics for:</label>
+                    <select is="emby-select" id="selectUser" label="Load statistics for:" class="emby-select-withoptioncolor emby-select"></select>
                     <div class="selectArrowContainer"><div style="visibility:hidden;">0</div><i class="md-icon selectArrow"></i></div>
                 </div>
 
-                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="btnSyncStats" data-icon="arrow-d" data-theme="b">Get statistics</button>
+                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="btnSyncStats" data-icon="arrow-d" data-theme="b">Load statistics</button>
                 <h2>Numbers</h2>
                 <div id="stats">
                     <div id="MovieTotalBox" class="box stat">
@@ -319,11 +319,9 @@
                         addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
                         addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
                         addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
-                        console.log(data);
                     });
 
                     ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function(data) {
-                        console.log(data);
                         $(".stat:even").each(function(i) {
                             $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
                                 .css('background-size', 'cover');
@@ -344,7 +342,6 @@
                     });
 
                     ApiClient.getJSON(ApiClient.getUrl('/Statistics/WeekChart/' + userId)).then(function(root) {
-                        console.log("RAW: " + root);
                         var data = JSON.parse(root);
                         buildChart(data, "svg#week", "Views per day of the week");
                     });
@@ -354,7 +351,6 @@
                     require(["d3"], function (d3) {
                         d3.selectAll(div + " > *").remove();
 
-                        console.log(data);
                         var margin = { top: 20, right: 20, bottom: 30, left: 40 },
                             width = 900 - margin.left - margin.right,
                             height = 200 - margin.top - margin.bottom;
