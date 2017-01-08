@@ -59,17 +59,23 @@ namespace Statistics.RestServices
                     MovieTotal = GetTotalMovies(userById),
                     EpisodeTotal = GetTotalEpisodes(userById),
                     ShowTotal = GetTotalShows(userById),
-                    TopMovieGenres = GetTopGenres(RequestTypeEnum.Movies, "Top Movie genres", userById),
-                    TopShowGenres = GetTopGenres(RequestTypeEnum.Shows, "Top Show genres", userById),
-                    MovieLastViewed = GetLastViewed(RequestTypeEnum.Movies, "last seen movies", userById),
-                    ShowLastViewed = GetLastViewed(RequestTypeEnum.Shows, "last seen shows", userById),
-                    MoviePlayedViewTime = GetPlayedViewTime(RequestTypeEnum.Movies, "Movies watched", userById),
-                    ShowPlayedViewTime = GetPlayedViewTime(RequestTypeEnum.Shows, "Shows watched", userById),
-                    TotalPlayedViewTime = GetPlayedViewTime(RequestTypeEnum.All, "Total watched", userById),
-                    MovieViewTime = GetViewTime(RequestTypeEnum.Movies, "Total movies time", userById),
-                    ShowViewTime = GetViewTime(RequestTypeEnum.Shows, "Total shows time", userById),
-                    TotalViewTime = GetViewTime(RequestTypeEnum.All, "Total time", userById),
-                    TopYears = GetTopYears(Constants.Topyears, userById)
+                    Stats = new List<ValueGroup>
+                    {
+                        GetTopGenres(RequestTypeEnum.Movies, "Top Movie genres", userById),
+                        GetTopGenres(RequestTypeEnum.Shows, "Top Show genres", userById),
+                        GetTopYears(Constants.Topyears, userById),
+                        GetPlayedViewTime(RequestTypeEnum.Movies, "Movies watched", userById),
+                        GetPlayedViewTime(RequestTypeEnum.Shows, "Shows watched", userById),
+                        GetPlayedViewTime(RequestTypeEnum.All, "Total watched", userById),
+                        GetViewTime(RequestTypeEnum.Movies, "Total movies time", userById),
+                        GetViewTime(RequestTypeEnum.Shows, "Total shows time", userById),
+                        GetViewTime(RequestTypeEnum.All, "Total time", userById)
+                    },
+                    BigStats = new List<ValueGroup>
+                    {
+                        GetLastViewed(RequestTypeEnum.Movies, "last seen movies", userById),
+                        GetLastViewed(RequestTypeEnum.Shows, "last seen shows", userById)
+                    }
                 };
 
                 return _jsonSerializer.SerializeToString(statViewModel);
@@ -244,14 +250,14 @@ namespace Statistics.RestServices
             switch (type)
             {
                 case RequestTypeEnum.Movies:
-                    var movies = user == null ? _libraryManager.RootFolder.Children.OfType<Movie>() : _libraryManager.RootFolder.Children.OfType<Movie>().Where(m => m.IsVisible(user));
+                    var movies = user == null ? GetAllMovies() : GetAllMovies(user).Where(m => m.IsVisible(user));
                     foreach (var movie in movies)
                     {
                         runTime.Add(new TimeSpan(movie.RunTimeTicks ?? 0L));
                     }
                     break;
                 case RequestTypeEnum.Shows:
-                    var shows = user == null ? _libraryManager.RootFolder.Children.OfType<Episode>() : _libraryManager.RootFolder.Children.OfType<Episode>().Where(m => m.IsVisible(user));
+                    var shows = user == null ? GetAllEpisodes() : GetAllEpisodes(user).Where(m => m.IsVisible(user));
                     foreach (var show in shows)
                     {
                         runTime.Add(new TimeSpan(show.RunTimeTicks ?? 0L));
@@ -293,35 +299,23 @@ namespace Statistics.RestServices
             return valueGroup;
         }
 
-        public object Get(GetBackground request)
+        public string Get(GetBackground request)
         {
-            var stringList1 = new List<string>();
             var random = new Random();
-            for (var index1 = 0; index1 < int.Parse(request.Count); ++index1)
+            var list = GetAllMovies().ToList();
+
+            var count = 0;
+            do
             {
-                var list = GetAllMovies().ToList();
-                int index2;
-                Guid id;
-                int num;
-                do
+                var index2 = random.Next(0, list.Count - 1);
+                if (list[index2].GetImages((ImageType)2).Any())
                 {
-                    index2 = random.Next(0, list.Count - 1);
-                    if (list[index2].GetImages((ImageType)2).Any())
-                    {
-                        var stringList2 = stringList1;
-                        id = list[index2].Id;
-                        num = stringList2.Contains(id.ToString()) ? 1 : 0;
-                    }
-                    else
-                        num = 0;
+                    return _jsonSerializer.SerializeToString(list[index2].Id.ToString());
                 }
-                while (num != 0);
-                var stringList3 = stringList1;
-                id = list[index2].Id;
-                var str1 = id.ToString();
-                stringList3.Add(str1);
-            }
-            return stringList1.ToJSON();
+                count++; 
+            } while (count < 10);
+
+            return "";
         }
 
         public object Get(ViewChart request)

@@ -1,7 +1,13 @@
-﻿namespace Statistics.ViewModel
+﻿using System.Collections.Generic;
+
+namespace Statistics.ViewModel
 {
     public class StatViewModel
     {
+        public List<ValueGroup> Stats { get; set; }
+
+        public List<ValueGroup> BigStats { get; set; }
+
         public ValueGroup MovieTotal { get; set; }
 
         public ValueGroup EpisodeTotal { get; set; }

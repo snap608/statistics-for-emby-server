@@ -17,92 +17,7 @@
 
                 <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="btnSyncStats" data-icon="arrow-d" data-theme="b">Load statistics</button>
                 <h2>Numbers</h2>
-                <div id="stats">
-                    <div id="MovieTotalBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="ShowTotalBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="EpisodeTotalBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="TopMovieGenreBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="TopShowGenreBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="TopYearBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="MovieTimePlayedBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="ShowTimePlayedBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="TotalTimePlayedBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="MovieTimeBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="ShowTimeBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="TotalTimeBox" class="box stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="LastMovies" class="bigbox stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                    <div id="LastShows" class="bigbox stat">
-                        <div class="layer">
-                            <div class="MainValue"><span></span></div>
-                            <div class="SubValue"><span></span></div>
-                        </div>
-                    </div>
-                </div>
+                <div id="stats"></div>
                 <div style="clear: both;"></div>
                 <h2>Charts</h2>
                 <div id="charts">
@@ -304,35 +219,48 @@
                     clearStats();
                     var userId = $("#selectUser :selected").val();
                     ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/' + userId)).then(function (data) {
+                        $("#stats").empty();
                         Dashboard.hideLoadingMsg();
-                        addValuesToBox(data.MovieTotal, '#MovieTotalBox');
-                        addValuesToBox(data.ShowTotal, '#ShowTotalBox');
-                        addValuesToBox(data.EpisodeTotal, '#EpisodeTotalBox');
-                        addValuesToBox(data.TopMovieGenres, '#TopMovieGenreBox');
-                        addValuesToBox(data.TopShowGenres, '#TopShowGenreBox');
-                        addValuesToBox(data.TopYears, '#TopYearBox');
-                        addValuesToBox(data.MovieLastViewed, '#LastMovies');
-                        addValuesToBox(data.ShowLastViewed, '#LastShows');
-                        addValuesToBox(data.MoviePlayedViewTime, '#MovieTimePlayedBox');
-                        addValuesToBox(data.ShowPlayedViewTime, '#ShowTimePlayedBox');
-                        addValuesToBox(data.TotalPlayedViewTime, '#TotalTimePlayedBox');
-                        addValuesToBox(data.MovieViewTime, '#MovieTimeBox');
-                        addValuesToBox(data.ShowViewTime, '#ShowTimeBox');
-                        addValuesToBox(data.TotalViewTime, '#TotalTimeBox');
-                    });
+                        $.each(data.Stats, function (i, v) {
+                            $("#stats").append('<div class="box stat" id="stat' + i + '">'
+                                                + '<div class="layer">'
+                                                + '<div class="MainValue"><span class="fadeIn">' + v.MainValue + '</span></div>'
+                                                + '<div class="SubValue"><span class="fadeIn">' + v.SubValue + '</span></div>'
+                                                + '</div>'
+                                                + '</div>');
 
-                    ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function(data) {
-                        $(".stat:even").each(function(i) {
-                            $(this).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
-                                .css('background-size', 'cover');
+
+                            if (i % 2 === 0) {
+                                
+                            }
+
                         });
-                        $(".stat:nth-child(odd) .layer").each(function(i) {
+
+                        $.each(data.BigStats,function(i, v) {
+                            $("#stats").append('<div class="bigbox stat">'
+                                                + '<div class="layer">'
+                                                + '<div class="MainValue"><span class="fadeIn">' + v.MainValue + '</span></div>'
+                                                + '<div class="SubValue"><span class="fadeIn">' + v.SubValue + '</span></div>'
+                                                + '</div>'
+                                                + '</div>' );
+
+                        });
+
+                        $(".stat:odd .layer").each(function (i) {
                             $(this).css('background-color', 'rgba(50, 50, 50, 0.55)')
                                 .css('color', 'white');
                         });
-                        $(".stat:nth-child(even) .layer").each(function(i) {
+                        $(".stat:even .layer").each(function (i) {
                             $(this).css('color', 'black');
                         });
+
+                        $(".stat:odd").each(function (i, v) {
+                            ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/')).then(function (data) {
+                                $(v).css('background-image', "url('" + ApiClient.getUrl('Items/' + data + '/Images/Backdrop/0') + "')")
+                                .css('background-size', 'cover');
+                            });
+                        });
+
                     });
 
                     var ViewTypeId = parseInt($("#selectViewType :selected").val());
@@ -419,11 +347,6 @@
                                 return d.Value == 0 ? "" : d.Value;
                             });
                     });
-                }
-
-                function addValuesToBox(data, divId) {
-                    $(divId + ' .MainValue span').html(data.MainValue).addClass("fadeIn");
-                    $(divId + ' .SubValue span').html(data.SubValue).addClass("fadeIn");
                 }
 
                 function clearStats() {
