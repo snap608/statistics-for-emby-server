@@ -12,7 +12,7 @@ namespace Statistics.Extentions
                 return string.Empty;
             using (var memoryStream = new MemoryStream())
             {
-                new DataContractJsonSerializer(obj.GetType()).WriteObject((Stream)memoryStream, obj);
+                new DataContractJsonSerializer(obj.GetType()).WriteObject(memoryStream, obj);
                 return Encoding.UTF8.GetString(memoryStream.ToArray());
             }
         }

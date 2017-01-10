@@ -16,6 +16,7 @@
                 </div>
 
                 <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="btnSyncStats" data-icon="arrow-d" data-theme="b">Load statistics</button>
+                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="btnGoToShowProgress" data-icon="arrow-d" data-theme="b">Go to Show progress</button>
                 <h2>Numbers</h2>
                 <div id="stats"></div>
                 <div style="clear: both;"></div>
@@ -352,6 +353,11 @@
                 $('.statisticsConfigurationPage').on('pageshow', function (event) {
                     $('#btnSyncStats').on('click', function () {
                         syncMovieStats();
+                    });
+
+                    $('#btnGoToShowProgress').on('click', function () {
+                        var href = Dashboard.getConfigurationPageUrl("StatisticsShowOverview");
+                        Dashboard.navigate(href);
                     });
 
                     $('#selectViewType').change(function() {

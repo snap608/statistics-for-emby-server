@@ -1,13 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller.Plugins;
 
 namespace Statistics.Configuration
 {
-    public class ConfigurationPage : IPluginConfigurationPage
+    public class StatisticsShowProgress : IPluginConfigurationPage
     {
-        public string Name => Constants.Name;
+        public string Name => "StatisticsShowOverview";
 
         public ConfigurationPageType ConfigurationPageType => ConfigurationPageType.PluginConfiguration;
 
@@ -16,7 +20,7 @@ namespace Statistics.Configuration
         public Stream GetHtmlStream()
         {
             var type = GetType();
-            return type.Assembly.GetManifestResourceStream(type.Namespace + ".configPage.html");
+            return type.Assembly.GetManifestResourceStream(type.Namespace + ".statisticsShowProgress.html");
         }
     }
 }
