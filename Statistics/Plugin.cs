@@ -1,5 +1,8 @@
-﻿using MediaBrowser.Common.Configuration;
+﻿using System.Collections.Generic;
+using MediaBrowser.Common.Configuration;
 using MediaBrowser.Common.Plugins;
+using MediaBrowser.Controller.Entities.Movies;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Model.Serialization;
 using Statistics.Configuration;
 
@@ -11,7 +14,7 @@ namespace Statistics
 
         public override string Name => "Statistics";
 
-        public override string Description => "Get funny statistics from your collection";
+        public override string Description => "Get statistics from your collection";
 
         public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer)
         {

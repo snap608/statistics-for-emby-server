@@ -8,20 +8,24 @@
     <div data-role="page" class="page type-interior pluginConfigurationPage statisticsConfigurationPage" data-require="emby-button,emby-select">
         <div data-role="content">
             <div class="content-primary" style="max-width: 900px;">
-                <h1>Statistics plugin</h1>
-                <p>
-                    This plugin will calculate overall and userbased statistics from this Emby server instance. Keep in mind that viewing an item multiple times will not increase the "watched" time. It will only count as 1.
-                </p>
-                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="GoToUserStats">View user based statistics</button>
-                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="GoToShowProgress">View user based show progress</button>
-                <h2 id="GeneralTitle"></h2>
-                <div id="stats"></div>
+                <h1>User based statistics</h1>
+                <div class="selectContainer">
+                    <label class="selectLabel selectLabelUnfocused" for="selectUser">Load statistics for:</label>
+                    <select is="emby-select" id="selectUser" label="Load statistics for:" class="emby-select-withoptioncolor emby-select"></select>
+                    <div class="selectArrowContainer">
+                        <div style="visibility: hidden;">0</div><i class="md-icon selectArrow"></i>
+                    </div>
+                </div>
+
+                <button is="emby-button" type="button" class="raised button-submit block emby-button" id="GetUserStats">Load statistics</button>
+                <h2 id="UserTitle"></h2>
+                <div id="UserBasedStats"></div>
                 <div style="clear: both;"></div>
+                <button is="emby-button" type="button" class="raised button-cancel block emby-button" onclick="Emby.Page.back();">Go back</button>
             </div>
         </div>
-
         <style>
-            #stats, #UserBasedStats {
+            #UserBasedStats {
                 margin: 0 0 40px 0;
                 width: 900px;
             }
@@ -41,20 +45,20 @@
                 animation: fadein 1s;
             }
 
-                .box .MainValue {
+                .box .UserMainValue {
                     height: 50%;
                     font-size: 20px;
                     position: relative;
                     padding: 0 3.5%;
                 }
 
-                    .box .MainValue span {
+                    .box .UserMainValue span {
                         position: absolute;
                         bottom: 0;
                         width: 93%;
                     }
 
-                .box .SubValue {
+                .box .UserSubValue {
                     height: 50%;
                     font-size: 15px;
                     text-align: center;
@@ -62,7 +66,7 @@
                     padding: 0 3.5%;
                 }
 
-                    .box .SubValue span, .box .MainValue span {
+                    .box .UserSubValue span, .box .UserMainValue span {
                         font-weight: bold;
                         text-transform: uppercase;
                         vertical-align: middle;
@@ -75,24 +79,24 @@
                 height: 140px;
             }
 
-                .bigbox .MainValue {
+                .bigbox .UserMainValue {
                     font-size: 20px;
                     position: relative;
                     padding: 10px;
                 }
 
-                .bigbox .SubValue {
+                .bigbox .UserSubValue {
                     font-size: 15px;
                     display: block;
                     padding: 0 10px;
                 }
 
-                .bigbox .MainValue span {
+                .bigbox .UserMainValue span {
                     font-weight: bold;
                     text-transform: uppercase;
                 }
 
-                .bigbox .SubValue span {
+                .bigbox .UserSubValue span {
                     font-weight: bold;
                     text-transform: none;
                 }
@@ -107,62 +111,62 @@
                     waitSeconds: 2
                 });
 
-                var MainPage = {
-                    pluginId: 'cb998b93-7c97-4389-8051-a68cbb5a8876',
-
-                    loadStats: function() {
+                var UserBasedStatsPage = {
+                    loadUserStats: function() {
                         Dashboard.showLoadingMsg();
-
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/0')).then(function (data) {
+                        UserBasedStatsPage.clearStats();
+                        var userId = $("#selectUser :selected").val();
+                        ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/' + userId)).then(function (data) {
+                            $("#UserBasedStats").empty();
                             Dashboard.hideLoadingMsg();
-                            $("#GeneralTitle").html("General statistics");
+                            $("#UserTitle").html("Statistics for " + $("#selectUser :selected").text());
                             $.each(data.Stats, function (i, v) {
-                                $("#stats").append('<div class="box stat" id="stat' + i + '">'
+                                $("#UserBasedStats").append('<div class="box userStat" id="userStat' + i + '">'
                                                     + '<div class="layer">'
-                                                    + '<div class="MainValue"><span >' + v.MainValue + '</span></div>'
-                                                    + '<div class="SubValue"><span>' + v.SubValue + '</span></div>'
+                                                    + '<div class="UserMainValue"><span>' + v.MainValue + '</span></div>'
+                                                    + '<div class="UserSubValue"><span>' + v.SubValue + '</span></div>'
                                                     + '</div>'
                                                     + '</div>');
                             });
 
                             $.each(data.BigStats, function (i, v) {
-                                $("#stats").append('<div class="bigbox stat">'
+                                $("#UserBasedStats").append('<div class="bigbox userStat">'
                                                     + '<div class="layer">'
-                                                    + '<div class="MainValue"><span>' + v.MainValue + '</span></div>'
-                                                    + '<div class="SubValue"><span>' + v.SubValue + '</span></div>'
+                                                    + '<div class="UserMainValue"><span>' + v.MainValue + '</span></div>'
+                                                    + '<div class="UserSubValue"><span>' + v.SubValue + '</span></div>'
                                                     + '</div>'
                                                     + '</div>');
 
                             });
 
-                            $(".stat:odd .layer").each(function (i) {
-                                $(this)
-                                    .css('background-color', 'rgba(50, 50, 50, 0.65)')
+                            $(".userStat:odd .layer").each(function (i) {
+                                $(this).css('background-color', 'rgba(50, 50, 50, 0.65)')
                                     .css('color', 'white');
                             });
-                            $(".stat:even .layer").each(function (i) {
+                            $(".userStat:even .layer").each(function (i) {
                                 $(this).css('color', 'black');
                             });
                         });
+                    },
+
+                    clearStats: function () {
+                        $('#UserTitle').html("");
+                        $('#UserBasedStats').html("");
                     }
                 };
 
                 $('.statisticsConfigurationPage').on('pageinit', function (event) {
-                    $('#GoToUserStats').on('click', function () {
-                        var href = Dashboard.getConfigurationPageUrl("UserBasedStatistics");
-                        Dashboard.navigate(href);
+                    $('#GetUserStats').on('click', function () {
+                        UserBasedStatsPage.loadUserStats();
                     });
-
-                    $('#GoToShowProgress').on('click', function () {
-                        var href = Dashboard.getConfigurationPageUrl("UserBasedShowOverview");
-                        Dashboard.navigate(href);
-                    });
-
-                    MainPage.loadStats();
                 });
 
                 $('.statisticsConfigurationPage').on('pageshow', function (event) {
-
+                    ApiClient.getUsers().then(function (users) {
+                        $('#selectUser').html(users.map(function (user) {
+                            return '<option value="' + user.Id + '">' + user.Name + '</option>';
+                        })).selectmenu('refresh').trigger('change');
+                    });
                 });
             })();
         </script>

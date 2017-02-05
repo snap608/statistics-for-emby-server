@@ -9,9 +9,9 @@ using MediaBrowser.Controller.Plugins;
 
 namespace Statistics.Configuration
 {
-    public class StatisticsShowProgress : IPluginConfigurationPage
+    public class UserBasedShowOverview : IPluginConfigurationPage
     {
-        public string Name => "StatisticsShowOverview";
+        public string Name => Constants.ShowProgressName;
 
         public ConfigurationPageType ConfigurationPageType => ConfigurationPageType.PluginConfiguration;
 
@@ -20,7 +20,7 @@ namespace Statistics.Configuration
         public Stream GetHtmlStream()
         {
             var type = GetType();
-            return type.Assembly.GetManifestResourceStream(type.Namespace + ".statisticsShowProgress.html");
+            return type.Assembly.GetManifestResourceStream(type.Namespace + ".UserBasedShowOverview.html");
         }
     }
 }

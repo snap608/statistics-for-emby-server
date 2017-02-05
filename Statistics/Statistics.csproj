@@ -54,8 +54,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configuration\ConfigurationPage.cs" />
+    <Compile Include="Configuration\UserBasedStatistics.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
-    <Compile Include="Configuration\StatisticsShowProgress.cs" />
+    <Compile Include="Configuration\UserBasedShowOverview.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Enum\RequestTypeEnum.cs" />
     <Compile Include="Enum\TimeRangeEnum.cs" />
@@ -64,7 +65,6 @@
     <Compile Include="Extentions\ToJson.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestServices\GetBackground.cs" />
     <Compile Include="RestServices\StatisticsRestService.cs" />
     <Compile Include="RestServices\UserStatistics.cs" />
     <Compile Include="RestServices\ViewChart.cs" />
@@ -83,6 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Configuration\configPage.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Configuration\UserBasedStatisticsPage.html" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

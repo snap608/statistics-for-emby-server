@@ -3,6 +3,8 @@
     internal static class Constants
     {
         internal const string Name = "Statistics";
+        internal const string ShowProgressName = "UserBasedShowOverview";
+        internal const string MainStatisticsName = "UserBasedStatistics";
         internal const string Description = "Get statistics from your collection";
 
         internal const string TopMovieGenres = "Top movie genres";

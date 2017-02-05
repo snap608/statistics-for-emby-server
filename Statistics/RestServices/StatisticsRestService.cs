@@ -45,6 +45,7 @@ namespace Statistics.RestServices
             try
             {
                 User userById = null;
+                bool isUserSearch = false;
 
                 //A user is selected in the frontend
                 if (request.Id != "0")
@@ -52,6 +53,7 @@ namespace Statistics.RestServices
                     userById = _userManager.GetUserById(request.Id);
                     if (userById == null)
                         return null;
+                    isUserSearch = true;
                 }
                 
                 var statViewModel = new StatViewModel
@@ -73,8 +75,8 @@ namespace Statistics.RestServices
                     },
                     BigStats = new List<ValueGroup>
                     {
-                        GetLastViewed(RequestTypeEnum.Movies, "last seen movies", userById),
-                        GetLastViewed(RequestTypeEnum.Shows, "last seen shows", userById)
+                        GetLastViewed(RequestTypeEnum.Movies, "last seen movies", userById, isUserSearch),
+                        GetLastViewed(RequestTypeEnum.Shows, "last seen shows", userById, isUserSearch)
                     }
                 };
 
@@ -163,7 +165,7 @@ namespace Statistics.RestServices
             };
         }
 
-        private ValueGroup GetLastViewed(RequestTypeEnum type, string title, User user = null)
+        private ValueGroup GetLastViewed(RequestTypeEnum type, string title, User user = null, bool isUserSearch = false)
         {
             var movieViewModelList = new List<MovieViewModel>();
             switch (type)
@@ -180,7 +182,7 @@ namespace Statistics.RestServices
                         {
                             Name = item.Name,
                             Played = _userDataManager.GetUserData(localUser, item).LastPlayedDate ?? DateTime.MinValue,
-                            UserName = localUser.Name
+                            UserName = isUserSearch ? null : localUser.Name
                         };
                     }));
                     break;
@@ -196,7 +198,7 @@ namespace Statistics.RestServices
                         {
                             Name = $"{item.SeriesName} - S{item.AiredSeasonNumber}xE{item.IndexNumber} - {item.Name}",
                             Played = _userDataManager.GetUserData(user1, item).LastPlayedDate ?? DateTime.MinValue,
-                            UserName = user1.Name
+                            UserName = isUserSearch ? null : user1.Name
                         };
                     }));
                     break;
@@ -297,25 +299,6 @@ namespace Statistics.RestServices
             };
 
             return valueGroup;
-        }
-
-        public string Get(GetBackground request)
-        {
-            var random = new Random();
-            var list = GetAllMovies().ToList();
-
-            var count = 0;
-            do
-            {
-                var index2 = random.Next(0, list.Count - 1);
-                if (list[index2].GetImages((ImageType)2).Any())
-                {
-                    return _jsonSerializer.SerializeToString(list[index2].Id.ToString());
-                }
-                count++; 
-            } while (count < 10);
-
-            return "";
         }
 
         public object Get(ViewChart request)
