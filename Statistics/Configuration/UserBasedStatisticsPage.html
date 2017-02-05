@@ -120,6 +120,7 @@
                             $("#UserBasedStats").empty();
                             Dashboard.hideLoadingMsg();
                             $("#UserTitle").html("Statistics for " + $("#selectUser :selected").text());
+
                             $.each(data.Stats, function (i, v) {
                                 $("#UserBasedStats").append('<div class="box userStat" id="userStat' + i + '">'
                                                     + '<div class="layer">'
@@ -139,10 +140,18 @@
 
                             });
 
+                            ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".userStat:odd").length)).then(function (data) {
+                                $(".userStat:odd").each(function (i, v) {
+                                    $(v).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
+                                    .css('background-size', 'cover');
+                                });
+                            });
+
                             $(".userStat:odd .layer").each(function (i) {
                                 $(this).css('background-color', 'rgba(50, 50, 50, 0.65)')
                                     .css('color', 'white');
                             });
+
                             $(".userStat:even .layer").each(function (i) {
                                 $(this).css('color', 'black');
                             });

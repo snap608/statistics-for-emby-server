@@ -7,6 +7,7 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
+using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Services;
 using Statistics.Configuration;
@@ -227,7 +228,7 @@ namespace Statistics.RestServices
 
         private ValueGroup GetMostViewingUsers(RequestTypeEnum type, string title)
         {
-            var TotalViews = new List<TotalViewViewModel>();
+            var totalViews = new List<TotalViewViewModel>();
             foreach (var user in _userManager.Users)
             {
                 var userRuntime = new RunTime();
@@ -246,15 +247,15 @@ namespace Statistics.RestServices
 
                 }
 
-                TotalViews.Add(new TotalViewViewModel(user.Name, userRuntime));
+                totalViews.Add(new TotalViewViewModel(user.Name, userRuntime));
             }
 
-            TotalViews = TotalViews.OrderByDescending(x => x.TimeSpan.Ticks).Take(5).ToList();
+            totalViews = totalViews.OrderByDescending(x => x.TimeSpan.Ticks).Take(5).ToList();
 
             return new ValueGroup
             {
                 MainValue = title,
-                SubValue = string.Join("<br/>", TotalViews)
+                SubValue = string.Join("<br/>", totalViews)
             };
         }
 
@@ -421,6 +422,29 @@ namespace Statistics.RestServices
             }
         }
 
+        public object Get(GetBackground request)
+        {
+            var random = new Random();
+            var returnList = new List<string>();
+            var list = GetAllMovies().ToList();
+
+            for (var i = 0; i < request.Count; i++)
+            {
+                var count = 0;
+                do
+                {
+                    var index2 = random.Next(0, list.Count - 1);
+                    if (list[index2].GetImages((ImageType)2).Any())
+                    {
+                        returnList.Add(list[index2].Id.ToString());
+                        break;
+                    }
+                    count++;
+                } while (count < 10);
+            }
+            
+            return _jsonSerializer.SerializeToString(returnList);
+        }
 
         private List<GraphValue> CalculateMonthlyViewChart(IEnumerable<BaseItem> sourceBaseItemList, Calendar cal, User user, TimeRangeEnum timeRange)
         {

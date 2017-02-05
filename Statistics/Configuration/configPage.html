@@ -135,11 +135,19 @@
 
                             });
 
+                            ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".stat:odd").length)).then(function (data) {
+                                $(".stat:odd").each(function (i, v) {
+                                    $(v).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
+                                    .css('background-size', 'cover');
+                                });
+                            });
+
                             $(".stat:odd .layer").each(function (i) {
                                 $(this)
-                                    .css('background-color', 'rgba(50, 50, 50, 0.65)')
+                                    .css('background-color', 'rgba(50, 50, 50, 0.55)')
                                     .css('color', 'white');
                             });
+
                             $(".stat:even .layer").each(function (i) {
                                 $(this).css('color', 'black');
                             });

@@ -66,6 +66,7 @@
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RestServices\GeneralStatistics.cs" />
+    <Compile Include="RestServices\GetBackground.cs" />
     <Compile Include="RestServices\StatisticsRestService.cs" />
     <Compile Include="RestServices\UserStatistics.cs" />
     <Compile Include="RestServices\ViewChart.cs" />
