@@ -65,6 +65,7 @@
     <Compile Include="Extentions\ToJson.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RestServices\GeneralStatistics.cs" />
     <Compile Include="RestServices\StatisticsRestService.cs" />
     <Compile Include="RestServices\UserStatistics.cs" />
     <Compile Include="RestServices\ViewChart.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="ViewModel\MovieViewModel.cs" />
     <Compile Include="ViewModel\RunTime.cs" />
     <Compile Include="ViewModel\StatViewModel.cs" />
+    <Compile Include="ViewModel\TotalViewViewModel.cs" />
     <Compile Include="ViewModel\ValueGroup.cs" />
   </ItemGroup>
   <ItemGroup>

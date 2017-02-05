@@ -7,8 +7,6 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
-using MediaBrowser.Model.Activity;
-using MediaBrowser.Model.Entities;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Services;
 using Statistics.Configuration;
@@ -44,42 +42,11 @@ namespace Statistics.RestServices
         {
             try
             {
-                User userById = null;
-                bool isUserSearch = false;
+                var userById = _userManager.GetUserById(request.Id);
+                if (userById == null)
+                    return null;
 
-                //A user is selected in the frontend
-                if (request.Id != "0")
-                {
-                    userById = _userManager.GetUserById(request.Id);
-                    if (userById == null)
-                        return null;
-                    isUserSearch = true;
-                }
-                
-                var statViewModel = new StatViewModel
-                {
-                    MovieTotal = GetTotalMovies(userById),
-                    EpisodeTotal = GetTotalEpisodes(userById),
-                    ShowTotal = GetTotalShows(userById),
-                    Stats = new List<ValueGroup>
-                    {
-                        GetTopGenres(RequestTypeEnum.Movies, "Top Movie genres", userById),
-                        GetTopGenres(RequestTypeEnum.Shows, "Top Show genres", userById),
-                        GetTopYears(Constants.Topyears, userById),
-                        GetPlayedViewTime(RequestTypeEnum.Movies, "Movies watched", userById),
-                        GetPlayedViewTime(RequestTypeEnum.Shows, "Shows watched", userById),
-                        GetPlayedViewTime(RequestTypeEnum.All, "Total watched", userById),
-                        GetViewTime(RequestTypeEnum.Movies, "Total movies time", userById),
-                        GetViewTime(RequestTypeEnum.Shows, "Total shows time", userById),
-                        GetViewTime(RequestTypeEnum.All, "Total time", userById)
-                    },
-                    BigStats = new List<ValueGroup>
-                    {
-                        GetLastViewed(RequestTypeEnum.Movies, "last seen movies", userById, isUserSearch),
-                        GetLastViewed(RequestTypeEnum.Shows, "last seen shows", userById, isUserSearch)
-                    }
-                };
-
+                var statViewModel = GetUserStats(userById, true);
                 return _jsonSerializer.SerializeToString(statViewModel);
             }
             catch (Exception ex)
@@ -90,6 +57,53 @@ namespace Statistics.RestServices
                     stackTrace = ex.StackTrace
                 });
             }
+        }
+
+        public object Get(GeneralStatistics request)
+        {
+            try
+            {
+                var statViewModel = GetUserStats(null, false);
+                statViewModel.BigStats.Add(GetMostViewingUsers(RequestTypeEnum.All, Constants.MostActiveUsers));
+                statViewModel.BigStats.Add(GetMostViewingUsers(RequestTypeEnum.Movies, Constants.MostMovieActiveUsers));
+                statViewModel.BigStats.Add(GetMostViewingUsers(RequestTypeEnum.Shows, Constants.MostShowActiveUsers));
+                return _jsonSerializer.SerializeToString(statViewModel);
+            }
+            catch (Exception ex)
+            {
+                return _jsonSerializer.SerializeToString(new
+                {
+                    message = ex.Message,
+                    stackTrace = ex.StackTrace
+                });
+            }
+        }
+
+        private StatViewModel GetUserStats(User userById, bool isUserSearch)
+        {
+            return new StatViewModel
+            {
+                MovieTotal = GetTotalMovies(userById),
+                EpisodeTotal = GetTotalEpisodes(userById),
+                ShowTotal = GetTotalShows(userById),
+                Stats = new List<ValueGroup>
+                    {
+                        GetTopGenres(RequestTypeEnum.Movies, Constants.TopMovieGenres, userById),
+                        GetTopGenres(RequestTypeEnum.Shows, Constants.TopShowGenres, userById),
+                        GetTopYears(Constants.Topyears, userById),
+                        GetPlayedViewTime(RequestTypeEnum.Movies, Constants.MoviesWatched, userById),
+                        GetPlayedViewTime(RequestTypeEnum.Shows, Constants.ShowsWatched, userById),
+                        GetPlayedViewTime(RequestTypeEnum.All, Constants.TotalWatched, userById),
+                        GetViewTime(RequestTypeEnum.Movies, Constants.TotalMoviesTime, userById),
+                        GetViewTime(RequestTypeEnum.Shows, Constants.TotalShowTime, userById),
+                        GetViewTime(RequestTypeEnum.All, Constants.TotalTime, userById)
+                    },
+                BigStats = new List<ValueGroup>
+                    {
+                        GetLastViewed(RequestTypeEnum.Movies, Constants.LastSeenMovies, userById, isUserSearch),
+                        GetLastViewed(RequestTypeEnum.Shows, Constants.LastSeenShows, userById, isUserSearch)
+                    }
+            };
         }
 
         private ValueGroup GetTotalMovies(User user = null)
@@ -211,30 +225,63 @@ namespace Statistics.RestServices
             };
         }
 
+        private ValueGroup GetMostViewingUsers(RequestTypeEnum type, string title)
+        {
+            var TotalViews = new List<TotalViewViewModel>();
+            foreach (var user in _userManager.Users)
+            {
+                var userRuntime = new RunTime();
+                switch (type)
+                {
+                    case RequestTypeEnum.Movies:
+                        GetAllViewedMoviesByUser(user).ToList().ForEach(x => userRuntime.Add(x.RunTimeTicks));
+                        break;
+                    case RequestTypeEnum.Shows:
+                        GetAllViewedEpisodesByUser(user).ToList().ForEach(x => userRuntime.Add(x.RunTimeTicks));
+                        break;
+                    case RequestTypeEnum.All:
+                        GetAllViewedMoviesByUser(user).ToList().ForEach(x => userRuntime.Add(x.RunTimeTicks));
+                        GetAllViewedEpisodesByUser(user).ToList().ForEach(x => userRuntime.Add(x.RunTimeTicks));
+                        break;
+
+                }
+
+                TotalViews.Add(new TotalViewViewModel(user.Name, userRuntime));
+            }
+
+            TotalViews = TotalViews.OrderByDescending(x => x.TimeSpan.Ticks).Take(5).ToList();
+
+            return new ValueGroup
+            {
+                MainValue = title,
+                SubValue = string.Join("<br/>", TotalViews)
+            };
+        }
+
         private ValueGroup GetPlayedViewTime(RequestTypeEnum type, string title, User user = null)
         {
-            var runTime = new RunTime(new TimeSpan(0), VideoStateEnum.Watched);
+            var runTime = new RunTime();
             switch (type)
             {
                 case RequestTypeEnum.Movies:
                     var movies = user == null ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllMovies(user).Where(m => m.IsPlayed(user));
                     foreach (var movie in movies)
                     {
-                        runTime.Add(new TimeSpan(movie.RunTimeTicks ?? 0));
+                        runTime.Add(movie.RunTimeTicks);
                     }
                     break;
                 case RequestTypeEnum.Shows:
                     var shows = user == null ? GetAllEpisodes().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllEpisodes(user).Where(m => m.IsPlayed(user));
                     foreach (var show in shows)
                     {
-                        runTime.Add(new TimeSpan(show.RunTimeTicks ?? 0));
+                        runTime.Add(show.RunTimeTicks);
                     }
                     break;
                 case RequestTypeEnum.All:
                     var items = user == null ? GetAllBaseItems().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllBaseItems().Where(m => m.IsPlayed(user));
                     foreach (var item in items)
                     {
-                        runTime.Add(new TimeSpan(item.RunTimeTicks ?? 0));
+                        runTime.Add(item.RunTimeTicks);
                     }
                     break;
             }
@@ -248,28 +295,28 @@ namespace Statistics.RestServices
 
         private ValueGroup GetViewTime(RequestTypeEnum type, string title, User user = null)
         {
-            var runTime = new RunTime(new TimeSpan(0L), VideoStateEnum.All);
+            var runTime = new RunTime();
             switch (type)
             {
                 case RequestTypeEnum.Movies:
                     var movies = user == null ? GetAllMovies() : GetAllMovies(user).Where(m => m.IsVisible(user));
                     foreach (var movie in movies)
                     {
-                        runTime.Add(new TimeSpan(movie.RunTimeTicks ?? 0L));
+                        runTime.Add(movie.RunTimeTicks);
                     }
                     break;
                 case RequestTypeEnum.Shows:
                     var shows = user == null ? GetAllEpisodes() : GetAllEpisodes(user).Where(m => m.IsVisible(user));
                     foreach (var show in shows)
                     {
-                        runTime.Add(new TimeSpan(show.RunTimeTicks ?? 0L));
+                        runTime.Add(show.RunTimeTicks);
                     }
                     break;
                 case RequestTypeEnum.All:
                     var items = user == null ? GetAllBaseItems() : GetAllBaseItems().Where(m => m.IsVisible(user));
                     foreach (var item in items)
                     {
-                        runTime.Add(new TimeSpan(item.RunTimeTicks ?? 0L));
+                        runTime.Add(item.RunTimeTicks);
                     }
                     break;
             }
@@ -337,7 +384,8 @@ namespace Statistics.RestServices
             }
             catch (Exception ex)
             {
-                return _jsonSerializer.SerializeToString(new {
+                return _jsonSerializer.SerializeToString(new
+                {
                     message = ex.Message,
                     stackTrace = ex.StackTrace
                 });

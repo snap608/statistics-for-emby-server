@@ -13,7 +13,7 @@
                     This plugin will calculate overall and userbased statistics from this Emby server instance. Keep in mind that viewing an item multiple times will not increase the "watched" time. It will only count as 1.
                 </p>
                 <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="GoToUserStats">View user based statistics</button>
-                <button is="emby-button" type="button" class="raised button-cancel block emby-button" id="GoToShowProgress">View user based show progress</button>
+                <!--<button is="emby-button" type="button" class="raised button-cancel block emby-button" id="GoToShowProgress">View user based show progress</button>-->
                 <h2 id="GeneralTitle"></h2>
                 <div id="stats"></div>
                 <div style="clear: both;"></div>
@@ -113,7 +113,7 @@
                     loadStats: function() {
                         Dashboard.showLoadingMsg();
 
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/0')).then(function (data) {
+                        ApiClient.getJSON(ApiClient.getUrl('Statistics/GeneralStatistics')).then(function (data) {
                             Dashboard.hideLoadingMsg();
                             $("#GeneralTitle").html("General statistics");
                             $.each(data.Stats, function (i, v) {
