@@ -53,14 +53,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\ConfigurationPage.cs" />
-    <Compile Include="Configuration\UserBasedStatistics.cs" />
+    <Compile Include="Enum\VideoQuality.cs" />
+    <Compile Include="Helpers\Calculator.cs" />
+    <Compile Include="Configuration\GeneralStat.cs" />
+    <Compile Include="Configuration\UserStat.cs" />
+    <Compile Include="Models\LastSeenModel.cs" />
+    <Compile Include="Models\VideoQualityModel.cs" />
+    <Compile Include="Pages\ConfigurationPage.cs" />
+    <Compile Include="Pages\UserBasedStatistics.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
-    <Compile Include="Configuration\UserBasedShowOverview.cs" />
+    <Compile Include="Pages\UserBasedShowOverview.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Enum\RequestTypeEnum.cs" />
     <Compile Include="Enum\TimeRangeEnum.cs" />
-    <Compile Include="Enum\VideoStateEnum.cs" />
     <Compile Include="Extentions\OrderByWeekOfyear.cs" />
     <Compile Include="Extentions\ToJson.cs" />
     <Compile Include="Plugin.cs" />
@@ -71,6 +76,7 @@
     <Compile Include="RestServices\UserStatistics.cs" />
     <Compile Include="RestServices\ViewChart.cs" />
     <Compile Include="RestServices\WeekChart.cs" />
+    <Compile Include="ScheduledTasks\CalculateStatsTask.cs" />
     <Compile Include="ViewModel\GraphValue.cs" />
     <Compile Include="ViewModel\MovieViewModel.cs" />
     <Compile Include="ViewModel\RunTime.cs" />
@@ -82,14 +88,15 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\statisticsShowProgress.html" />
+    <EmbeddedResource Include="Pages\UserBasedShowOverview.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\configPage.html" />
+    <EmbeddedResource Include="Pages\configPage.html" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Configuration\UserBasedStatisticsPage.html" />
+    <EmbeddedResource Include="Pages\UserBasedStatisticsPage.html" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "%25AppData%25\Emby-Server\Plugins\" /y</PostBuildEvent>

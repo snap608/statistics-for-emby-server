@@ -8,9 +8,9 @@ using Statistics.Configuration;
 
 namespace Statistics
 {
-       internal class Plugin : BasePlugin<PluginConfiguration>
+    internal class Plugin : BasePlugin<PluginConfiguration>
     {
-     public static Plugin Instance { get; private set; }
+        public static Plugin Instance { get; private set; }
 
         public override string Name => "Statistics";
 

@@ -89,20 +89,20 @@ namespace Statistics.RestServices
                 ShowTotal = GetTotalShows(userById),
                 Stats = new List<ValueGroup>
                     {
-                        GetTopGenres(RequestTypeEnum.Movies, Constants.TopMovieGenres, userById),
-                        GetTopGenres(RequestTypeEnum.Shows, Constants.TopShowGenres, userById),
-                        GetTopYears(Constants.Topyears, userById),
-                        GetPlayedViewTime(RequestTypeEnum.Movies, Constants.MoviesWatched, userById),
-                        GetPlayedViewTime(RequestTypeEnum.Shows, Constants.ShowsWatched, userById),
-                        GetPlayedViewTime(RequestTypeEnum.All, Constants.TotalWatched, userById),
-                        GetViewTime(RequestTypeEnum.Movies, Constants.TotalMoviesTime, userById),
-                        GetViewTime(RequestTypeEnum.Shows, Constants.TotalShowTime, userById),
-                        GetViewTime(RequestTypeEnum.All, Constants.TotalTime, userById)
+                        //GetTopGenres(RequestTypeEnum.Movies, Constants.TopMovieGenres, userById),
+                        //GetTopGenres(RequestTypeEnum.Shows, Constants.TopShowGenres, userById),
+                        // GetTopYears(Constants.Topyears, userById),
+                        //GetPlayedViewTime(RequestTypeEnum.Movies, Constants.MoviesWatched, userById),
+                        //GetPlayedViewTime(RequestTypeEnum.Shows, Constants.ShowsWatched, userById),
+                        //GetPlayedViewTime(RequestTypeEnum.All, Constants.TotalWatched, userById),
+                        //GetViewTime(RequestTypeEnum.Movies, Constants.TotalMoviesTime, userById),
+                        //GetViewTime(RequestTypeEnum.Shows, Constants.TotalShowTime, userById),
+                        //GetViewTime(RequestTypeEnum.All, Constants.TotalTime, userById)
                     },
                 BigStats = new List<ValueGroup>
                     {
-                        GetLastViewed(RequestTypeEnum.Movies, Constants.LastSeenMovies, userById, isUserSearch),
-                        GetLastViewed(RequestTypeEnum.Shows, Constants.LastSeenShows, userById, isUserSearch)
+                        //GetLastViewed(RequestTypeEnum.Movies, Constants.LastSeenMovies, userById, isUserSearch),
+                        //GetLastViewed(RequestTypeEnum.Shows, Constants.LastSeenShows, userById, isUserSearch)
                     }
             };
         }
