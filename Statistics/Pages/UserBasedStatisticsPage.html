@@ -17,162 +17,142 @@
                     </div>
                 </div>
 
-                <button is="emby-button" type="button" class="raised button-submit block emby-button" id="GetUserStats">Load statistics</button>
                 <h2 id="UserTitle"></h2>
-                <div id="UserBasedStats"></div>
+                <div id="statCard-stats">
+                    <div class="statRow" id="userStat"></div>
+                </div>
                 <div style="clear: both;"></div>
                 <button is="emby-button" type="button" class="raised button-cancel block emby-button" onclick="Emby.Page.back();">Go back</button>
             </div>
         </div>
+        
         <style>
-            #UserBasedStats {
-                margin: 0 0 40px 0;
-                width: 900px;
+            .statCard-stats-title {
+                font-size: 1.2rem;
             }
 
-            .layer {
-                height: 100%;
+            .statCard-stats-number {
+                font-size: 1.4rem;
+                line-height: 2.0rem;
+                margin: 0.2rem 0 0.2rem 0;
+                font-weight: 500;
             }
 
-            .box {
-                float: left;
-                width: 300px;
-                height: 140px;
-                -webkit-animation: fadein 1s; /* Safari, Chrome and Opera > 12.1 */
-                -moz-animation: fadein 1s; /* Firefox < 16 */
-                -ms-animation: fadein 1s; /* Internet Explorer */
-                -o-animation: fadein 1s; /* Opera < 12.1 */
-                animation: fadein 1s;
+            .small .statCard .statCard-stats-number {
+                text-align: center;
             }
 
-                .box .UserMainValue {
-                    height: 50%;
-                    font-size: 20px;
-                    position: relative;
-                    padding: 0 3.5%;
-                }
+            .medium .statCard .statCard-stats-number, .large .statCard .statCard-stats-number {
+                text-align: left;
+            }
 
-                    .box .UserMainValue span {
-                        position: absolute;
-                        bottom: 0;
-                        width: 93%;
-                    }
+            .statCard {
+                -webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12), 0 3px 1px -2px rgba(0, 0, 0, .2);
+                box-shadow: 0 2px 2px 0 rgba(0, 0, 0, .14), 0 1px 5px 0 rgba(0, 0, 0, .12), 0 3px 1px -2px rgba(0, 0, 0, .2);
+                background-color: #222326;
+                -webkit-border-radius: 2px;
+                border-radius: 2px;
+            }
 
-                .box .UserSubValue {
-                    height: 50%;
-                    font-size: 15px;
+                .statCard .statCard-content {
+                    padding: 10px 14px;
+                    background-color: rgb(82, 181, 75);
+                    color: #fff !important;
+                    max-height: 100%;
+                    overflow: hidden;
                     text-align: center;
-                    display: block;
-                    padding: 0 3.5%;
                 }
 
-                    .box .UserSubValue span, .box .UserMainValue span {
-                        font-weight: bold;
-                        text-transform: uppercase;
-                        vertical-align: middle;
-                        text-align: center;
+                    .statCard .statCard-content p {
+                        margin: 0;
+                        color: inherit;
                     }
 
-            .bigbox {
+            .statRow .col {
                 float: left;
-                width: 900px;
-                height: 140px;
+                box-sizing: border-box;
+                padding-bottom: 0.75rem;
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+                padding-top: 0.75rem;
+                min-height: 1px;
             }
 
-                .bigbox .UserMainValue {
-                    font-size: 20px;
-                    position: relative;
-                    padding: 10px;
+                .statRow .col.small {
+                    width: 33.3333333333%;
                 }
 
-                .bigbox .UserSubValue {
-                    font-size: 15px;
-                    display: block;
-                    padding: 0 10px;
+                .statRow .col.medium {
+                    width: 66.6666666666%;
                 }
 
-                .bigbox .UserMainValue span {
-                    font-weight: bold;
-                    text-transform: uppercase;
+                .statRow .col.large {
+                    width: 100%;
                 }
 
-                .bigbox .UserSubValue span {
-                    font-weight: bold;
-                    text-transform: none;
+
+            .statRow {
+                margin-left: auto;
+                margin-right: auto;
+                margin-bottom: 20px;
+            }
+
+                .statRow:after {
+                    content: "";
+                    display: table;
+                    clear: both;
                 }
         </style>
-        <!-- ReSharper disable once PossiblyUnassignedProperty -->
+
         <script type="text/javascript">
             (function () {
-                require.config({
-                    paths: {
-                        d3: "http://d3js.org/d3.v3.min"
-                    },
-                    waitSeconds: 2
-                });
-
                 var UserBasedStatsPage = {
-                    loadUserStats: function() {
+                    pluginId: '291d866f-baad-464a-aed6-a4a8b95a8fd7',
+                    loadStats: function(page, user) {
                         Dashboard.showLoadingMsg();
-                        UserBasedStatsPage.clearStats();
-                        var userId = $("#selectUser :selected").val();
-                        ApiClient.getJSON(ApiClient.getUrl('Statistics/UserStatistics/' + userId)).then(function (data) {
-                            $("#UserBasedStats").empty();
-                            Dashboard.hideLoadingMsg();
-                            $("#UserTitle").html("Statistics for " + $("#selectUser :selected").text());
-
-                            $.each(data.Stats, function (i, v) {
-                                $("#UserBasedStats").append('<div class="box userStat" id="userStat' + i + '">'
-                                                    + '<div class="layer">'
-                                                    + '<div class="UserMainValue"><span>' + v.MainValue + '</span></div>'
-                                                    + '<div class="UserSubValue"><span>' + v.SubValue + '</span></div>'
-                                                    + '</div>'
-                                                    + '</div>');
-                            });
-
-                            $.each(data.BigStats, function (i, v) {
-                                $("#UserBasedStats").append('<div class="bigbox userStat">'
-                                                    + '<div class="layer">'
-                                                    + '<div class="UserMainValue"><span>' + v.MainValue + '</span></div>'
-                                                    + '<div class="UserSubValue"><span>' + v.SubValue + '</span></div>'
-                                                    + '</div>'
-                                                    + '</div>');
-
-                            });
-
-                            ApiClient.getJSON(ApiClient.getUrl('Statistics/GetBackground/' + $(".userStat:odd").length)).then(function (data) {
-                                $(".userStat:odd").each(function (i, v) {
-                                    $(v).css('background-image', "url('" + ApiClient.getUrl('Items/' + data[i] + '/Images/Backdrop/0') + "')")
-                                    .css('background-size', 'cover');
+                        console.log(user);
+                        ApiClient.getPluginConfiguration(UserBasedStatsPage.pluginId).then(function (config) {
+                            $("#UserTitle", page).html("User statistics for " + user);
+                            const userStat = $.grep(config.UserStats, function (v) { return v.UserName === user; })[0];
+                            console.log(userStat);
+                            $.each(userStat.ValueGroups,
+                                function(i, v) {
+                                    $("#userStat", page).append('<div class="col ' +
+                                        v.Size +
+                                        '">' +
+                                        '<div class="statCard">' +
+                                        '<div class="statCard-content">' +
+                                        '<p class="statCard-stats-title">' +
+                                        v.Title +
+                                        '</p>' +
+                                        '<p class="statCard-stats-number">' +
+                                        v.Value +
+                                        '</p>' +
+                                        '</div>' +
+                                        '</div>' +
+                                        '</div>');
                                 });
-                            });
 
-                            $(".userStat:odd .layer").each(function (i) {
-                                $(this).css('background-color', 'rgba(50, 50, 50, 0.65)')
-                                    .css('color', 'white');
-                            });
-
-                            $(".userStat:even .layer").each(function (i) {
-                                $(this).css('color', 'black');
-                            });
+                            Dashboard.hideLoadingMsg();
                         });
-                    },
-
-                    clearStats: function () {
-                        $('#UserTitle').html("");
-                        $('#UserBasedStats').html("");
                     }
                 };
 
                 $('.statisticsConfigurationPage').on('pageinit', function (event) {
-                    $('#GetUserStats').on('click', function () {
-                        UserBasedStatsPage.loadUserStats();
+                    var page = this;
+
+                    $('#selectUser', page).on('change', function () {
+                        $("#userStat", page).empty();
+                        const user = $(this).find("option:selected").text();
+                        UserBasedStatsPage.loadStats(page, user);
                     });
                 });
 
                 $('.statisticsConfigurationPage').on('pageshow', function (event) {
+                    var page = this;
+
                     ApiClient.getUsers().then(function (users) {
-                        $('#selectUser').html(users.map(function (user) {
+                        $('#selectUser', page).html(users.map(function (user) {
                             return '<option value="' + user.Id + '">' + user.Name + '</option>';
                         })).selectmenu('refresh').trigger('change');
                     });

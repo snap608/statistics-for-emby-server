@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MediaBrowser.Model.Plugins;
+using Statistics.ViewModel;
 
 namespace Statistics.Configuration
 {
@@ -8,8 +10,10 @@ namespace Statistics.Configuration
         public PluginConfiguration()
         {
             UserStats = new List<UserStat>();
+            GeneralStat = new List<ValueGroup>();
         }
         public List<UserStat> UserStats { get; set; }
-        public GeneralStat GeneralStat { get; set; }
+        public List<ValueGroup> GeneralStat { get; set; }
+        public string LastUpdated { get; set; }
     }
 }

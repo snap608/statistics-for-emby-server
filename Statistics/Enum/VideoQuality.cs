@@ -2,7 +2,8 @@
 {
     public enum VideoQuality
     {
-        Q720 = 1,
+        DVD = 0,
+        Q700 = 1,
         Q1260 = 2,
         Q1900 = 3,
         Q2500 = 4,

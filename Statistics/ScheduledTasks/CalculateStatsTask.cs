@@ -11,6 +11,7 @@ using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Tasks;
 using Statistics.Configuration;
 using Statistics.Helpers;
+using Statistics.ViewModel;
 
 namespace Statistics.ScheduledTasks
 {
@@ -52,26 +53,28 @@ namespace Statistics.ScheduledTasks
 
             // clear all previously saved stats
             PluginConfiguration.UserStats = new List<UserStat>();
-            PluginConfiguration.GeneralStat = new GeneralStat();
+            PluginConfiguration.GeneralStat = new List<ValueGroup>();
             Plugin.Instance.SaveConfiguration();
             
             var calculator = new Calculator(_userManager, _libraryManager, _userDataManager);
 
             // purely for progress reporting
-            var percentPerUser = 100 / users.Count + 1;
+            var percentPerUser = 100 / (users.Count + 2);
             var numComplete = 0;
 
-            //General Stats calculations
-            PluginConfiguration.GeneralStat.TotalMovies = calculator.CalculateTotalMovies();
-            PluginConfiguration.GeneralStat.TotalShows = calculator.CalculateTotalShows();
-            PluginConfiguration.GeneralStat.TotalEpisodes = calculator.CalculateTotalEpisodes();
+            PluginConfiguration.LastUpdated = DateTime.Now.ToString("g", Thread.CurrentThread.CurrentCulture);
 
-            PluginConfiguration.GeneralStat.MovieQualities = calculator.CalculateMovieQualities();
-            PluginConfiguration.GeneralStat.EpisodeQualities = calculator.CalculateEpisodeQualities();
+            //General Stats calculations
+            //General Stats calculations"
+            PluginConfiguration.GeneralStat.Add(calculator.CalculateMovieQualities());
+            PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalMovies());
+            PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalShows());
 
             numComplete++;
-            double currentProgress = percentPerUser * numComplete;
+            double currentProgress = (percentPerUser * numComplete);
             progress.Report(currentProgress);
+
+            var ActiveUsers = new Dictionary<string, RunTime>();
 
             foreach (var user in users)
             {
@@ -79,20 +82,29 @@ namespace Statistics.ScheduledTasks
 
                 await Task.Run(() =>
                 {
+                    var overallTime = calculator.CalculateOverallTime();
+                    ActiveUsers.Add(user.Name, new RunTime(overallTime.Raw));
                     var stat = new UserStat
+
                     {
                         UserName = user.Name,
-                        TopYears = calculator.CalculateTopYears(),
-                        LastShowsSeen = calculator.CalculateLastSeenShows(),
-                        LastMoviesSeen = calculator.CalculateLastSeenMovies(),
-                        TopMovieGenres = calculator.CalculateTopMovieGenres(),
-                        TopShowGenres = calculator.CalculateTopShowGenres(),
-                        PlayedMovieViewTime = calculator.CalculateMovieTime(),
-                        PlayedShowViewTime = calculator.CalculateShowTime(),
-                        PlayedOverallViewTime = calculator.CalculateOverallTime(),
-                        MovieViewTime = calculator.CalculateMovieTime(false),
-                        ShowViewTime = calculator.CalculateShowTime(false),
-                        OverallViewTime = calculator.CalculateOverallTime(false)
+                        ValueGroups = new List<ValueGroup>
+                        {
+                            calculator.CalculateTotalMovies(),
+                            calculator.CalculateTotalShows(),
+                            calculator.CalculateTotalEpisodes(),
+                            calculator.CalculateTopYears(),
+                            calculator.CalculateTopMovieGenres(),
+                            calculator.CalculateTopShowGenres(),
+                            calculator.CalculateMovieTime(),
+                            calculator.CalculateShowTime(),
+                            overallTime,
+                            calculator.CalculateMovieTime(false),
+                            calculator.CalculateShowTime(false),
+                            calculator.CalculateOverallTime(false),
+                            calculator.CalculateLastSeenShows(),
+                            calculator.CalculateLastSeenMovies()
+                        } 
                     };
                     
                     PluginConfiguration.UserStats.Add(stat);
@@ -102,6 +114,13 @@ namespace Statistics.ScheduledTasks
                 currentProgress = percentPerUser * numComplete;
                 progress.Report(currentProgress);
             }
+           
+            PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(ActiveUsers));
+            PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalEpisodes());
+
+            numComplete++;
+            currentProgress = (percentPerUser * numComplete);
+            progress.Report(currentProgress);
 
             Plugin.Instance.SaveConfiguration();
         }

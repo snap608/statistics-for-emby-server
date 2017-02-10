@@ -55,7 +55,6 @@
   <ItemGroup>
     <Compile Include="Enum\VideoQuality.cs" />
     <Compile Include="Helpers\Calculator.cs" />
-    <Compile Include="Configuration\GeneralStat.cs" />
     <Compile Include="Configuration\UserStat.cs" />
     <Compile Include="Models\LastSeenModel.cs" />
     <Compile Include="Models\VideoQualityModel.cs" />
@@ -64,25 +63,11 @@
     <Compile Include="Configuration\PluginConfiguration.cs" />
     <Compile Include="Pages\UserBasedShowOverview.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Enum\RequestTypeEnum.cs" />
-    <Compile Include="Enum\TimeRangeEnum.cs" />
-    <Compile Include="Extentions\OrderByWeekOfyear.cs" />
-    <Compile Include="Extentions\ToJson.cs" />
     <Compile Include="Plugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RestServices\GeneralStatistics.cs" />
-    <Compile Include="RestServices\GetBackground.cs" />
-    <Compile Include="RestServices\StatisticsRestService.cs" />
-    <Compile Include="RestServices\UserStatistics.cs" />
-    <Compile Include="RestServices\ViewChart.cs" />
-    <Compile Include="RestServices\WeekChart.cs" />
     <Compile Include="ScheduledTasks\CalculateStatsTask.cs" />
-    <Compile Include="ViewModel\GraphValue.cs" />
-    <Compile Include="ViewModel\MovieViewModel.cs" />
-    <Compile Include="ViewModel\RunTime.cs" />
-    <Compile Include="ViewModel\StatViewModel.cs" />
-    <Compile Include="ViewModel\TotalViewViewModel.cs" />
-    <Compile Include="ViewModel\ValueGroup.cs" />
+    <Compile Include="Models\RunTimeModel.cs" />
+    <Compile Include="Configuration\ValueGroup.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

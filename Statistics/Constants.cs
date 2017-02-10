@@ -21,5 +21,10 @@
         internal const string MostActiveUsers = "Most active users";
         internal const string MostMovieActiveUsers = "Most movie viewing users";
         internal const string MostShowActiveUsers = "Most show viewing users";
+        internal const string TotalMovies = "Total movies";
+        internal const string TotalShows = "Total Shows";
+        internal const string TotalEpisodes = "Total episodes";
+
+        internal const string MediaQualities = "Media Qualities";
     }
 }

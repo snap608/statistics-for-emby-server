@@ -8,6 +8,7 @@ using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
+using Statistics.Configuration;
 using Statistics.Enum;
 using Statistics.Models;
 using Statistics.ViewModel;
@@ -42,9 +43,11 @@ namespace Statistics.Helpers
 
         #region TopYears
 
-        public List<int> CalculateTopYears()
+        public ValueGroup CalculateTopYears()
         {
-            var movieList = _user == null ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed)) : GetAllMovies(_user).Where(m => m.IsPlayed(_user)).ToList();
+            var movieList = _user == null
+                ? GetAllMovies().Where(m => _userManager.Users.Any(m.IsPlayed))
+                : GetAllMovies(_user).Where(m => m.IsPlayed(_user)).ToList();
             var list = movieList.Select(m => m.ProductionYear ?? 0).Distinct().ToList();
             var source = new Dictionary<int, int>();
             foreach (var num1 in list)
@@ -54,50 +57,79 @@ namespace Statistics.Helpers
                 source.Add(year, num2);
             }
 
-            return source.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList();
-
+            return new ValueGroup
+            {
+                Title = Constants.Topyears,
+                Value = string.Join(", ", source.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList())
+            };
         }
 
         #endregion
 
         #region LastSeen
 
-        public List<string> CalculateLastSeenShows()
+        public ValueGroup CalculateLastSeenShows()
         {
             var viewedEpisodes = GetAllViewedEpisodesByUser(_user)
-                        .OrderByDescending(m => _userDataManager.GetUserData(_user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate)
-                        .Take(5).ToList();
+                .OrderByDescending(
+                    m =>
+                        _userDataManager.GetUserData(
+                                _user ??
+                                _userManager.Users.First(
+                                    u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m)
+                            .LastPlayedDate)
+                .Take(5).ToList();
 
-            return viewedEpisodes
+            var lastSeenList = viewedEpisodes
                 .Select(item => new LastSeenModel
                 {
-                    Name = item.Name,
+                    Name = item.SeriesName + " - " + item.Name,
                     Played = _userDataManager.GetUserData(_user, item).LastPlayedDate ?? DateTime.MinValue,
                     UserName = null
                 }.ToString()).ToList();
+
+            return new ValueGroup
+            {
+                Title = Constants.LastSeenShows,
+                Value = string.Join("<br/>", lastSeenList),
+                Size = "large"
+            };
         }
 
-        public List<string> CalculateLastSeenMovies()
+        public ValueGroup CalculateLastSeenMovies()
         {
             var list = new List<LastSeenModel>();
             var viewedMovies = GetAllViewedMoviesByUser(_user)
-                        .OrderByDescending(m => _userDataManager.GetUserData(_user ?? _userManager.Users.First(u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m).LastPlayedDate)
-                        .Take(5).ToList();
+                .OrderByDescending(
+                    m =>
+                        _userDataManager.GetUserData(
+                                _user ??
+                                _userManager.Users.First(
+                                    u => m.IsPlayed(u) && _userDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m)
+                            .LastPlayedDate)
+                .Take(5).ToList();
 
-            return viewedMovies
+            var lastSeenList = viewedMovies
                 .Select(item => new LastSeenModel
                 {
                     Name = item.Name,
                     Played = _userDataManager.GetUserData(_user, item).LastPlayedDate ?? DateTime.MinValue,
                     UserName = null
                 }.ToString()).ToList();
+
+            return new ValueGroup
+            {
+                Title = Constants.LastSeenMovies,
+                Value = string.Join("<br/>", lastSeenList),
+                Size = "large"
+            };
         }
 
         #endregion
 
         #region TopGenres
 
-        public List<string> CalculateTopMovieGenres()
+        public ValueGroup CalculateTopMovieGenres()
         {
             var result = new Dictionary<string, int>();
             var genres = GetAllMovies(_user).Where(m => m.IsVisible(_user)).SelectMany(m => m.Genres).Distinct();
@@ -108,10 +140,14 @@ namespace Statistics.Helpers
                 result.Add(genre, num);
             }
 
-            return result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList();
+            return new ValueGroup
+            {
+                Title = Constants.TopMovieGenres,
+                Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList())
+            };
         }
 
-        public List<string> CalculateTopShowGenres()
+        public ValueGroup CalculateTopShowGenres()
         {
             var result = new Dictionary<string, int>();
             var genres = GetAllSeries(_user).Where(m => m.IsVisible(_user)).SelectMany(m => m.Genres).Distinct();
@@ -122,14 +158,18 @@ namespace Statistics.Helpers
                 result.Add(genre, num);
             }
 
-            return result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList();
+            return new ValueGroup
+            {
+                Title = Constants.TopShowGenres,
+                Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList())
+            };
         }
 
         #endregion
 
         #region PlayedViewTime
 
-        public string CalculateMovieTime(bool onlyPlayed = true)
+        public ValueGroup CalculateMovieTime(bool onlyPlayed = true)
         {
             var runTime = new RunTime();
             var movies = _user == null
@@ -140,24 +180,32 @@ namespace Statistics.Helpers
                 runTime.Add(movie.RunTimeTicks);
             }
 
-            return runTime.ToString();
+            return new ValueGroup
+            {
+                Title = Constants.TotalMoviesTime,
+                Value = runTime.ToString()
+            };
         }
 
-        public string CalculateShowTime(bool onlyPlayed = true)
+        public ValueGroup CalculateShowTime(bool onlyPlayed = true)
         {
             var runTime = new RunTime();
             var shows = _user == null
-                ? GetAllEpisodes().Where(m => _userManager.Users.Any(m.IsPlayed) || !onlyPlayed)
-                : GetAllEpisodes(_user).Where(m => (m.IsPlayed(_user) || !onlyPlayed) && m.IsVisible(_user));
+                ? GetAllOwnedEpisodes().Where(m => _userManager.Users.Any(m.IsPlayed) || !onlyPlayed)
+                : GetAllOwnedEpisodes(_user).Where(m => (m.IsPlayed(_user) || !onlyPlayed) && m.IsVisible(_user));
             foreach (var show in shows)
             {
                 runTime.Add(show.RunTimeTicks);
             }
 
-            return runTime.ToString();
+            return new ValueGroup
+            {
+                Title = Constants.TotalShowTime,
+                Value = runTime.ToString()
+            };
         }
 
-        public string CalculateOverallTime(bool onlyPlayed = true)
+        public ValueGroup CalculateOverallTime(bool onlyPlayed = true)
         {
             var runTime = new RunTime();
             var items = _user == null
@@ -168,67 +216,128 @@ namespace Statistics.Helpers
                 runTime.Add(item.RunTimeTicks);
             }
 
-            return runTime.ToString();
+            return new ValueGroup
+            {
+                Title = Constants.TotalTime,
+                Value = runTime.ToString(),
+                Raw = runTime.Ticks
+            };
         }
 
         #endregion
 
         #region TotalMedia
 
-        public int CalculateTotalMovies()
+        public ValueGroup CalculateTotalMovies()
         {
-            return GetAllMovies().Count();
+            return new ValueGroup
+            {
+                Title = Constants.TotalMovies,
+                Value = $"{GetAllMovies(_user).Count()}"
+            };
         }
 
-        public int CalculateTotalShows()
+        public ValueGroup CalculateTotalShows()
         {
-            return GetAllSeries().Count();
+            return new ValueGroup
+            {
+                Title = Constants.TotalShows,
+                Value = $"{GetAllSeries(_user).Count()}"
+            };
         }
 
-        public int CalculateTotalEpisodes()
+        public ValueGroup CalculateTotalEpisodes()
         {
-            return GetAllEpisodes().Count();
+            return new ValueGroup
+            {
+                Title = Constants.TotalEpisodes,
+                Value = $"{GetAllOwnedEpisodes(_user).Count()}"
+            };
+        }
+
+        #endregion
+
+        #region MostActiveUsers
+
+        public ValueGroup CalculateMostActiveUsers(Dictionary<string, RunTime> users)
+        {
+            var mostActiveUsers = users.OrderByDescending(x => x.Value).Take(5);
+
+            return new ValueGroup
+            {
+                Title = Constants.MostActiveUsers,
+                Value = string.Join("<br/>", mostActiveUsers.Select(x => $"{x.Key} - {x.Value.ToString()}")),
+                Size = "medium"
+            };
         }
 
         #endregion
 
         #region Quality
 
-        public List<VideoQualityModel> CalculateMovieQualities()
+        public ValueGroup CalculateMovieQualities()
         {
             var movies = GetAllMovies(_user);
-            var widths = movies.Select(movie => movie.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video)?.Width).ToList();
+            var episodes = GetAllOwnedEpisodes(_user);
 
-            var ceilings  = new[] { 720, 1260, 1900, 2500, 3800 };
-            var groupings = widths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling >= item)).ToList();
+            var moWidths =
+                movies.Select(
+                        movie => movie.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video)?.Width)
+                    .ToList();
+            var epWidths =
+                episodes.Select(
+                        episode => episode.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video)?.Width)
+                    .ToList();
 
-            return new List<VideoQualityModel>
+            var ceilings = new[] { 3800, 2500, 1900, 1260, 700 };
+            var moGroupings = moWidths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling < item)).ToList();
+            var epGroupings = epWidths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling < item)).ToList();
+
+            var qualityList = new List<VideoQualityModel>
             {
-                new VideoQualityModel() { Quality = VideoQuality.Q720, Count = groupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q1260, Count = groupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q1900, Count = groupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q2500, Count = groupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q3800, Count = groupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0 }
+                new VideoQualityModel
+                {
+                    Quality = VideoQuality.DVD,
+                    Movies = moGroupings.FirstOrDefault(x => x.Key == 0)?.Count() ?? 0,
+                    Shows = epGroupings.FirstOrDefault(x => x.Key == 0)?.Count() ?? 0
+                },
+                new VideoQualityModel
+                {
+                    Quality = VideoQuality.Q700,
+                    Movies = moGroupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0,
+                    Shows = epGroupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0
+                },
+                new VideoQualityModel
+                {
+                    Quality = VideoQuality.Q1260,
+                    Movies = moGroupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0,
+                    Shows = epGroupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0
+                },
+                new VideoQualityModel
+                {
+                    Quality = VideoQuality.Q1900,
+                    Movies = moGroupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0,
+                    Shows = epGroupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0
+                },
+                new VideoQualityModel
+                {
+                    Quality = VideoQuality.Q2500,
+                    Movies = moGroupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0,
+                    Shows = epGroupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0
+                },
+                new VideoQualityModel
+                {
+                    Quality = VideoQuality.Q3800,
+                    Movies = moGroupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0,
+                    Shows = epGroupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0
+                }
             };
-        }
 
-        public List<VideoQualityModel> CalculateEpisodeQualities()
-        {
-            var episodes = GetAllEpisodes(_user);
-
-            var boe = episodes.First().GetDefaultVideoStream();
-            var widths = episodes.Select(episode => episode.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video)?.Width).ToList();
-
-            var ceilings = new[] { 700, 1260, 1900, 2500, 3800 };
-            var groupings = widths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling >= item)).ToList();
-
-            return new List<VideoQualityModel>
+            return new ValueGroup
             {
-                new VideoQualityModel() { Quality = VideoQuality.Q720, Count = groupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q1260, Count = groupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q1900, Count = groupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q2500, Count = groupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0 },
-                new VideoQualityModel() { Quality = VideoQuality.Q3800, Count = groupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0 }
+                Title = Constants.MediaQualities,
+                Value = string.Join("<br/>", qualityList),
+                Size = "medium"
             };
         }
 
@@ -238,27 +347,39 @@ namespace Statistics.Helpers
 
         private IEnumerable<Movie> GetAllMovies(User user = null)
         {
-            return _cachedMovieList ?? (_cachedMovieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Movie>());
+            return _cachedMovieList ??
+                   (_cachedMovieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Movie>());
         }
 
         private IEnumerable<Series> GetAllSeries(User user = null)
         {
-            return _cachedSerieList ?? (_cachedSerieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Series>());
+            return _cachedSerieList ??
+                   (_cachedSerieList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Series>());
         }
 
         private IEnumerable<Episode> GetAllEpisodes(User user = null)
         {
-            return _cachedEpisodeList ?? (_cachedEpisodeList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Episode>());
+            return _cachedEpisodeList ??
+                   (_cachedEpisodeList = _libraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Episode>());
+        }
+
+        private IEnumerable<Episode> GetAllOwnedEpisodes(User user = null)
+        {
+            return GetAllEpisodes(user).Where(e => e.GetMediaStreams().Any());
         }
 
         private IEnumerable<Episode> GetAllViewedEpisodesByUser(User user)
         {
-            return GetAllEpisodes(user).Where(m => m.IsPlayed(user) && _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue);
+            return
+                GetAllEpisodes(user)
+                    .Where(m => m.IsPlayed(user) && _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue);
         }
 
         private IEnumerable<Movie> GetAllViewedMoviesByUser(User user)
         {
-            return GetAllMovies(user).Where(m => m.IsPlayed(user) && _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue);
+            return
+                GetAllMovies(user)
+                    .Where(m => m.IsPlayed(user) && _userDataManager.GetUserData(user, m).LastPlayedDate.HasValue);
         }
 
         private IEnumerable<BaseItem> GetAllBaseItems()

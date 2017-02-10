@@ -3,7 +3,7 @@ using System.IO;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller.Plugins;
 
-namespace Statistics.Configuration
+namespace Statistics.Pages
 {
     public class ConfigurationPage : IPluginConfigurationPage
     {

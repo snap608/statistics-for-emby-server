@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using MediaBrowser.Common.Plugins;
 using MediaBrowser.Controller.Plugins;
 
-namespace Statistics.Configuration
+namespace Statistics.Pages
 {
     public class UserBasedStatistics : IPluginConfigurationPage
     {
