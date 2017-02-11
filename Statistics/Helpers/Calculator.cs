@@ -299,37 +299,37 @@ namespace Statistics.Helpers
                 {
                     Quality = VideoQuality.DVD,
                     Movies = moGroupings.FirstOrDefault(x => x.Key == 0)?.Count() ?? 0,
-                    Shows = epGroupings.FirstOrDefault(x => x.Key == 0)?.Count() ?? 0
+                    Episodes = epGroupings.FirstOrDefault(x => x.Key == 0)?.Count() ?? 0
                 },
                 new VideoQualityModel
                 {
                     Quality = VideoQuality.Q700,
                     Movies = moGroupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0,
-                    Shows = epGroupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0
+                    Episodes = epGroupings.FirstOrDefault(x => x.Key == 700)?.Count() ?? 0
                 },
                 new VideoQualityModel
                 {
                     Quality = VideoQuality.Q1260,
                     Movies = moGroupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0,
-                    Shows = epGroupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0
+                    Episodes = epGroupings.FirstOrDefault(x => x.Key == 1260)?.Count() ?? 0
                 },
                 new VideoQualityModel
                 {
                     Quality = VideoQuality.Q1900,
                     Movies = moGroupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0,
-                    Shows = epGroupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0
+                    Episodes = epGroupings.FirstOrDefault(x => x.Key == 1900)?.Count() ?? 0
                 },
                 new VideoQualityModel
                 {
                     Quality = VideoQuality.Q2500,
                     Movies = moGroupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0,
-                    Shows = epGroupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0
+                    Episodes = epGroupings.FirstOrDefault(x => x.Key == 2500)?.Count() ?? 0
                 },
                 new VideoQualityModel
                 {
                     Quality = VideoQuality.Q3800,
                     Movies = moGroupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0,
-                    Shows = epGroupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0
+                    Episodes = epGroupings.FirstOrDefault(x => x.Key == 3800)?.Count() ?? 0
                 }
             };
 

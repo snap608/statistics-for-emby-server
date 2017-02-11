@@ -12,7 +12,7 @@
         internal const string LastSeenMovies = "Last seen movies";
         internal const string LastSeenShows = "Last seen shows";
         internal const string MoviesWatched = "Movies watched";
-        internal const string ShowsWatched = "Shows watched";
+        internal const string ShowsWatched = "Episodes watched";
         internal const string TotalWatched = "Total watched";
         internal const string TotalMoviesTime = "Total movie time";
         internal const string TotalShowTime = "Total show time";
@@ -22,7 +22,7 @@
         internal const string MostMovieActiveUsers = "Most movie viewing users";
         internal const string MostShowActiveUsers = "Most show viewing users";
         internal const string TotalMovies = "Total movies";
-        internal const string TotalShows = "Total Shows";
+        internal const string TotalShows = "Total Episodes";
         internal const string TotalEpisodes = "Total episodes";
 
         internal const string MediaQualities = "Media Qualities";

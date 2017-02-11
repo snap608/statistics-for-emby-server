@@ -11,7 +11,7 @@ namespace Statistics.Models
     {
         public VideoQuality Quality { get; set; }
         public int Movies { get; set; }
-        public int Shows { get; set; }
+        public int Episodes { get; set; }
 
         public override string ToString()
         {
@@ -41,7 +41,10 @@ namespace Statistics.Models
                     break;
             }
 
-            return $"{quality}: {Movies} Movies, {Shows} Shows";
+            var movieText = Movies == 1 ? "Movie" : "Movies";
+            var episodeText = Episodes == 1 ? "Episode" : "Episodes";
+
+            return $"{quality}: {Movies} {movieText}, {Episodes} {episodeText}";
         }
     }
 }
