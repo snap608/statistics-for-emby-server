@@ -5,7 +5,7 @@
 </head>
 <body>
     <link rel="stylesheet" href="http://www.w3schools.com/lib/w3.css">
-    <div data-role="page" class="page type-interior pluginConfigurationPage statisticsConfigurationPage" data-require="emby-button,emby-select">
+    <div data-role="page" class="page type-interior pluginConfigurationPage UserBasedStatisticsPage" data-require="emby-button,emby-select">
         <div data-role="content">
             <div class="content-primary" style="max-width: 900px;">
                 <h1>User based statistics</h1>
@@ -25,7 +25,7 @@
                 <button is="emby-button" type="button" class="raised button-cancel block emby-button" onclick="Emby.Page.back();">Go back</button>
             </div>
         </div>
-        
+
         <style>
             .statCard-stats-title {
                 font-size: 1.2rem;
@@ -61,6 +61,7 @@
                     max-height: 100%;
                     overflow: hidden;
                     text-align: center;
+                    position: relative;
                 }
 
                     .statCard .statCard-content p {
@@ -68,28 +69,12 @@
                         color: inherit;
                     }
 
-            .statRow .col {
-                float: left;
-                box-sizing: border-box;
-                padding-bottom: 0.75rem;
-                padding-left: 0.75rem;
-                padding-right: 0.75rem;
-                padding-top: 0.75rem;
-                min-height: 1px;
-            }
-
-                .statRow .col.small {
-                    width: 33.3333333333%;
-                }
-
-                .statRow .col.medium {
-                    width: 66.6666666666%;
-                }
-
-                .statRow .col.large {
-                    width: 100%;
-                }
-
+                    .statCard .statCard-content .infoBlock {
+                        position: absolute;
+                        right: 5px;
+                        top: 5px;
+                        cursor: pointer;
+                    }
 
             .statRow {
                 margin-left: auto;
@@ -102,35 +87,53 @@
                     display: table;
                     clear: both;
                 }
+
+                .statRow .col {
+                    float: left;
+                    box-sizing: border-box;
+                    padding-bottom: 0.75rem;
+                    padding-left: 0.75rem;
+                    padding-right: 0.75rem;
+                    padding-top: 0.75rem;
+                    min-height: 1px;
+                }
+
+                    .statRow .col.small {
+                        width: 33.3333333333%;
+                    }
+
+                    .statRow .col.medium {
+                        width: 66.6666666666%;
+                    }
+
+                    .statRow .col.large {
+                        width: 100%;
+                    }
         </style>
 
         <script type="text/javascript">
+            function showInfo(text, title) {
+                Dashboard.alert({ message: text, title: title });
+            }
+
             (function () {
                 var UserBasedStatsPage = {
                     pluginId: '291d866f-baad-464a-aed6-a4a8b95a8fd7',
-                    loadStats: function(page, user) {
+                    loadStats: function (page, user) {
                         Dashboard.showLoadingMsg();
-                        console.log(user);
                         ApiClient.getPluginConfiguration(UserBasedStatsPage.pluginId).then(function (config) {
                             $("#UserTitle", page).html("User statistics for " + user);
                             const userStat = $.grep(config.UserStats, function (v) { return v.UserName === user; })[0];
-                            console.log(userStat);
                             $.each(userStat.ValueGroups,
-                                function(i, v) {
-                                    $("#userStat", page).append('<div class="col ' +
-                                        v.Size +
-                                        '">' +
-                                        '<div class="statCard">' +
-                                        '<div class="statCard-content">' +
-                                        '<p class="statCard-stats-title">' +
-                                        v.Title +
-                                        '</p>' +
-                                        '<p class="statCard-stats-number">' +
-                                        v.Value +
-                                        '</p>' +
-                                        '</div>' +
-                                        '</div>' +
-                                        '</div>');
+                                function (i, v) {
+                                    var html = '<div class="col ' + v.Size + '"><div class="statCard"><div class="statCard-content">';
+
+                                    if (v.ExtraInformation !== undefined)
+                                        html += "<div class=\"infoBlock\" onclick=\"showInfo('" + v.ExtraInformation + "', '" + v.Title + "');\"><i class=\"md-icon\">info_outline</i></div>";
+
+                                    html += '<p class="statCard-stats-title">' + v.Title + '</p><p class="statCard-stats-number">' + v.Value + '</p></div></div></div>';
+
+                                    $("#userStat", page).append(html);
                                 });
 
                             Dashboard.hideLoadingMsg();
@@ -138,7 +141,7 @@
                     }
                 };
 
-                $('.statisticsConfigurationPage').on('pageinit', function (event) {
+                $('.UserBasedStatisticsPage').on('pageinit', function (event) {
                     var page = this;
 
                     $('#selectUser', page).on('change', function () {
@@ -148,7 +151,7 @@
                     });
                 });
 
-                $('.statisticsConfigurationPage').on('pageshow', function (event) {
+                $('.UserBasedStatisticsPage').on('pageshow', function (event) {
                     var page = this;
 
                     ApiClient.getUsers().then(function (users) {

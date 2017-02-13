@@ -11,10 +11,12 @@ namespace Statistics.Configuration
     {
         public string UserName { get; set; }
         public List<ValueGroup> ValueGroups { get; set; }
+        public List<ShowProgress> ShowProgresses { get; set; }
 
         public UserStat()
         {
             ValueGroups = new List<ValueGroup>();
+            ShowProgresses = new List<ShowProgress>();
         }
 
        

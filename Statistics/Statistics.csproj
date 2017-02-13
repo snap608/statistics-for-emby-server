@@ -53,9 +53,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\ShowProgress.cs" />
     <Compile Include="Enum\VideoQuality.cs" />
+    <Compile Include="Helpers\BaseCalculator.cs" />
     <Compile Include="Helpers\Calculator.cs" />
     <Compile Include="Configuration\UserStat.cs" />
+    <Compile Include="Helpers\ShowProgressCalculator.cs" />
     <Compile Include="Models\LastSeenModel.cs" />
     <Compile Include="Models\VideoQualityModel.cs" />
     <Compile Include="Pages\ConfigurationPage.cs" />

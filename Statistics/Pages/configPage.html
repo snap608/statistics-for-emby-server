@@ -57,11 +57,19 @@
                     max-height: 100%;
                     overflow: hidden;
                     text-align: center;
+                    position: relative;
                 }
 
                     .statCard .statCard-content p {
                         margin: 0;
                         color: inherit;
+                    }
+
+                    .statCard .statCard-content .infoBlock {
+                        position: absolute;
+                        right: 5px;
+                        top: 5px;
+                        cursor: pointer;
                     }
 
             .statRow .col {
@@ -101,18 +109,20 @@
         </style>
         <!-- ReSharper disable once PossiblyUnassignedProperty -->
         <script type="text/javascript">
-            (function() {
+            
+            function showInfo(text, title) {
+                Dashboard.alert({ message: text, title: title });
+            }
+
+            (function () {
                 var MainPage = {
                     pluginId: '291d866f-baad-464a-aed6-a4a8b95a8fd7',
-                    loadStats: function(page) {
+                    loadStats: function (page) {
                         Dashboard.showLoadingMsg();
 
-                        ApiClient.getPluginConfiguration(MainPage.pluginId).then(function(config) {
+                        ApiClient.getPluginConfiguration(MainPage.pluginId).then(function (config) {
                             if (config.LastUpdated === undefined) {
-                                Dashboard.alert({
-                                    message:
-                                        'No configuration found, please run the statistics task on the Scheduled Tasks page and come back for the results.'
-                                });
+                                Dashboard.alert({ message: 'No configuration found, please run the statistics task on the Scheduled Tasks page and come back for the results.' });
                                 Dashboard.hideLoadingMsg();
                             } else {
 
@@ -120,41 +130,35 @@
                                 $("#GeneralTitle", page).html("General statistics");
 
                                 $.each(config.GeneralStat,
-                                    function(i, v) {
-                                        $("#generalStat", page).append('<div class="col ' +
-                                            v.Size +
-                                            '">' +
-                                            '<div class="statCard">' +
-                                            '<div class="statCard-content">' +
-                                            '<p class="statCard-stats-title">' +
-                                            v.Title +
-                                            '</p>' +
-                                            '<p class="statCard-stats-number">' +
-                                            v.Value +
-                                            '</p>' +
-                                            '</div>' +
-                                            '</div>' +
-                                            '</div>');
+                                    function (i, v) {
+                                        var html = '<div class="col ' + v.Size + '"><div class="statCard"><div class="statCard-content">';
+
+                                        console.log(v.ExtraInformation);
+                                        if (v.ExtraInformation !== undefined)
+                                            html += "<div class=\"infoBlock\" onclick=\"showInfo('" + v.ExtraInformation + "', '" + v.Title + "');\"><i class=\"md-icon\">info_outline</i></div>";
+                                          
+                                        html += '<p class="statCard-stats-title">' + v.Title + '</p><p class="statCard-stats-number">' + v.Value + '</p></div></div></div>';
+
+                                        $("#generalStat", page).append(html);
                                     });
 
                                 Dashboard.hideLoadingMsg();
                             }
                         });
                     }
-
                 };
 
                 $('.statisticsConfigurationPage').on('pageinit', function (event) {
                     var page = this;
 
                     $('#GoToUserStats', page).on('click',
-                        function() {
+                        function () {
                             var href = Dashboard.getConfigurationPageUrl("UserBasedStatistics");
                             Dashboard.navigate(href);
                         });
 
                     $('#GoToShowProgress', page).on('click',
-                        function() {
+                        function () {
                             var href = Dashboard.getConfigurationPageUrl("UserBasedShowOverview");
                             Dashboard.navigate(href);
                         });

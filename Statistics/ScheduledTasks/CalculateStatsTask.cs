@@ -59,7 +59,7 @@ namespace Statistics.ScheduledTasks
             var calculator = new Calculator(_userManager, _libraryManager, _userDataManager);
 
             // purely for progress reporting
-            var percentPerUser = 100 / (users.Count + 2);
+            var percentPerUser = 100 / (users.Count + 1);
             var numComplete = 0;
 
             PluginConfiguration.LastUpdated = DateTime.Now.ToString("g", Thread.CurrentThread.CurrentCulture);
@@ -104,7 +104,8 @@ namespace Statistics.ScheduledTasks
                             calculator.CalculateOverallTime(false),
                             calculator.CalculateLastSeenShows(),
                             calculator.CalculateLastSeenMovies()
-                        } 
+                        },
+                        ShowProgresses = new ShowProgressCalculator(_userManager, _libraryManager, _userDataManager, user).CalculateShowProgress()
                     };
                     
                     PluginConfiguration.UserStats.Add(stat);
@@ -114,13 +115,11 @@ namespace Statistics.ScheduledTasks
                 currentProgress = percentPerUser * numComplete;
                 progress.Report(currentProgress);
             }
-           
+
+            calculator.SetUser(null);
+
             PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(ActiveUsers));
             PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalEpisodes());
-
-            numComplete++;
-            currentProgress = (percentPerUser * numComplete);
-            progress.Report(currentProgress);
 
             Plugin.Instance.SaveConfiguration();
         }
