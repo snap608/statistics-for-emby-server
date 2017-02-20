@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Library;
+using MediaBrowser.Model.Activity;
 using MediaBrowser.Model.Logging;
 using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Tasks;
@@ -22,6 +23,7 @@ namespace Statistics.ScheduledTasks
         private readonly IUserManager _userManager;
         private readonly IUserDataManager _userDataManager;
         private readonly ILogger _logger;
+        private readonly IActivityManager _activityManager;
 
         private static PluginConfiguration PluginConfiguration => Plugin.Instance.Configuration;
 
@@ -29,15 +31,15 @@ namespace Statistics.ScheduledTasks
             IJsonSerializer jsonSerializer,
             IUserManager userManager,
             IUserDataManager userDataManager,
-            ILibraryManager libraryManager)
+            ILibraryManager libraryManager,
+            IActivityManager activityManager)
         {
             _logger = logger.GetLogger("Statistics");
             _jsonSerializer = jsonSerializer;
             _libraryManager = libraryManager;
             _userManager = userManager;
             _userDataManager = userDataManager;
-
-            
+            _activityManager = activityManager;
         }
 
         public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
@@ -55,7 +57,7 @@ namespace Statistics.ScheduledTasks
             PluginConfiguration.UserStats = new List<UserStat>();
             PluginConfiguration.GeneralStat = new List<ValueGroup>();
             Plugin.Instance.SaveConfiguration();
-            
+
             var calculator = new Calculator(_userManager, _libraryManager, _userDataManager);
 
             // purely for progress reporting
@@ -64,8 +66,9 @@ namespace Statistics.ScheduledTasks
 
             PluginConfiguration.LastUpdated = DateTime.Now.ToString("g", Thread.CurrentThread.CurrentCulture);
 
+            var list = _activityManager.GetActivityLogEntries(DateTime.MinValue, null, 100);
+            
             //General Stats calculations
-            //General Stats calculations"
             PluginConfiguration.GeneralStat.Add(calculator.CalculateMovieQualities());
             PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalMovies());
             PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalShows());
@@ -78,6 +81,8 @@ namespace Statistics.ScheduledTasks
 
             foreach (var user in users)
             {
+               
+
                 calculator.SetUser(user);
 
                 await Task.Run(() =>
@@ -88,26 +93,33 @@ namespace Statistics.ScheduledTasks
 
                     {
                         UserName = user.Name,
-                        ValueGroups = new List<ValueGroup>
+                        OverallStats = new List<ValueGroup>
+                        {
+                            overallTime,
+                            calculator.CalculateOverallTime(false),
+                        },
+                        MovieStats = new List<ValueGroup>
                         {
                             calculator.CalculateTotalMovies(),
+                            calculator.CalculateFavoriteYears(),
+                            calculator.CalculateFavoriteMovieGenres(),
+                            calculator.CalculateMovieTime(),
+                            calculator.CalculateMovieTime(false),
+                            calculator.CalculateLastSeenMovies()
+                        },
+                        ShowStats = new List<ValueGroup>
+                        {
                             calculator.CalculateTotalShows(),
                             calculator.CalculateTotalEpisodes(),
-                            calculator.CalculateTopYears(),
-                            calculator.CalculateTopMovieGenres(),
-                            calculator.CalculateTopShowGenres(),
-                            calculator.CalculateMovieTime(),
+                            calculator.CalculateFavoriteShowGenres(),
                             calculator.CalculateShowTime(),
-                            overallTime,
-                            calculator.CalculateMovieTime(false),
                             calculator.CalculateShowTime(false),
-                            calculator.CalculateOverallTime(false),
                             calculator.CalculateLastSeenShows(),
-                            calculator.CalculateLastSeenMovies()
+
                         },
                         ShowProgresses = new ShowProgressCalculator(_userManager, _libraryManager, _userDataManager, user).CalculateShowProgress()
                     };
-                    
+
                     PluginConfiguration.UserStats.Add(stat);
                 }, cancellationToken);
 

@@ -11,7 +11,7 @@ namespace Statistics.Configuration
     {
         public string Name { get; set; }
         public string StartYear { get; set; }
-        public float Progress { get; set; }
+        public string Progress { get; set; }
         public float? Score { get; set; }
         public SeriesStatus? Status { get; set; }
     }

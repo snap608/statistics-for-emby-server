@@ -28,6 +28,7 @@
                 clear: both;
                 border-collapse: separate;
                 border-spacing: 0;
+                color: #0c0c0c !important;
             }
 
                 table.dataTable thead th, table.dataTable tfoot th {
@@ -498,22 +499,24 @@
                             const userStat = $.grep(config.UserStats, function (v) { return v.UserName === user; })[0];
                             console.log(userStat.ShowProgresses);
                             requirejs(['datatables'], function () {
-                                if (!$.fn.dataTable.isDataTable('#ShowsTable')) {
-                                    $('#ShowsTable').DataTable({
-                                        data: userStat.ShowProgresses,
-                                        columns: [
-                                            { title: "Name", data: "Name" },
-                                            { title: "StartYear", data: "StartYear" },
-                                            { title: "Progress", data: "Progress" },
-                                            { title: "Score", data: "Score" },
-                                            { title: "Status", data: "Status" }
-                                        ],
-                                        "order": [[0, "asc"]],
-                                        "pagingType": "simple_numbers",
-                                        "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]],
-                                        "searching": false
-                                    });
+                                if ($.fn.dataTable.isDataTable('#ShowsTable')) {
+                                    var table = $('#ShowsTable').DataTable();
+                                    table.destroy();
                                 }
+
+                                $('#ShowsTable').DataTable({
+                                    data: userStat.ShowProgresses,
+                                    columns: [
+                                        { title: "Name", data: "Name" },
+                                        { title: "StartYear", data: "StartYear" },
+                                        { title: "Progress", data: "Progress" },
+                                        { title: "Score", data: "Score" },
+                                        { title: "Status", data: "Status" }
+                                    ],
+                                    "order": [[0, "asc"]],
+                                    "pagingType": "simple_numbers",
+                                    "lengthMenu": [[25, 50, 100, -1], [25, 50, 100, "All"]]
+                                });
                             });
 
                             Dashboard.hideLoadingMsg();
@@ -532,6 +535,8 @@
                     console.log(user);
                     ShowProgressPage.loadStats(page, user);
                 });
+
+                
             });
 
             $('.ShowProgressUserBasedPage').on('pageshow', function (event) {

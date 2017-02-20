@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediaBrowser.Controller.Entities;
-using MediaBrowser.Controller.Entities.Movies;
-using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
 using Statistics.Configuration;
@@ -27,7 +22,7 @@ namespace Statistics.Helpers
 
         #region TopYears
 
-        public ValueGroup CalculateTopYears()
+        public ValueGroup CalculateFavoriteYears()
         {
             var movieList = User == null
                 ? GetAllMovies().Where(m => UserManager.Users.Any(m.IsPlayed))
@@ -43,7 +38,7 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = Constants.Topyears,
+                Title = Constants.FavoriteYears,
                 Value = string.Join(", ", source.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList()),
                 ExtraInformation = User != null ? Constants.HelpUserToMovieYears : null
             };
@@ -63,7 +58,7 @@ namespace Statistics.Helpers
                                 UserManager.Users.First(
                                     u => m.IsPlayed(u) && UserDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m)
                             .LastPlayedDate)
-                .Take(5).ToList();
+                .Take(6).ToList();
 
             var lastSeenList = viewedEpisodes
                 .Select(item => new LastSeenModel
@@ -83,7 +78,6 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateLastSeenMovies()
         {
-            var list = new List<LastSeenModel>();
             var viewedMovies = GetAllViewedMoviesByUser(User)
                 .OrderByDescending(
                     m =>
@@ -92,7 +86,7 @@ namespace Statistics.Helpers
                                 UserManager.Users.First(
                                     u => m.IsPlayed(u) && UserDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m)
                             .LastPlayedDate)
-                .Take(5).ToList();
+                .Take(6).ToList();
 
             var lastSeenList = viewedMovies
                 .Select(item => new LastSeenModel
@@ -114,7 +108,7 @@ namespace Statistics.Helpers
 
         #region TopGenres
 
-        public ValueGroup CalculateTopMovieGenres()
+        public ValueGroup CalculateFavoriteMovieGenres()
         {
             var result = new Dictionary<string, int>();
             var genres = GetAllMovies(User).Where(m => m.IsVisible(User)).SelectMany(m => m.Genres).Distinct();
@@ -127,14 +121,14 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = Constants.TopMovieGenres,
+                Title = Constants.FavoriteMovieGenres,
                 Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList()),
                 ExtraInformation = User != null ? Constants.HelpUserTopMovieGenres : null
 
             };
         }
 
-        public ValueGroup CalculateTopShowGenres()
+        public ValueGroup CalculateFavoriteShowGenres()
         {
             var result = new Dictionary<string, int>();
             var genres = GetAllSeries(User).Where(m => m.IsVisible(User)).SelectMany(m => m.Genres).Distinct();
@@ -147,7 +141,7 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = Constants.TopShowGenres,
+                Title = Constants.favoriteShowGenres,
                 Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList()),
                 ExtraInformation = User != null ? Constants.HelpUserTopShowGenres : null
             };
@@ -170,8 +164,9 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = onlyPlayed ? Constants.MoviesWatched : Constants.TotalMoviesTime,
-                Value = runTime.ToString()
+                Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalWatchableTime,
+                Value = runTime.ToString(),
+                Size = "half"
             };
         }
 
@@ -188,8 +183,9 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = onlyPlayed ? Constants.ShowsWatched : Constants.TotalShowTime,
-                Value = runTime.ToString()
+                Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalWatchableTime,
+                Value = runTime.ToString(),
+                Size = "half"
             };
         }
 
@@ -206,9 +202,10 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalTime,
+                Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalWatchableTime,
                 Value = runTime.ToString(),
-                Raw = runTime.Ticks
+                Raw = runTime.Ticks,
+                Size = "half"
             };
         }
 
@@ -252,7 +249,7 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateMostActiveUsers(Dictionary<string, RunTime> users)
         {
-            var mostActiveUsers = users.OrderByDescending(x => x.Value).Take(5);
+            var mostActiveUsers = users.OrderByDescending(x => x.Value).Take(6);
 
             return new ValueGroup
             {

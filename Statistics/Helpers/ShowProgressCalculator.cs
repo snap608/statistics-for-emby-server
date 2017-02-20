@@ -39,7 +39,7 @@ namespace Statistics.Helpers
                     Score = show.CommunityRating,
                     Status = show.Status,
                     StartYear = show.PremiereDate?.ToString("MM/yyyy"),
-                    Progress = progress
+                    Progress = progress.ToString("F1") + "%"
                 });
             }
 

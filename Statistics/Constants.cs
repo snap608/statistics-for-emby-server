@@ -7,17 +7,13 @@
         internal const string MainStatisticsName = "UserBasedStatistics";
         internal const string Description = "Get statistics from your collection";
 
-        internal const string TopMovieGenres = "Top Movie Genres";
-        internal const string TopShowGenres = "Top Show Genres";
+        internal const string FavoriteMovieGenres = "Favorite Movie Genres";
+        internal const string favoriteShowGenres = "Favorite Show Genres";
         internal const string LastSeenMovies = "Last Seen Movies";
         internal const string LastSeenShows = "Last Seen Shows";
-        internal const string MoviesWatched = "Movies Watched";
-        internal const string ShowsWatched = "Episodes Watched";
-        internal const string TotalWatched = "Total Watched";
-        internal const string TotalMoviesTime = "Total Movie Time";
-        internal const string TotalShowTime = "Total Show Time";
-        internal const string TotalTime = "Total Time";
-        internal const string Topyears = "Top Movie Years";
+        internal const string TotalWatched = "Total Time Watched";
+        internal const string TotalWatchableTime = "Total Watchable Time";
+        internal const string FavoriteYears = "Favorite Movie Years";
         internal const string MostActiveUsers = "Most Active Users";
         internal const string TotalMovies = "Total Movies";
         internal const string TotalShows = "Total Shows";
