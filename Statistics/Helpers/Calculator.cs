@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using MediaBrowser.Controller.Entities.Movies;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
 using MediaBrowser.Model.Entities;
 using Statistics.Configuration;
@@ -269,14 +272,24 @@ namespace Statistics.Helpers
             var movies = GetAllMovies(User);
             var episodes = GetAllOwnedEpisodes(User);
 
-            var moWidths =
-                movies.Select(
-                        movie => movie.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video)?.Width)
+            var moWidths = movies
+                    .Select(x => x.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video))
+                    .Select(x => x != null ? x.Width : 0)
                     .ToList();
-            var epWidths =
-                episodes.Select(
-                        episode => episode.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video)?.Width)
+            var epWidths = episodes
+                    .Select(x => x.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video))
+                    .Select(x => x != null ? x.Width : 0)
                     .ToList();
+
+            var list = movies
+                .Select(x => x.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video));
+
+            var id = new Guid("3093727f-f98d-e01d-f3ac-598c0d733416");
+
+            var movie = movies.First(x => x.Id == id);
+
+            var streams = movies.First(x => x.Id == id).GetMediaStreams().ToList();
+
 
             var ceilings = new[] { 3800, 2500, 1900, 1260, 700 };
             var moGroupings = moWidths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling < item)).ToList();
@@ -327,6 +340,111 @@ namespace Statistics.Helpers
                 Title = Constants.MediaQualities,
                 Value = string.Join("<br/>", qualityList),
                 Size = "medium"
+            };
+        }
+
+        #endregion
+
+        #region Size
+
+        public ValueGroup CalculateBiggestMovie()
+        {
+            var movies = GetAllMovies(User);
+
+            var biggestMovie = new Movie();
+            double maxSize = 0;
+            foreach (var movie in movies)
+            {
+                var f = new FileInfo(movie.Path);
+                if (maxSize >= f.Length) continue;
+
+                maxSize = f.Length;
+                biggestMovie = movie;
+            }
+
+            maxSize = maxSize / 1073741824; //Byte to Gb
+
+            return new ValueGroup
+            {
+                Title = Constants.BiggestShow,
+                Value = $"{maxSize:F1} Gb  - {biggestMovie.OriginalTitle}",
+                Size = "half"
+            };
+        }
+
+        public ValueGroup CalculateBiggestShow()
+        {
+            var shows = GetAllSeries(User);
+
+            var biggestShow = new Series();
+            double maxSize = 0;
+            foreach (var show in shows)
+            {
+                var episodes = GetAllEpisodes().Where(x => x.SeriesId == show.Id && x.Path != null);
+                var showSize = episodes.Sum(x =>
+                {
+                    var f = new FileInfo(x.Path);
+                    return f.Length;
+                });
+
+                if (maxSize >= showSize) continue;
+
+                maxSize = showSize;
+                biggestShow = show;
+
+            }
+
+            maxSize = maxSize / 1073741824; //Byte to Gb
+
+            return new ValueGroup
+            {
+                Title = Constants.BiggestShow,
+                Value = $"{maxSize:F1} Gb - {biggestShow.Name}",
+                Size = "half"
+            };
+        }
+
+        #endregion
+
+        #region Period
+
+        public ValueGroup CalculateLongestMovie()
+        {
+            var movies = GetAllMovies(User);
+
+            var maxMovie = movies.Where(x => x.RunTimeTicks != null).OrderByDescending(x => x.RunTimeTicks).First();
+
+            return new ValueGroup
+            {
+                Title = Constants.LongestMovie,
+                Value = new TimeSpan(maxMovie.RunTimeTicks ?? 0).ToString(@"hh\:mm\:ss") + " - " + maxMovie.OriginalTitle,
+                Size = "half"
+            };
+        }
+
+        public ValueGroup CalculateLongestShow()
+        {
+            var shows = GetAllSeries(User);
+
+            var maxShow = new Series();
+            long maxTime = 0;
+            foreach (var show in shows)
+            {
+                var episodes = GetAllEpisodes().Where(x => x.SeriesId == show.Id && x.Path != null);
+                var showSize = episodes.Sum(x => x.RunTimeTicks ?? 0);
+
+                if (maxTime >= showSize) continue;
+
+                maxTime = showSize;
+                maxShow = show;
+
+            }
+            
+            return new ValueGroup
+            {
+                Title = Constants.LongestShow,
+                Value = new TimeSpan(maxTime).ToString(@"d\ hh\:mm\:ss") + " - " + maxShow.Name,
+                Size = "half"
             };
         }
 

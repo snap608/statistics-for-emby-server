@@ -19,6 +19,11 @@
         internal const string TotalShows = "Total Shows";
         internal const string TotalEpisodes = "Total Episodes";
         internal const string MediaQualities = "Media Qualities";
+        internal const string LongestMovie = "Longest Movie";
+        internal const string LongestShow = "Longest Show";
+        internal const string BiggestMovie = "Largest Movie";
+        internal const string BiggestShow = "Largest Show";
+
 
         //Help text for stats
         internal const string HelpMostActiveUsers = "Top 5 users that are the most active on the Emby server. This includes viewing movies and episodes.";

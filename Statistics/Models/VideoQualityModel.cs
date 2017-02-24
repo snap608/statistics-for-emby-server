@@ -19,7 +19,7 @@ namespace Statistics.Models
             switch (Quality)
             {
                 case VideoQuality.DVD:
-                    quality = "DVD";
+                    quality = "< 480P";
                     break;
                 case VideoQuality.Q700:
                     quality = "480P";
