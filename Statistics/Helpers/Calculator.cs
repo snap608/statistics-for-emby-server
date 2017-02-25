@@ -125,7 +125,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.FavoriteMovieGenres,
-                Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList()),
+                Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(3).Select(g => g.Key).ToList()),
                 ExtraInformation = User != null ? Constants.HelpUserTopMovieGenres : null
 
             };
@@ -145,7 +145,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.favoriteShowGenres,
-                Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(5).Select(g => g.Key).ToList()),
+                Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(3).Select(g => g.Key).ToList()),
                 ExtraInformation = User != null ? Constants.HelpUserTopShowGenres : null
             };
         }
