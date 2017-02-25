@@ -281,16 +281,6 @@ namespace Statistics.Helpers
                     .Select(x => x != null ? x.Width : 0)
                     .ToList();
 
-            var list = movies
-                .Select(x => x.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video));
-
-            var id = new Guid("3093727f-f98d-e01d-f3ac-598c0d733416");
-
-            var movie = movies.First(x => x.Id == id);
-
-            var streams = movies.First(x => x.Id == id).GetMediaStreams().ToList();
-
-
             var ceilings = new[] { 3800, 2500, 1900, 1260, 700 };
             var moGroupings = moWidths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling < item)).ToList();
             var epGroupings = epWidths.GroupBy(item => ceilings.FirstOrDefault(ceiling => ceiling < item)).ToList();
@@ -355,11 +345,18 @@ namespace Statistics.Helpers
             double maxSize = 0;
             foreach (var movie in movies)
             {
-                var f = new FileInfo(movie.Path);
-                if (maxSize >= f.Length) continue;
+                try
+                {
+                    var f = new FileInfo(movie.Path);
+                    if (maxSize >= f.Length) continue;
 
-                maxSize = f.Length;
-                biggestMovie = movie;
+                    maxSize = f.Length;
+                    biggestMovie = movie;
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
 
             maxSize = maxSize / 1073741824; //Byte to Gb
@@ -381,17 +378,23 @@ namespace Statistics.Helpers
             foreach (var show in shows)
             {
                 var episodes = GetAllEpisodes().Where(x => x.SeriesId == show.Id && x.Path != null);
-                var showSize = episodes.Sum(x =>
+                try
                 {
-                    var f = new FileInfo(x.Path);
-                    return f.Length;
-                });
+                    var showSize = episodes.Sum(x =>
+                    {
+                        var f = new FileInfo(x.Path);
+                        return f.Length;
+                    });
 
-                if (maxSize >= showSize) continue;
+                    if (maxSize >= showSize) continue;
 
-                maxSize = showSize;
-                biggestShow = show;
-
+                    maxSize = showSize;
+                    biggestShow = show;
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
             }
 
             maxSize = maxSize / 1073741824; //Byte to Gb

@@ -4,7 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
+using MediaBrowser.Model.Entities;
 using Statistics.Configuration;
 
 namespace Statistics.Helpers
@@ -27,19 +29,41 @@ namespace Statistics.Helpers
 
             foreach (var show in showList)
             {
-                var TotalEpisodes = show.GetEpisodes(User).Count();
-                var seenEpisodes = show.GetEpisodes(User).Count(e => e.IsPlayed(User));
-                float progress = 0;
-                if (TotalEpisodes > 0)
-                    progress = seenEpisodes / (float)TotalEpisodes * 100;
+                var seasons = show.Children.ToList();
+
+                var collectedEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => e.GetMediaStreams().Any(y => y.Type == MediaStreamType.Video)));
+                collectedEpisodes += seasons.OfType<Episode>().Count(e => e.GetMediaStreams().Any(y => y.Type == MediaStreamType.Video)); //Some Episodes are not in Seasons
+
+                var totalEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => (e.PremiereDate ?? DateTime.MinValue) < DateTime.Now.Date));
+                totalEpisodes += seasons.OfType<Episode>().Count(e => (e.PremiereDate ?? DateTime.MinValue) < DateTime.Now.Date);
+
+                var seenEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => e.IsPlayed(User)));
+                seenEpisodes += seasons.OfType<Episode>().Count(e => e.IsPlayed(User));
+
+                var totalSpecials = seasons.OfType<Season>().Where(s => s.Name == "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => (e.PremiereDate ?? DateTime.MinValue) < DateTime.Now.Date));
+                var seenSpecials = seasons.OfType<Season>().Where(s => s.Name == "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => e.IsPlayed(User)));
+
+                decimal watched = 0;
+                decimal collected = 0;
+                if (totalEpisodes > 0)
+                {
+                    watched = seenEpisodes / (decimal) totalEpisodes * 100;
+                    collected = collectedEpisodes / (decimal) totalEpisodes * 100;
+                }
 
                 showProgress.Add(new ShowProgress
                 {
                     Name = show.Name,
+                    SortName = show.SortName,
                     Score = show.CommunityRating,
                     Status = show.Status,
-                    StartYear = show.PremiereDate?.ToString("MM/yyyy"),
-                    Progress = progress.ToString("F1") + "%"
+                    StartYear = show.PremiereDate?.ToString("yyyy"),
+                    Watched = Math.Round(watched, 1),
+                    Episodes = totalEpisodes,
+                    SeenEpisodes = seenEpisodes,
+                    Specials = totalSpecials,
+                    SeenSpecials = seenSpecials,
+                    Collected = Math.Round(collected, 1)
                 });
             }
 
