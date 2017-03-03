@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MediaBrowser.Model.Plugins;
+using Statistics.Models.Chart;
 using Statistics.ViewModel;
 
 namespace Statistics.Configuration
@@ -11,9 +12,11 @@ namespace Statistics.Configuration
         {
             UserStats = new List<UserStat>();
             GeneralStat = new List<ValueGroup>();
+            Charts = new List<ChartModel>();
         }
         public List<UserStat> UserStats { get; set; }
         public List<ValueGroup> GeneralStat { get; set; }
+        public List<ChartModel> Charts { get; set; }
         public string LastUpdated { get; set; }
     }
 }

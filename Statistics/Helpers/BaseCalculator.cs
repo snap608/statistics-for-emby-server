@@ -39,41 +39,41 @@ namespace Statistics.Helpers
 
         #region Helpers
 
-        public IEnumerable<Movie> GetAllMovies(User user = null)
+        public IEnumerable<Movie> GetAllMovies()
         {
             return CachedMovieList ??
-                   (CachedMovieList = LibraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Movie>());
+                   (CachedMovieList = LibraryManager.GetItemList(new InternalItemsQuery(User)).OfType<Movie>());
         }
 
-        public IEnumerable<Series> GetAllSeries(User user = null)
+        public IEnumerable<Series> GetAllSeries()
         {
             return CachedSerieList ??
-                   (CachedSerieList = LibraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Series>());
+                   (CachedSerieList = LibraryManager.GetItemList(new InternalItemsQuery(User)).OfType<Series>());
         }
 
-        public IEnumerable<Episode> GetAllEpisodes(User user = null)
+        public IEnumerable<Episode> GetAllEpisodes()
         {
             return CachedEpisodeList ??
-                   (CachedEpisodeList = LibraryManager.GetItemList(new InternalItemsQuery(user)).OfType<Episode>());
+                   (CachedEpisodeList = LibraryManager.GetItemList(new InternalItemsQuery(User)).OfType<Episode>());
         }
 
-        public IEnumerable<Episode> GetAllOwnedEpisodes(User user = null)
+        public IEnumerable<Episode> GetAllOwnedEpisodes()
         {
-            return GetAllEpisodes(user).Where(e => e.GetMediaStreams().Any());
+            return GetAllEpisodes().Where(e => e.GetMediaStreams().Any());
         }
 
-        public IEnumerable<Episode> GetAllViewedEpisodesByUser(User user)
-        {
-            return
-                GetAllEpisodes(user)
-                    .Where(m => m.IsPlayed(user) && UserDataManager.GetUserData(user, m).LastPlayedDate.HasValue);
-        }
-
-        public IEnumerable<Movie> GetAllViewedMoviesByUser(User user)
+        public IEnumerable<Episode> GetAllViewedEpisodesByUser()
         {
             return
-                GetAllMovies(user)
-                    .Where(m => m.IsPlayed(user) && UserDataManager.GetUserData(user, m).LastPlayedDate.HasValue);
+                GetAllEpisodes()
+                    .Where(m => m.IsPlayed(User) && UserDataManager.GetUserData(User, m).LastPlayedDate.HasValue);
+        }
+
+        public IEnumerable<Movie> GetAllViewedMoviesByUser()
+        {
+            return
+                GetAllMovies()
+                    .Where(m => m.IsPlayed(User) && UserDataManager.GetUserData(User, m).LastPlayedDate.HasValue);
         }
 
         public IEnumerable<BaseItem> GetAllBaseItems()

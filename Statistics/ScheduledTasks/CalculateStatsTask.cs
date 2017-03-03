@@ -12,6 +12,7 @@ using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Tasks;
 using Statistics.Configuration;
 using Statistics.Helpers;
+using Statistics.Models.Chart;
 using Statistics.ViewModel;
 
 namespace Statistics.ScheduledTasks
@@ -54,11 +55,22 @@ namespace Statistics.ScheduledTasks
             }
 
             // clear all previously saved stats
-            PluginConfiguration.UserStats = new List<UserStat>();
-            PluginConfiguration.GeneralStat = new List<ValueGroup>();
-            Plugin.Instance.SaveConfiguration();
+            try
+            {
+                PluginConfiguration.UserStats = new List<UserStat>();
+                PluginConfiguration.GeneralStat = new List<ValueGroup>();
+                PluginConfiguration.Charts = new List<ChartModel>();
+                Plugin.Instance.SaveConfiguration();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
 
             var calculator = new Calculator(_userManager, _libraryManager, _userDataManager);
+            var chartCalculator = new ChartsCalculator(_userManager, _libraryManager, _userDataManager);
 
             // purely for progress reporting
             var percentPerUser = 100 / (users.Count + 2);
@@ -77,18 +89,16 @@ namespace Statistics.ScheduledTasks
             double currentProgress = (percentPerUser * numComplete);
             progress.Report(currentProgress);
 
-            var ActiveUsers = new Dictionary<string, RunTime>();
+           var activeUsers = new Dictionary<string, RunTime>();
 
             foreach (var user in users)
             {
-               
-
                 calculator.SetUser(user);
 
                 await Task.Run(() =>
                 {
                     var overallTime = calculator.CalculateOverallTime();
-                    ActiveUsers.Add(user.Name, new RunTime(overallTime.Raw));
+                    activeUsers.Add(user.Name, new RunTime(overallTime.Raw));
                     var stat = new UserStat
 
                     {
@@ -130,12 +140,13 @@ namespace Statistics.ScheduledTasks
 
             calculator.SetUser(null);
 
-            PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(ActiveUsers));
+            PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(activeUsers));
             PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalEpisodes());
             PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestMovie());
             PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestMovie());
             PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestShow());
             PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestShow());
+            PluginConfiguration.Charts.Add(chartCalculator.CalculateDayOfWeekForAllUsersChart());
 
             numComplete++;
             currentProgress = percentPerUser * numComplete;

@@ -29,7 +29,7 @@ namespace Statistics.Helpers
         {
             var movieList = User == null
                 ? GetAllMovies().Where(m => UserManager.Users.Any(m.IsPlayed))
-                : GetAllMovies(User).Where(m => m.IsPlayed(User)).ToList();
+                : GetAllMovies().Where(m => m.IsPlayed(User)).ToList();
             var list = movieList.Select(m => m.ProductionYear ?? 0).Distinct().ToList();
             var source = new Dictionary<int, int>();
             foreach (var num1 in list)
@@ -53,7 +53,7 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateLastSeenShows()
         {
-            var viewedEpisodes = GetAllViewedEpisodesByUser(User)
+            var viewedEpisodes = GetAllViewedEpisodesByUser()
                 .OrderByDescending(
                     m =>
                         UserDataManager.GetUserData(
@@ -81,7 +81,7 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateLastSeenMovies()
         {
-            var viewedMovies = GetAllViewedMoviesByUser(User)
+            var viewedMovies = GetAllViewedMoviesByUser()
                 .OrderByDescending(
                     m =>
                         UserDataManager.GetUserData(
@@ -114,11 +114,11 @@ namespace Statistics.Helpers
         public ValueGroup CalculateFavoriteMovieGenres()
         {
             var result = new Dictionary<string, int>();
-            var genres = GetAllMovies(User).Where(m => m.IsVisible(User)).SelectMany(m => m.Genres).Distinct();
+            var genres = GetAllMovies().Where(m => m.IsVisible(User)).SelectMany(m => m.Genres).Distinct();
 
             foreach (var genre in genres)
             {
-                var num = GetAllMovies(User).Count(m => m.Genres.Contains(genre));
+                var num = GetAllMovies().Count(m => m.Genres.Contains(genre));
                 result.Add(genre, num);
             }
 
@@ -134,11 +134,11 @@ namespace Statistics.Helpers
         public ValueGroup CalculateFavoriteShowGenres()
         {
             var result = new Dictionary<string, int>();
-            var genres = GetAllSeries(User).Where(m => m.IsVisible(User)).SelectMany(m => m.Genres).Distinct();
+            var genres = GetAllSeries().Where(m => m.IsVisible(User)).SelectMany(m => m.Genres).Distinct();
 
             foreach (var genre in genres)
             {
-                var num = GetAllSeries(User).Count(m => m.Genres.Contains(genre));
+                var num = GetAllSeries().Count(m => m.Genres.Contains(genre));
                 result.Add(genre, num);
             }
 
@@ -159,7 +159,7 @@ namespace Statistics.Helpers
             var runTime = new RunTime();
             var movies = User == null
                 ? GetAllMovies().Where(m => UserManager.Users.Any(m.IsPlayed) || !onlyPlayed)
-                : GetAllMovies(User).Where(m => (m.IsPlayed(User) || !onlyPlayed) && m.IsVisible(User));
+                : GetAllMovies().Where(m => (m.IsPlayed(User) || !onlyPlayed) && m.IsVisible(User));
             foreach (var movie in movies)
             {
                 runTime.Add(movie.RunTimeTicks);
@@ -178,7 +178,7 @@ namespace Statistics.Helpers
             var runTime = new RunTime();
             var shows = User == null
                 ? GetAllOwnedEpisodes().Where(m => UserManager.Users.Any(m.IsPlayed) || !onlyPlayed)
-                : GetAllOwnedEpisodes(User).Where(m => (m.IsPlayed(User) || !onlyPlayed) && m.IsVisible(User));
+                : GetAllOwnedEpisodes().Where(m => (m.IsPlayed(User) || !onlyPlayed) && m.IsVisible(User));
             foreach (var show in shows)
             {
                 runTime.Add(show.RunTimeTicks);
@@ -221,7 +221,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.TotalMovies,
-                Value = $"{GetAllMovies(User).Count()}",
+                Value = $"{GetAllMovies().Count()}",
                 ExtraInformation = User != null ? Constants.HelpUserTotalMovies : null
             };
         }
@@ -231,7 +231,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.TotalShows,
-                Value = $"{GetAllSeries(User).Count()}",
+                Value = $"{GetAllSeries().Count()}",
                 ExtraInformation = User != null ? Constants.HelpUserTotalShows : null
             };
         }
@@ -241,7 +241,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.TotalEpisodes,
-                Value = $"{GetAllOwnedEpisodes(User).Count()}",
+                Value = $"{GetAllOwnedEpisodes().Count()}",
                 ExtraInformation = User != null ? Constants.HelpUserTotalEpisode : null
             };
         }
@@ -269,8 +269,8 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateMovieQualities()
         {
-            var movies = GetAllMovies(User);
-            var episodes = GetAllOwnedEpisodes(User);
+            var movies = GetAllMovies();
+            var episodes = GetAllOwnedEpisodes();
 
             var moWidths = movies
                     .Select(x => x.GetMediaStreams().FirstOrDefault(s => s.Type == MediaStreamType.Video))
@@ -339,7 +339,7 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateBiggestMovie()
         {
-            var movies = GetAllMovies(User);
+            var movies = GetAllMovies();
 
             var biggestMovie = new Movie();
             double maxSize = 0;
@@ -360,18 +360,19 @@ namespace Statistics.Helpers
             }
 
             maxSize = maxSize / 1073741824; //Byte to Gb
+            var value = CheckMaxLength($"{maxSize:F1} Gb  - {biggestMovie.OriginalTitle}");
 
             return new ValueGroup
             {
-                Title = Constants.BiggestShow,
-                Value = $"{maxSize:F1} Gb  - {biggestMovie.OriginalTitle}",
+                Title = Constants.BiggestMovie,
+                Value = value,
                 Size = "half"
             };
         }
 
         public ValueGroup CalculateBiggestShow()
         {
-            var shows = GetAllSeries(User);
+            var shows = GetAllSeries();
 
             var biggestShow = new Series();
             double maxSize = 0;
@@ -398,11 +399,12 @@ namespace Statistics.Helpers
             }
 
             maxSize = maxSize / 1073741824; //Byte to Gb
+            var value = CheckMaxLength($"{maxSize:F1} Gb - {biggestShow.Name}");
 
             return new ValueGroup
             {
                 Title = Constants.BiggestShow,
-                Value = $"{maxSize:F1} Gb - {biggestShow.Name}",
+                Value = value,
                 Size = "half"
             };
         }
@@ -413,21 +415,21 @@ namespace Statistics.Helpers
 
         public ValueGroup CalculateLongestMovie()
         {
-            var movies = GetAllMovies(User);
+            var movies = GetAllMovies();
 
             var maxMovie = movies.Where(x => x.RunTimeTicks != null).OrderByDescending(x => x.RunTimeTicks).First();
-
+            var value = CheckMaxLength(new TimeSpan(maxMovie.RunTimeTicks ?? 0).ToString(@"hh\:mm\:ss") + " - " + maxMovie.OriginalTitle);
             return new ValueGroup
             {
                 Title = Constants.LongestMovie,
-                Value = new TimeSpan(maxMovie.RunTimeTicks ?? 0).ToString(@"hh\:mm\:ss") + " - " + maxMovie.OriginalTitle,
+                Value = value,
                 Size = "half"
             };
         }
 
         public ValueGroup CalculateLongestShow()
         {
-            var shows = GetAllSeries(User);
+            var shows = GetAllSeries();
 
             var maxShow = new Series();
             long maxTime = 0;
@@ -442,15 +444,23 @@ namespace Statistics.Helpers
                 maxShow = show;
 
             }
-            
+
+            var value = CheckMaxLength(new TimeSpan(maxTime).ToString(@"d\ hh\:mm\:ss") + " - " + maxShow.Name);
             return new ValueGroup
             {
                 Title = Constants.LongestShow,
-                Value = new TimeSpan(maxTime).ToString(@"d\ hh\:mm\:ss") + " - " + maxShow.Name,
+                Value = value,
                 Size = "half"
             };
         }
 
         #endregion
+
+        private string CheckMaxLength(string value)
+        {
+            if (value.Length > 83)
+                return value.Substring(0, 80) + "...";
+            return value;;
+        }
     }
 }

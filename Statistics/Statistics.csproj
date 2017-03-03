@@ -45,6 +45,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -58,9 +59,12 @@
     <Compile Include="Helpers\BaseCalculator.cs" />
     <Compile Include="Helpers\Calculator.cs" />
     <Compile Include="Configuration\UserStat.cs" />
+    <Compile Include="Helpers\ChartsCalculator.cs" />
     <Compile Include="Helpers\ShowProgressCalculator.cs" />
+    <Compile Include="Models\Chart\ChartValueModel.cs" />
     <Compile Include="Models\LastSeenModel.cs" />
     <Compile Include="Models\VideoQualityModel.cs" />
+    <Compile Include="Models\Chart\ChartModel.cs" />
     <Compile Include="Pages\ConfigurationPage.cs" />
     <Compile Include="Pages\UserBasedStatistics.cs" />
     <Compile Include="Configuration\PluginConfiguration.cs" />
@@ -84,7 +88,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Pages\UserBasedStatisticsPage.html" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>xcopy "$(TargetPath)" "%25AppData%25\Emby-Server\Plugins\" /y</PostBuildEvent>
