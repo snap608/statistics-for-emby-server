@@ -24,7 +24,7 @@ namespace Statistics.Helpers
             if (User == null)
                 return null;
 
-            var showList = GetAllSeries(User).OrderBy(x => x.SortName);
+            var showList = GetAllSeries().OrderBy(x => x.SortName);
             var showProgress = new List<ShowProgress>();
 
             foreach (var show in showList)
@@ -34,13 +34,13 @@ namespace Statistics.Helpers
                 var collectedEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => e.GetMediaStreams().Any(y => y.Type == MediaStreamType.Video)));
                 collectedEpisodes += seasons.OfType<Episode>().Count(e => e.GetMediaStreams().Any(y => y.Type == MediaStreamType.Video)); //Some Episodes are not in Seasons
 
-                var totalEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => (e.PremiereDate ?? DateTime.MinValue) < DateTime.Now.Date));
-                totalEpisodes += seasons.OfType<Episode>().Count(e => (e.PremiereDate ?? DateTime.MinValue) < DateTime.Now.Date);
+                var totalEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count());
+                totalEpisodes += seasons.OfType<Episode>().Count();
 
                 var seenEpisodes = seasons.OfType<Season>().Where(s => s.Name != "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => e.IsPlayed(User)));
                 seenEpisodes += seasons.OfType<Episode>().Count(e => e.IsPlayed(User));
 
-                var totalSpecials = seasons.OfType<Season>().Where(s => s.Name == "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => (e.PremiereDate ?? DateTime.MinValue) < DateTime.Now.Date));
+                var totalSpecials = seasons.OfType<Season>().Where(s => s.Name == "Specials").Sum(s => s.Children.OfType<Episode>().Count());
                 var seenSpecials = seasons.OfType<Season>().Where(s => s.Name == "Specials").Sum(s => s.Children.OfType<Episode>().Count(e => e.IsPlayed(User)));
 
                 decimal watched = 0;
