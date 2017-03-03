@@ -188,8 +188,6 @@
                     const user = $(this).find("option:selected").text();
                     ShowProgressPage.loadStats(page, user);
                 });
-
-
             });
 
             $('.ShowProgressUserBasedPage').on('pageshow', function (event) {
@@ -199,8 +197,8 @@
 
                 table.on("aftertablesort", function (event, data) {
                     var th = $(this).find("th");
-                    th.removeClass("btnUserDataOn");
-                    th.eq(data.column).addClass('btnUserDataOn');
+                    th.removeClass("selectLabelFocused");
+                    th.eq(data.column).addClass('selectLabelFocused');
                 });
 
                 var th_to_sort = table.find("thead th").eq(0);
