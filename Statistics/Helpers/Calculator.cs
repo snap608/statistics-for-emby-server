@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
@@ -17,10 +18,10 @@ namespace Statistics.Helpers
     {
         
 
-        public Calculator(IUserManager userManager, ILibraryManager libraryManager, IUserDataManager userDataManager)
+        public Calculator(User user,IUserManager userManager, ILibraryManager libraryManager, IUserDataManager userDataManager)
             :base(userManager, libraryManager, userDataManager)
         {
-            
+            User = user;
         }
 
         #region TopYears
@@ -221,7 +222,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.TotalMovies,
-                Value = $"{GetAllMovies().Count()}",
+                Value = $"{GetOwnedCount(typeof(Movie))}",
                 ExtraInformation = User != null ? Constants.HelpUserTotalMovies : null
             };
         }
@@ -231,17 +232,19 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.TotalShows,
-                Value = $"{GetAllSeries().Count()}",
+                Value = $"{GetOwnedCount(typeof(Series))}",
                 ExtraInformation = User != null ? Constants.HelpUserTotalShows : null
             };
         }
 
         public ValueGroup CalculateTotalEpisodes()
         {
+            
+
             return new ValueGroup
             {
                 Title = Constants.TotalEpisodes,
-                Value = $"{GetAllOwnedEpisodes().Count()}",
+                Value = $"{GetOwnedCount(typeof(Episode))}",
                 ExtraInformation = User != null ? Constants.HelpUserTotalEpisode : null
             };
         }

@@ -7,14 +7,20 @@ using MediaBrowser.Controller.Entities;
 using MediaBrowser.Controller.Entities.Movies;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
+using MediaBrowser.Model.Entities;
 
 namespace Statistics.Helpers
 {
-    public abstract class BaseCalculator
+    public abstract class BaseCalculator : IDisposable
     {
-        public IEnumerable<Movie> CachedMovieList;
-        public IEnumerable<Episode> CachedEpisodeList;
-        public IEnumerable<Series> CachedSerieList;
+        private IEnumerable<Movie> _movieCache;
+        private IEnumerable<Series> _seriesCache;
+        private IEnumerable<Episode> _episodeCache;
+
+        private IEnumerable<Movie> _ownedMovieCache;
+        private IEnumerable<Episode> _ownedEpisodeCache;
+
+
 
         public readonly IUserManager UserManager;
         public readonly ILibraryManager LibraryManager;
@@ -22,65 +28,101 @@ namespace Statistics.Helpers
         public User User;
 
 
-        protected BaseCalculator(IUserManager userManager, ILibraryManager libraryManager, IUserDataManager userDataManager)
+        protected BaseCalculator(IUserManager userManager, ILibraryManager libraryManager,
+            IUserDataManager userDataManager)
         {
             UserManager = userManager;
             LibraryManager = libraryManager;
             UserDataManager = userDataManager;
         }
 
-        public void SetUser(User user)
-        {
-            User = user;
-            CachedEpisodeList = null;
-            CachedMovieList = null;
-            CachedSerieList = null;
-        }
-
         #region Helpers
 
-        public IEnumerable<Movie> GetAllMovies()
+        protected IEnumerable<Movie> GetAllMovies()
         {
-            return CachedMovieList ??
-                   (CachedMovieList = LibraryManager.GetItemList(new InternalItemsQuery(User)).OfType<Movie>());
+            return _movieCache ?? (_movieCache = GetItems<Movie>());
         }
 
-        public IEnumerable<Series> GetAllSeries()
+        protected IEnumerable<Series> GetAllSeries()
         {
-            return CachedSerieList ??
-                   (CachedSerieList = LibraryManager.GetItemList(new InternalItemsQuery(User)).OfType<Series>());
+            return _seriesCache ?? (_seriesCache = GetItems<Series>());
         }
 
-        public IEnumerable<Episode> GetAllEpisodes()
+        protected IEnumerable<Episode> GetAllEpisodes()
         {
-            return CachedEpisodeList ??
-                   (CachedEpisodeList = LibraryManager.GetItemList(new InternalItemsQuery(User)).OfType<Episode>());
+            return _episodeCache ?? (_episodeCache = GetItems<Episode>());
         }
 
-        public IEnumerable<Episode> GetAllOwnedEpisodes()
+        protected IEnumerable<Episode> GetAllOwnedEpisodes()
         {
-            return GetAllEpisodes().Where(e => e.GetMediaStreams().Any());
+            return _ownedEpisodeCache ?? (_ownedEpisodeCache = GetOwnedItems<Episode>());
         }
 
-        public IEnumerable<Episode> GetAllViewedEpisodesByUser()
+        protected IEnumerable<Episode> GetAllViewedEpisodesByUser()
         {
-            return
-                GetAllEpisodes()
-                    .Where(m => m.IsPlayed(User) && UserDataManager.GetUserData(User, m).LastPlayedDate.HasValue);
+            return _ownedEpisodeCache ?? (_ownedEpisodeCache = GetOwnedItems<Episode>(true));
         }
 
-        public IEnumerable<Movie> GetAllViewedMoviesByUser()
+        protected IEnumerable<Movie> GetAllViewedMoviesByUser()
         {
-            return
-                GetAllMovies()
-                    .Where(m => m.IsPlayed(User) && UserDataManager.GetUserData(User, m).LastPlayedDate.HasValue);
+            return _ownedMovieCache ?? (_ownedMovieCache = GetOwnedItems<Movie>(true));
         }
 
-        public IEnumerable<BaseItem> GetAllBaseItems()
+        protected List<BaseItem> GetAllBaseItems()
         {
-            return GetAllMovies().Union(GetAllEpisodes().Cast<BaseItem>());
+            return GetAllMovies().Union(GetAllEpisodes().Cast<BaseItem>()).ToList();
+        }
+
+        protected int GetOwnedCount(Type type)
+        {
+            var query = new InternalItemsQuery(User)
+            {
+                IncludeItemTypes = new[] { type.Name },
+                Limit = 0,
+                Recursive = true,
+                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
+                SourceTypes = new[] { SourceType.Library }
+            };
+
+            return LibraryManager.GetCount(query);
+        }
+
+        private IEnumerable<T> GetItems<T>()
+        {
+            var query = new InternalItemsQuery(User)
+            {
+                IncludeItemTypes = new[] { typeof(T).Name },
+                Recursive = true,
+                SourceTypes = new[] { SourceType.Library }
+            };
+            
+            return LibraryManager.GetItemList(query).OfType<T>();
+        }
+
+        private IEnumerable<T> GetOwnedItems<T>(bool? isPLayed = null)
+        {
+            var query = new InternalItemsQuery(User)
+            {
+                IncludeItemTypes = new[] { typeof(T).Name },
+                IsPlayed = isPLayed,
+                Recursive = true,
+                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
+                SourceTypes = new[] { SourceType.Library }
+            };
+
+            return LibraryManager.GetItemsResult(query).Items.OfType<T>().ToList();
         }
 
         #endregion
+
+        public void Dispose()
+        {
+            User = null;
+        }
+
+        public void SetUser(User user)
+        {
+            User = user;
+        }
     }
 }
