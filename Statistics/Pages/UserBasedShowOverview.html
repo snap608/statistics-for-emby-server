@@ -179,21 +179,24 @@
                 }
             };
 
+            var table;
 
             $('.ShowProgressUserBasedPage').on('pageinit', function (event) {
                 var page = this;
-
-                console.log("pageinit");
                 $('#selectUserShowProgress', page).on('change', function () {
                     const user = $(this).find("option:selected").text();
                     ShowProgressPage.loadStats(page, user);
+
+                    var $th_to_sort =table.find("thead th").eq(0);
+                    $th_to_sort.stupidsort('asc');
+
                 });
             });
 
             $('.ShowProgressUserBasedPage').on('pageshow', function (event) {
                 var page = this;
 
-                var table = $("#ShowsTable").stupidtable();
+                table = $("#ShowsTable").stupidtable();
 
                 table.on("aftertablesort", function (event, data) {
                     var th = $(this).find("th");

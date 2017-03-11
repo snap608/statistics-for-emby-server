@@ -17,8 +17,9 @@ namespace Statistics.Helpers
         private IEnumerable<Series> _seriesCache;
         private IEnumerable<Episode> _episodeCache;
 
-        private IEnumerable<Movie> _ownedMovieCache;
+        private IEnumerable<Movie> _viewedMovieCache;
         private IEnumerable<Episode> _ownedEpisodeCache;
+        private IEnumerable<Episode> _viewedEpisodeCache;
 
 
 
@@ -60,12 +61,12 @@ namespace Statistics.Helpers
 
         protected IEnumerable<Episode> GetAllViewedEpisodesByUser()
         {
-            return _ownedEpisodeCache ?? (_ownedEpisodeCache = GetOwnedItems<Episode>(true));
+            return _viewedEpisodeCache ?? (_viewedEpisodeCache = GetOwnedItems<Episode>(true));
         }
 
         protected IEnumerable<Movie> GetAllViewedMoviesByUser()
         {
-            return _ownedMovieCache ?? (_ownedMovieCache = GetOwnedItems<Movie>(true));
+            return _viewedMovieCache ?? (_viewedMovieCache = GetOwnedItems<Movie>(true));
         }
 
         protected List<BaseItem> GetAllBaseItems()
@@ -118,6 +119,12 @@ namespace Statistics.Helpers
         public void Dispose()
         {
             User = null;
+            _episodeCache = null;
+            _movieCache = null;
+            _ownedEpisodeCache = null;
+            _viewedEpisodeCache = null;
+            _viewedMovieCache = null;
+            _seriesCache = null;
         }
 
         public void SetUser(User user)
