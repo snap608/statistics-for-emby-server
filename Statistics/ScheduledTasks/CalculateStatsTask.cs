@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaBrowser.Common.Configuration;
+using MediaBrowser.Common.Net;
+using MediaBrowser.Controller;
 using MediaBrowser.Controller.Entities;
+using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Library;
-using MediaBrowser.Model.Activity;
-using MediaBrowser.Model.ApiClient;
+using MediaBrowser.Model.Entities;
+using MediaBrowser.Model.IO;
 using MediaBrowser.Model.Logging;
-using MediaBrowser.Model.Serialization;
 using MediaBrowser.Model.Tasks;
+using Statistics.Api;
 using Statistics.Configuration;
 using Statistics.Helpers;
 using Statistics.Models.Chart;
@@ -20,29 +24,34 @@ namespace Statistics.ScheduledTasks
 {
     public class CalculateStatsTask : IScheduledTask
     {
+        private readonly IFileSystem _fileSystem;
+        private readonly IHttpClient _httpClient;
         private readonly ILibraryManager _libraryManager;
-        private readonly IJsonSerializer _jsonSerializer;
-        private readonly IUserManager _userManager;
-        private readonly IUserDataManager _userDataManager;
         private readonly ILogger _logger;
-        private readonly IActivityManager _activityManager;
-
-        private static PluginConfiguration PluginConfiguration => Plugin.Instance.Configuration;
+        private readonly IMemoryStreamFactory _memoryStreamProvider;
+        private readonly IServerApplicationPaths _serverApplicationPaths;
+        private readonly IUserDataManager _userDataManager;
+        private readonly IUserManager _userManager;
+        private readonly IZipClient _zipClient;
 
         public CalculateStatsTask(ILogManager logger,
-            IJsonSerializer jsonSerializer,
             IUserManager userManager,
             IUserDataManager userDataManager,
-            ILibraryManager libraryManager,
-            IActivityManager activityManager)
+            ILibraryManager libraryManager, IZipClient zipClient, IHttpClient httpClient, IFileSystem fileSystem,
+            IMemoryStreamFactory memoryStreamProvider, IServerApplicationPaths serverApplicationPaths)
         {
             _logger = logger.GetLogger("Statistics");
-            _jsonSerializer = jsonSerializer;
             _libraryManager = libraryManager;
             _userManager = userManager;
             _userDataManager = userDataManager;
-            _activityManager = activityManager;
+            _zipClient = zipClient;
+            _httpClient = httpClient;
+            _fileSystem = fileSystem;
+            _memoryStreamProvider = memoryStreamProvider;
+            _serverApplicationPaths = serverApplicationPaths;
         }
+
+        private static PluginConfiguration PluginConfiguration => Plugin.Instance.Configuration;
 
         public async Task Execute(CancellationToken cancellationToken, IProgress<double> progress)
         {
@@ -56,15 +65,24 @@ namespace Statistics.ScheduledTasks
             }
 
             // clear all previously saved stats
-            PluginConfiguration.UserStats = new List<UserStat>();
-            PluginConfiguration.GeneralStat = new List<ValueGroup>();
-            PluginConfiguration.Charts = new List<ChartModel>();
-            Plugin.Instance.SaveConfiguration();
+            try
+            {
+                PluginConfiguration.UserStats = new List<UserStat>();
+                PluginConfiguration.GeneralStat = new List<ValueGroup>();
+                PluginConfiguration.Charts = new List<ChartModel>();
+                Plugin.Instance.SaveConfiguration();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
 
             var chartCalculator = new ChartsCalculator(_userManager, _libraryManager, _userDataManager);
 
             // purely for progress reporting
-            var percentPerUser = 100 / (users.Count + 2);
+            var percentPerUser = 100 / (users.Count + 3);
             var numComplete = 0;
 
             PluginConfiguration.LastUpdated = DateTime.Now.ToString("g", Thread.CurrentThread.CurrentCulture);
@@ -77,10 +95,13 @@ namespace Statistics.ScheduledTasks
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalShows());
             }
 
+            numComplete++;
+            progress.Report(percentPerUser * numComplete);
+
+            CalculateTotalEpisodes(cancellationToken);
 
             numComplete++;
-            double currentProgress = (percentPerUser * numComplete);
-            progress.Report(currentProgress);
+            progress.Report(percentPerUser * numComplete);
 
             var activeUsers = new Dictionary<string, RunTime>();
 
@@ -96,44 +117,44 @@ namespace Statistics.ScheduledTasks
                         {
                             UserName = user.Name,
                             OverallStats = new List<ValueGroup>
-                        {
-                            overallTime,
-                            calculator.CalculateOverallTime(false),
-                        },
+                            {
+                                overallTime,
+                                calculator.CalculateOverallTime(false)
+                            },
                             MovieStats = new List<ValueGroup>
-                        {
-                            calculator.CalculateTotalMovies(),
-                            calculator.CalculateFavoriteYears(),
-                            calculator.CalculateFavoriteMovieGenres(),
-                            calculator.CalculateMovieTime(),
-                            calculator.CalculateMovieTime(false),
-                            calculator.CalculateLastSeenMovies()
-                        },
+                            {
+                                calculator.CalculateTotalMovies(),
+                                calculator.CalculateFavoriteYears(),
+                                calculator.CalculateFavoriteMovieGenres(),
+                                calculator.CalculateMovieTime(),
+                                calculator.CalculateMovieTime(false),
+                                calculator.CalculateLastSeenMovies()
+                            },
                             ShowStats = new List<ValueGroup>
-                        {
-                            calculator.CalculateTotalShows(),
-                            calculator.CalculateTotalEpisodes(),
-                            calculator.CalculateFavoriteShowGenres(),
-                            calculator.CalculateShowTime(),
-                            calculator.CalculateShowTime(false),
-                            calculator.CalculateLastSeenShows(),
-
-                        },
-                            ShowProgresses = new ShowProgressCalculator(_userManager, _libraryManager, _userDataManager, user).CalculateShowProgress()
+                            {
+                                calculator.CalculateTotalShows(),
+                                calculator.CalculateTotalOwnedEpisodes(),
+                                calculator.CalculateFavoriteShowGenres(),
+                                calculator.CalculateShowTime(),
+                                calculator.CalculateShowTime(false),
+                                calculator.CalculateLastSeenShows()
+                            },
+                            ShowProgresses =
+                                new ShowProgressCalculator(_userManager, _libraryManager, _userDataManager, _zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths, user)
+                                    .CalculateShowProgress(PluginConfiguration.TotalEpisodeCounts)
                         };
                         PluginConfiguration.UserStats.Add(stat);
                     }
                 }, cancellationToken);
 
                 numComplete++;
-                currentProgress = percentPerUser * numComplete;
-                progress.Report(currentProgress);
+                progress.Report(percentPerUser * numComplete);
             }
 
             using (var calculator = new Calculator(null, _userManager, _libraryManager, _userDataManager))
             {
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(activeUsers));
-                PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalEpisodes());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalOwnedEpisodes());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestShow());
@@ -142,23 +163,77 @@ namespace Statistics.ScheduledTasks
             }
 
             numComplete++;
-            currentProgress = percentPerUser * numComplete;
-            progress.Report(currentProgress);
+            progress.Report(percentPerUser * numComplete);
 
             Plugin.Instance.SaveConfiguration();
-            GC.Collect(10);
+        }
+
+        private void CalculateTotalEpisodes(CancellationToken cancellationToken)
+        {
+            var seriesList = _libraryManager.GetItemList(new InternalItemsQuery()
+            {
+                IncludeItemTypes = new[] { typeof(Series).Name },
+                Recursive = true,
+                GroupByPresentationUniqueKey = false
+
+            }).Cast<Series>()
+            .ToList();
+
+            var seriesIdsInLibrary = seriesList
+                .Where(i => !string.IsNullOrEmpty(i.GetProviderId(MetadataProviders.Tvdb)))
+                .Select(i => i.GetProviderId(MetadataProviders.Tvdb));
+
+            var calculator = new ShowProgressCalculator(_userManager, _libraryManager, _userDataManager, _zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
+
+            var time = PluginConfiguration.TotalEpisodeCounts.LastUpdateTime;
+            //first run
+            if (string.IsNullOrEmpty(time))
+            {
+                var totals = calculator.CalculateTotalEpisodes(seriesIdsInLibrary, cancellationToken);
+                PluginConfiguration.TotalEpisodeCounts.IdList = totals;
+            }
+            else
+            {
+                var existingShows = PluginConfiguration.TotalEpisodeCounts.IdList.Select(x => x.ShowId).ToList();
+                var updatedList = calculator.GetShowsToUpdate(existingShows, time, cancellationToken).ToList();
+
+                var newShows = seriesIdsInLibrary.Except(existingShows, StringComparer.OrdinalIgnoreCase).ToList();
+                var updatedTotals = calculator.CalculateTotalEpisodes(updatedList, cancellationToken);
+
+                foreach (var showId in updatedList)
+                {
+                    PluginConfiguration.TotalEpisodeCounts.IdList.Single(x => x.ShowId == showId).Count = updatedTotals.Single(x => x.ShowId == showId).Count;
+                }
+
+                var newTotals = calculator.CalculateTotalEpisodes(newShows, cancellationToken);
+
+                foreach (var showId in newShows)
+                {
+                    PluginConfiguration.TotalEpisodeCounts.IdList.Add(new UpdateShowModel(showId, newTotals.Single(x => x.ShowId == showId).Count));
+                }
+            }
+
+            PluginConfiguration.TotalEpisodeCounts.LastUpdateTime = calculator.GetServerTime(cancellationToken);
+            Plugin.Instance.SaveConfiguration();
         }
 
         public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()
         {
-            var trigger = new TaskTriggerInfo { Type = TaskTriggerInfo.TriggerDaily, TimeOfDayTicks = TimeSpan.FromHours(0).Ticks }; //12am
+            var trigger = new TaskTriggerInfo
+            {
+                Type = TaskTriggerInfo.TriggerDaily,
+                TimeOfDayTicks = TimeSpan.FromHours(0).Ticks
+            }; //12am
 
-            return new[] { trigger };
+            return new[] {trigger};
         }
 
         public string Name => "Calculate statistics for all users";
         public string Key => "StatisticsCalculateStatsTask";
-        public string Description => "Task that will calculate statistics needed for the statistics plugin for all users.";
+
+        public string Description
+            => "Task that will calculate statistics needed for the statistics plugin for all users.";
+
         public string Category => "Statistics";
     }
 }

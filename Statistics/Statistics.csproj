@@ -54,6 +54,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Api\TheTvDbProvider.cs" />
+    <Compile Include="Api\UpdateModel.cs" />
     <Compile Include="Configuration\ShowProgress.cs" />
     <Compile Include="Enum\VideoQuality.cs" />
     <Compile Include="Helpers\BaseCalculator.cs" />

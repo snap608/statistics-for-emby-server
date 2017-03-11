@@ -237,10 +237,8 @@ namespace Statistics.Helpers
             };
         }
 
-        public ValueGroup CalculateTotalEpisodes()
+        public ValueGroup CalculateTotalOwnedEpisodes()
         {
-            
-
             return new ValueGroup
             {
                 Title = Constants.TotalEpisodes,
