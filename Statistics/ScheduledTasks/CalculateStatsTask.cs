@@ -65,19 +65,11 @@ namespace Statistics.ScheduledTasks
             }
 
             // clear all previously saved stats
-            try
-            {
-                PluginConfiguration.UserStats = new List<UserStat>();
-                PluginConfiguration.GeneralStat = new List<ValueGroup>();
-                PluginConfiguration.Charts = new List<ChartModel>();
-                Plugin.Instance.SaveConfiguration();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-            
+            PluginConfiguration.UserStats = new List<UserStat>();
+            PluginConfiguration.GeneralStat = new List<ValueGroup>();
+            PluginConfiguration.Charts = new List<ChartModel>();
+            Plugin.Instance.SaveConfiguration();
+
 
             var chartCalculator = new ChartsCalculator(_userManager, _libraryManager, _userDataManager);
 
