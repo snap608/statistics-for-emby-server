@@ -72,7 +72,7 @@ namespace Statistics.Helpers
             
             foreach (var show in showList)
             {
-                var totalEpisodes = tvdbData.IdList.SingleOrDefault(x => x.ShowId == show.GetProviderId(MetadataProviders.Tvdb))?.Count ?? 0;
+                var totalEpisodes = tvdbData.IdList.FirstOrDefault(x => x.ShowId == show.GetProviderId(MetadataProviders.Tvdb))?.Count ?? 0;
 
                 var collectedEpisodes = GetOwnedEpisodesCount(show);
                 var seenEpisodes = GetPlayedEpisodeCount(show);

@@ -49,8 +49,7 @@ namespace Statistics.Api
             }
         }
 
-        public async Task<int> CalculateEpisodeCount(string seriesId, string preferredMetadataLanguage,
-            CancellationToken cancellationToken)
+        public async Task<int> CalculateEpisodeCount(string seriesId, string preferredMetadataLanguage, CancellationToken cancellationToken)
         {
             var fullPath = _serverApplicationPaths.PluginConfigurationsPath + "\\\\Statistics";
 
@@ -96,10 +95,9 @@ namespace Statistics.Api
             {
                 var data = GetUpdatedSeriesIdList(stream);
 
-                var existingDictionary = existingSeriesIds.ToDictionary(i => i, StringComparer.OrdinalIgnoreCase);
+                var existingDictionary = existingSeriesIds.Distinct().ToDictionary(i => i, StringComparer.OrdinalIgnoreCase);
 
-                return data.Item1
-                    .Where(i => !string.IsNullOrWhiteSpace(i) && existingDictionary.ContainsKey(i));
+                return data.Item1.Where(i => !string.IsNullOrWhiteSpace(i) && existingDictionary.ContainsKey(i));
             }
         }
 
@@ -122,11 +120,9 @@ namespace Statistics.Api
         private int ExtractEpisodes(string xmlFile)
         {
             using (
-                var element = _fileSystem.GetFileStream(xmlFile, FileOpenMode.Open, FileAccessMode.Read,
-                    FileShareMode.Read))
+                var element = _fileSystem.GetFileStream(xmlFile, FileOpenMode.Open, FileAccessMode.Read, FileShareMode.Read))
             {
-                var el = XElement
-                    .Load(element);
+                var el = XElement.Load(element);
 
                 return el.Descendants("Episode")
                     .Where(
