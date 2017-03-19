@@ -463,10 +463,15 @@ namespace Statistics.Helpers
         {
             var movies = GetAllMovies();
             var oldest = movies.Aggregate((curMin, x) => (curMin == null || (x.PremiereDate ?? DateTime.MaxValue) < curMin.PremiereDate ? x : curMin));
-            var value = CheckMaxLength($"{oldest.PremiereDate.Value:MM/yyyy} - {oldest.Name}");
+            var oldestDate = oldest.PremiereDate.Value;
+            var numberOfTotalMonths = (DateTime.Now.Year - oldestDate.Year) * 12 + DateTime.Now.Month - oldestDate.Month;
+            var numberOfYears = Math.Floor(numberOfTotalMonths / (decimal)12);
+            var numberOfMonth = Math.Ceiling((numberOfTotalMonths / (decimal)12 - numberOfYears) * 12);
+
+            var value = CheckMaxLength($"{CheckForPlural("month", numberOfMonth, "and")} {CheckForPlural("year", numberOfYears, "")} old - {oldest.Name}");
             return new ValueGroup()
             {
-                Title = "Oldest movie",
+                Title = Constants.OldestMovie,
                 Value = value,
                 Size = "half"
             };
@@ -476,10 +481,11 @@ namespace Statistics.Helpers
         {
             var movies = GetAllMovies();
             var youngest = movies.Aggregate((curMax, x) => (curMax == null || (x.PremiereDate ?? DateTime.MinValue) > curMax.PremiereDate ? x : curMax));
-            var value = CheckMaxLength($"{youngest.PremiereDate.Value:MM/yyyy} - {youngest.Name}");
+            var numberOfTotalDays = DateTime.Now.Date - youngest.PremiereDate.Value;
+            var value = CheckMaxLength($"{CheckForPlural("day", (decimal)numberOfTotalDays.Days, "")} old - {youngest.Name}");
             return new ValueGroup()
             {
-                Title = "Youngest movie",
+                Title = Constants.YoungestMovie,
                 Value = value,
                 Size = "half"
             };
@@ -492,6 +498,15 @@ namespace Statistics.Helpers
             if (value.Length > 83)
                 return value.Substring(0, 80) + "...";
             return value;;
+        }
+
+        private string CheckForPlural(string value, decimal number, string ending)
+        {
+            if(number == 1)
+                return $"{number} {value} {ending}";
+            if (number == 0)
+                return "";
+            return $"{number} {value}s {ending}";
         }
     }
 }

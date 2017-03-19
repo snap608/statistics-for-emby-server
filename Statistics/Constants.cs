@@ -23,6 +23,8 @@
         internal const string LongestShow = "Longest TV Series Runtime";
         internal const string BiggestMovie = "Largest Movie";
         internal const string BiggestShow = "Largest TV Series";
+        internal const string OldestMovie = "Oldest Movie";
+        internal const string YoungestMovie = "Youngest Movie";
 
 
         //Help text for stats
