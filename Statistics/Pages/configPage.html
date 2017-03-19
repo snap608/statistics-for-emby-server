@@ -160,7 +160,7 @@
 
                                 $("#statsIntro", page).append('<b>' + config.LastUpdated + '</b>');
                                 $("#GeneralTitle", page).html("General statistics");
-                                //MainPage.buildChart(config.Charts[0].Week, "");
+                                MainPage.buildChart(config.Charts[0].Week, "");
 
                                 $.each(config.GeneralStat,
                                     function(i, v) {
@@ -206,7 +206,7 @@
                                     .rangeRound([height, 0]);
 
                                 var color = d3.scale.ordinal()
-                                    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+                                    .range(["#52B54B", "#673AB7", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
 
                                 var xAxis = d3.svg.axis()
                                     .scale(x)

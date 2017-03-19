@@ -153,7 +153,7 @@ namespace Statistics.ScheduledTasks
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestShow());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateOldestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateYoungestMovie());
-                //PluginConfiguration.Charts.Add(chartCalculator.CalculateDayOfWeekForAllUsersChart());
+                PluginConfiguration.Charts.Add(chartCalculator.CalculateDayOfWeekForAllUsersChart());
             }
 
             numComplete++;

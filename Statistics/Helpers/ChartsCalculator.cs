@@ -25,7 +25,8 @@ namespace Statistics.Helpers
         public ChartModel CalculateDayOfWeekForAllUsersChart()
         {
             var chartValues = new ChartModel(new[] 
-            { _cul.DateTimeFormat.GetDayName(DayOfWeek.Monday),
+            {
+                _cul.DateTimeFormat.GetDayName(DayOfWeek.Monday),
                 _cul.DateTimeFormat.GetDayName(DayOfWeek.Tuesday),
                 _cul.DateTimeFormat.GetDayName(DayOfWeek.Wednesday),
                 _cul.DateTimeFormat.GetDayName(DayOfWeek.Thursday),
@@ -41,15 +42,20 @@ namespace Statistics.Helpers
                 var userEpisodes = GetAllViewedEpisodesByUser();
 
                 userMovies
-                    .GroupBy(x => (UserDataManager.GetUserData(user, x).LastPlayedDate ?? DateTime.Now).DayOfWeek)
+                    .Where(x => UserDataManager.GetUserData(user, x).Played && UserDataManager.GetUserData(user, x).LastPlayedDate.HasValue)
+                    .GroupBy(x => UserDataManager.GetUserData(user, x).LastPlayedDate.Value.DayOfWeek)
                     .ToDictionary(x => x.Key, x => x.Count())
                     .ToList()
                     .ForEach(x => chartValues.Week.Single(y => y.Key == _cul.DateTimeFormat.GetDayName(x.Key)).Movies += x.Value);
 
-                userEpisodes.GroupBy(x => (UserDataManager.GetUserData(user, x).LastPlayedDate ?? DateTime.Now).DayOfWeek)
+                userEpisodes
+                    .Where(x => UserDataManager.GetUserData(user, x).Played && UserDataManager.GetUserData(user, x).LastPlayedDate.HasValue)
+                    .GroupBy(x => UserDataManager.GetUserData(user, x).LastPlayedDate.Value.DayOfWeek)
                     .ToDictionary(x => x.Key, x => x.Count())
                     .ToList()
                     .ForEach(x => chartValues.Week.Single(y => y.Key == _cul.DateTimeFormat.GetDayName(x.Key)).Episodes += x.Value);
+
+                ClearCache();
             }
 
             return chartValues;

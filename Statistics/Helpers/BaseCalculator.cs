@@ -118,6 +118,16 @@ namespace Statistics.Helpers
 
         public void Dispose()
         {
+            ClearCache();
+        }
+
+        public void SetUser(User user)
+        {
+            User = user;
+        }
+
+        public void ClearCache()
+        {
             User = null;
             _episodeCache = null;
             _movieCache = null;
@@ -125,11 +135,6 @@ namespace Statistics.Helpers
             _viewedEpisodeCache = null;
             _viewedMovieCache = null;
             _seriesCache = null;
-        }
-
-        public void SetUser(User user)
-        {
-            User = user;
         }
     }
 }
