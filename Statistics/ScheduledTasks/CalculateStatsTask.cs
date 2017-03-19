@@ -151,6 +151,8 @@ namespace Statistics.ScheduledTasks
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestShow());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestShow());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateOldestMovie());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateYoungestMovie());
                 //PluginConfiguration.Charts.Add(chartCalculator.CalculateDayOfWeekForAllUsersChart());
             }
 
@@ -178,35 +180,56 @@ namespace Statistics.ScheduledTasks
             var calculator = new ShowProgressCalculator(_userManager, _libraryManager, _userDataManager, _zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
 
             var time = PluginConfiguration.TotalEpisodeCounts.LastUpdateTime;
+            bool callFailed;
             //first run
             if (string.IsNullOrEmpty(time))
             {
-                var totals = calculator.CalculateTotalEpisodes(seriesIdsInLibrary, cancellationToken);
-                PluginConfiguration.TotalEpisodeCounts.IdList = totals;
+                callFailed = FirstTvdbConnection(calculator, seriesIdsInLibrary, cancellationToken);
             }
             else
             {
-                var existingShows = PluginConfiguration.TotalEpisodeCounts.IdList.Select(x => x.ShowId).ToList();
-                var updatedList = calculator.GetShowsToUpdate(existingShows, time, cancellationToken).ToList();
-
-                var newShows = seriesIdsInLibrary.Except(existingShows, StringComparer.OrdinalIgnoreCase).ToList();
-                var updatedTotals = calculator.CalculateTotalEpisodes(updatedList, cancellationToken);
-
-                foreach (var showId in updatedList)
-                {
-                    PluginConfiguration.TotalEpisodeCounts.IdList.First(x => x.ShowId == showId).Count = updatedTotals.First(x => x.ShowId == showId).Count;
-                }
-
-                var newTotals = calculator.CalculateTotalEpisodes(newShows, cancellationToken);
-
-                foreach (var showId in newShows)
-                {
-                    PluginConfiguration.TotalEpisodeCounts.IdList.Add(new UpdateShowModel(showId, newTotals.First(x => x.ShowId == showId).Count));
-                }
+                callFailed = UpdateTvdbConnection(calculator, time, seriesIdsInLibrary, cancellationToken);
             }
 
             PluginConfiguration.TotalEpisodeCounts.LastUpdateTime = calculator.GetServerTime(cancellationToken);
+            PluginConfiguration.IsTheTvdbCallFailed = callFailed;
             Plugin.Instance.SaveConfiguration();
+        }
+
+        private bool FirstTvdbConnection(ShowProgressCalculator calculator, IEnumerable<string> seriesIdsInLibrary, CancellationToken cancellationToken )
+        {
+            var totals = calculator.CalculateTotalEpisodes(seriesIdsInLibrary, cancellationToken);
+            PluginConfiguration.TotalEpisodeCounts.IdList = totals;
+            return calculator.IsCalculationFailed;
+        }
+
+        private bool UpdateTvdbConnection(ShowProgressCalculator calculator, string time, IEnumerable<string> seriesIdsInLibrary, CancellationToken cancellationToken)
+        {
+            var existingShows = PluginConfiguration.TotalEpisodeCounts.IdList.Select(x => x.ShowId).ToList();
+            var updatedList = calculator.GetShowsToUpdate(existingShows, time, cancellationToken).ToList();
+            if (calculator.IsCalculationFailed)
+                return true;
+
+            var newShows = seriesIdsInLibrary.Except(existingShows, StringComparer.OrdinalIgnoreCase).ToList();
+            var updatedTotals = calculator.CalculateTotalEpisodes(updatedList, cancellationToken);
+            if (calculator.IsCalculationFailed)
+                return true;
+
+            foreach (var showId in updatedList)
+            {
+                PluginConfiguration.TotalEpisodeCounts.IdList.First(x => x.ShowId == showId).Count = updatedTotals.First(x => x.ShowId == showId).Count;
+            }
+
+            var newTotals = calculator.CalculateTotalEpisodes(newShows, cancellationToken);
+            if (calculator.IsCalculationFailed)
+                return true;
+
+            foreach (var showId in newShows)
+            {
+                PluginConfiguration.TotalEpisodeCounts.IdList.Add(new UpdateShowModel(showId, newTotals.First(x => x.ShowId == showId).Count));
+            }
+
+            return false;
         }
 
         public IEnumerable<TaskTriggerInfo> GetDefaultTriggers()

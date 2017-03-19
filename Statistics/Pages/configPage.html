@@ -143,6 +143,7 @@
 
                 var MainPage = {
                     pluginId: '291d866f-baad-464a-aed6-a4a8b95a8fd7',
+                    tvdbCallFailed: false,
                     loadStats: function(page) {
                         Dashboard.showLoadingMsg();
 
@@ -154,6 +155,8 @@
                                 });
                                 Dashboard.hideLoadingMsg();
                             } else {
+                                console.log(config.IsTheTvdbCallFailed);
+                                MainPage.tvdbCallFailed = config.IsTheTvdbCallFailed;
 
                                 $("#statsIntro", page).append('<b>' + config.LastUpdated + '</b>');
                                 $("#GeneralTitle", page).html("General statistics");
@@ -294,8 +297,16 @@
 
                     $('#GoToShowProgress', page).on('click',
                         function () {
-                            var href = Dashboard.getConfigurationPageUrl("UserBasedShowOverview");
-                            Dashboard.navigate(href);
+                            console.log(MainPage.tvdbCallFailed);
+                            if (MainPage.tvdbCallFailed) {
+                                Dashboard.alert({
+                                    message:
+                                        'Last time the background calculation task ran it got an error from the TVDB API so no calculations could be made for the show progress. This is mostly because the TVDB server gave a 500 response. <br/><br/>You have to run the task again, if the problem persists wait a bit longer before running the task again.'
+                                });
+                            } else {
+                                var href = Dashboard.getConfigurationPageUrl("UserBasedShowOverview");
+                                Dashboard.navigate(href);
+                            }
                         });
 
                     MainPage.loadStats(page);

@@ -457,6 +457,36 @@ namespace Statistics.Helpers
 
         #endregion
 
+        #region Release Date
+
+        public ValueGroup CalculateOldestMovie()
+        {
+            var movies = GetAllMovies();
+            var oldest = movies.Aggregate((curMin, x) => (curMin == null || (x.PremiereDate ?? DateTime.MaxValue) < curMin.PremiereDate ? x : curMin));
+            var value = CheckMaxLength($"{oldest.PremiereDate.Value:MM/yyyy} - {oldest.Name}");
+            return new ValueGroup()
+            {
+                Title = "Oldest movie",
+                Value = value,
+                Size = "half"
+            };
+        }
+
+        public ValueGroup CalculateYoungestMovie()
+        {
+            var movies = GetAllMovies();
+            var youngest = movies.Aggregate((curMax, x) => (curMax == null || (x.PremiereDate ?? DateTime.MinValue) > curMax.PremiereDate ? x : curMax));
+            var value = CheckMaxLength($"{youngest.PremiereDate.Value:MM/yyyy} - {youngest.Name}");
+            return new ValueGroup()
+            {
+                Title = "Youngest movie",
+                Value = value,
+                Size = "half"
+            };
+        }
+
+        #endregion
+
         private string CheckMaxLength(string value)
         {
             if (value.Length > 83)

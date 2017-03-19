@@ -22,5 +22,6 @@ namespace Statistics.Configuration
         public string LastUpdated { get; set; }
 
         public UpdateModel TotalEpisodeCounts { get; set; }
+        public bool IsTheTvdbCallFailed { get; set; }
     }
 }

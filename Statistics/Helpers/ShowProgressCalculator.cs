@@ -25,6 +25,8 @@ namespace Statistics.Helpers
         private readonly IFileSystem _fileSystem;
         private readonly IMemoryStreamFactory _memoryStreamProvider;
         private readonly IServerApplicationPaths _serverApplicationPaths;
+
+        public bool IsCalculationFailed = false;
         public ShowProgressCalculator(IUserManager userManager, ILibraryManager libraryManager, IUserDataManager userDataManager, IZipClient zipClient, IHttpClient httpClient, IFileSystem fileSystem, IMemoryStreamFactory memoryStreamProvider, IServerApplicationPaths serverApplicationPaths,  User user = null)
             : base(userManager, libraryManager, userDataManager)
         {
@@ -38,8 +40,15 @@ namespace Statistics.Helpers
 
         public string GetServerTime(CancellationToken cancellationToken)
         {
-            var provider = new TheTvDbProvider(_zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
-            return provider.GetServerTime(cancellationToken).Result;
+            try
+            {
+                var provider = new TheTvDbProvider(_zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
+                return provider.GetServerTime(cancellationToken).Result;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public List<UpdateShowModel> CalculateTotalEpisodes(IEnumerable<string> showIds, CancellationToken cancellationToken)
@@ -47,10 +56,17 @@ namespace Statistics.Helpers
             var result = new List<UpdateShowModel>();
             var provider = new TheTvDbProvider(_zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
 
-            foreach (var showId in showIds)
+            try
             {
-                var total = provider.CalculateEpisodeCount(showId, "en", cancellationToken).Result;
-                result.Add(new UpdateShowModel(showId, total));
+                foreach (var showId in showIds)
+                {
+                    var total = provider.CalculateEpisodeCount(showId, "en", cancellationToken).Result;
+                    result.Add(new UpdateShowModel(showId, total));
+                }
+            }
+            catch (Exception)
+            {
+                IsCalculationFailed = true;
             }
 
             return result;
@@ -58,8 +74,16 @@ namespace Statistics.Helpers
 
         public IEnumerable<string> GetShowsToUpdate(IEnumerable<string> showIds, string time, CancellationToken cancellationToken)
         {
-            var provider = new TheTvDbProvider(_zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
-            return provider.GetSeriesIdsToUpdate(showIds, time, cancellationToken).Result;
+            try
+            {
+                var provider = new TheTvDbProvider(_zipClient, _httpClient, _fileSystem, _memoryStreamProvider, _serverApplicationPaths);
+                return provider.GetSeriesIdsToUpdate(showIds, time, cancellationToken).Result;
+            }
+            catch (Exception)
+            {
+                IsCalculationFailed = true;
+                return null;
+            }
         }
 
         public List<ShowProgress> CalculateShowProgress(UpdateModel tvdbData)
