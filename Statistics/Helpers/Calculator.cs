@@ -468,16 +468,16 @@ namespace Statistics.Helpers
             var numberOfYears = Math.Floor(numberOfTotalMonths / (decimal)12);
             var numberOfMonth = Math.Ceiling((numberOfTotalMonths / (decimal)12 - numberOfYears) * 12);
 
-            var value = CheckMaxLength($"{CheckForPlural("month", numberOfMonth, "and")} {CheckForPlural("year", numberOfYears, "")} old - {oldest.Name}");
+            var value = CheckMaxLength($"{CheckForPlural("year", numberOfYears, "and")} {CheckForPlural("month", numberOfMonth, "")} old - {oldest.Name}");
             return new ValueGroup()
             {
-                Title = Constants.OldestMovie,
+                Title = Constants.OldesPremieredtMovie,
                 Value = value,
                 Size = "half"
             };
         }
 
-        public ValueGroup CalculateYoungestMovie()
+        public ValueGroup CalculateNewestMovie()
         {
             var movies = GetAllMovies();
             var youngest = movies.Aggregate((curMax, x) => (curMax == null || (x.PremiereDate ?? DateTime.MinValue) > curMax.PremiereDate ? x : curMax));
@@ -485,7 +485,35 @@ namespace Statistics.Helpers
             var value = CheckMaxLength($"{CheckForPlural("day", (decimal)numberOfTotalDays.Days, "")} old - {youngest.Name}");
             return new ValueGroup()
             {
-                Title = Constants.YoungestMovie,
+                Title = Constants.NewestPremieredMovie,
+                Value = value,
+                Size = "half"
+            };
+        }
+
+        public ValueGroup CalculateNewestAddedMovie()
+        {
+            var movies = GetAllMovies();
+            var youngest = movies.Aggregate((curMax, x) => (curMax == null || x.DateCreated > curMax.DateCreated ? x : curMax));
+            var numberOfTotalDays = DateTime.Now.Date - youngest.DateCreated;
+            var value = CheckMaxLength($"{CheckForPlural("day", (decimal)numberOfTotalDays.Days, "", false)} - {youngest.Name}");
+            return new ValueGroup()
+            {
+                Title = Constants.NewestAddedMovie,
+                Value = value,
+                Size = "half"
+            };
+        }
+
+        public ValueGroup CalculateNewestAddedEpisode()
+        {
+            var episodes = GetAllOwnedEpisodes();
+            var youngest = episodes.Aggregate((curMax, x) => (curMax == null || x.DateCreated > curMax.DateCreated ? x : curMax));
+            var numberOfTotalDays = DateTime.Now.Date - youngest.DateCreated;
+            var value = CheckMaxLength($"{CheckForPlural("day", (decimal)numberOfTotalDays.Days, "", false)} - S{youngest.AiredSeasonNumber} E{youngest.AbsoluteEpisodeNumber} - {youngest.Series.Name}");
+            return new ValueGroup()
+            {
+                Title = Constants.NewestAddedEpisode,
                 Value = value,
                 Size = "half"
             };
@@ -500,11 +528,11 @@ namespace Statistics.Helpers
             return value;;
         }
 
-        private string CheckForPlural(string value, decimal number, string ending)
+        private string CheckForPlural(string value, decimal number, string ending, bool removeZero = true)
         {
             if(number == 1)
                 return $"{number} {value} {ending}";
-            if (number == 0)
+            if (number == 0 && removeZero)
                 return "";
             return $"{number} {value}s {ending}";
         }
