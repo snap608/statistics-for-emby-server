@@ -147,15 +147,17 @@ namespace Statistics.ScheduledTasks
             {
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(activeUsers));
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalOwnedEpisodes());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestShow());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestShow()); 
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestMovie());
-                PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestShow());
-                PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestShow());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateOldestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateNewestMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateNewestAddedMovie());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateNewestAddedEpisode());
-                PluginConfiguration.Charts.Add(chartCalculator.CalculateDayOfWeekForAllUsersChart());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateHighestRating());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateLowestRating());
+                //PluginConfiguration.Charts.Add(chartCalculator.CalculateDayOfWeekForAllUsersChart());
             }
 
             numComplete++;

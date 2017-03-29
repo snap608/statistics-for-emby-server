@@ -51,7 +51,7 @@ namespace Statistics.Api
 
         public async Task<int> CalculateEpisodeCount(string seriesId, string preferredMetadataLanguage, CancellationToken cancellationToken)
         {
-            var fullPath = _serverApplicationPaths.PluginConfigurationsPath + "\\\\Statistics";
+            var fullPath = _serverApplicationPaths.PluginsPath + "\\\\Statistics";
 
             _fileSystem.CreateDirectory(fullPath);
 
@@ -153,7 +153,7 @@ namespace Statistics.Api
                 return new DateTime(year, month, day);
             }
 
-            return DateTime.Today;
+            return DateTime.MaxValue;
         }
 
         private string NormalizeLanguage(string language)
