@@ -104,6 +104,9 @@ namespace Statistics.Helpers
                 var totalSpecials = GetOwnedSpecials(show);
                 var seenSpecials = GetPlayedSpecials(show);
 
+                if (collectedEpisodes > totalEpisodes)
+                    totalEpisodes = collectedEpisodes;
+
                 decimal watched = 0;
                 decimal collected = 0;
                 if (totalEpisodes > 0)
