@@ -128,7 +128,8 @@ namespace Statistics.Helpers
                     SeenEpisodes = seenEpisodes,
                     Specials = totalSpecials,
                     SeenSpecials = seenSpecials,
-                    Collected = Math.Round(collected, 1)
+                    Collected = Math.Round(collected, 1),
+                    Total = totalEpisodes
                 });
             }
 

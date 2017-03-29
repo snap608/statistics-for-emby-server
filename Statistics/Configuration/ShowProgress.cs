@@ -20,5 +20,6 @@ namespace Statistics.Configuration
         public int Specials { get; set; }
         public int SeenSpecials { get; set; }
         public decimal Collected { get; set; }
+        public decimal Total { get; set; }
     }
 }

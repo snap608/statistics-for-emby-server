@@ -20,14 +20,12 @@
                 <table id="ShowsTable" class="tblLibraryReport stripedTable ui-responsive table-stroke detailTable ui-table ui-table-reflow" style="display: table;">
                     <thead>
                         <tr>
-                            <th data-priority="persist" data-colstart="1" data-sort="string">Name</th>
-                            <th data-priority="persist" data-colstart="2" data-sort="int">Started</th>
-                            <th data-priority="persist" data-colstart="3" data-sort="float">Watched</th>
-                            <th data-priority="persist" data-colstart="4">Episodes</th>
-                            <th data-priority="persist" data-colstart="5">Specials</th>
-                            <th data-priority="persist" data-colstart="6" data-sort="float">Collected</th>
-                            <th data-priority="persist" data-colstart="7" data-sort="float">Score</th>
-                            <th data-priority="persist" data-colstart="8" data-sort="string">Status</th>
+                            <th data-priority="persist" data-colstart="1" data-sort="string" class="center">Name</th>
+                            <th data-priority="persist" data-colstart="2" data-sort="int" class="center">Started</th>
+                            <th data-priority="persist" data-colstart="3" data-sort="float" class="center"><span>Watched</span><div class="infoBlock" onclick="showInfo('This column displays the number of watched episodes and the number of collected episodes. You will have 100% when you viewed all normal episodes (no specials, only aired)<br/><br/>If any special episodes are watched it will be displayed as \'+1 sp\'. ', 'Watched episodes');"><i class="md-icon">info_outline</i></div></th>
+                            <th data-priority="persist" data-colstart="6" data-sort="float" class="center"><span>Collected</span><div class="infoBlock" onclick="showInfo('This column displays the number of collected episodes and the number of episodes aired on THETVDB. You will have 100% when you collected all normal episodes (no specials, only aired)<br/><br/>If any special episodes are collected it will be displayed as \'+1 sp\'. ', 'Collected episodes');"><i class="md-icon">info_outline</i></div></th>
+                            <th data-priority="persist" data-colstart="7" data-sort="float" class="center">Score</th>
+                            <th data-priority="persist" data-colstart="8" data-sort="string" class="center">Status</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -36,154 +34,130 @@
             </div>
         </div>
 
-        <style>
-            #ShowsTable th[data-sort] {
-                cursor: pointer;
-                text-decoration: underline;
+    <style>
+        .infoBlock {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            cursor: pointer;
+        }
+
+         #ShowsTable th[data-sort] {
+             cursor: pointer;
+             text-decoration: underline;
+         }
+
+        .detailTableContainer {
+            width: 100%;
+            text-align: center;
+        }
+
+        .detailTable, .detailTable th {
+            border-spacing: 0;
+            text-align: left;
+        }
+
+        .detailTable {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px auto;
+        }
+
+        .stretchedDetailTable {
+            width: 100%;
+        }
+
+        .detailTable a {
+            text-decoration: none;
+        }
+
+        .detailTable a:hover {
+            text-decoration: underline;
+        }
+
+        .detailTable td {
+            border-spacing: 0;
+            padding: 5px;
+        }
+
+        .detailTable th {
+            padding: 5px;
+            font-weight: 700;
+            vertical-align: top;
+        }
+
+        .userDataCell {
+            width: 130px;
+            text-align: right;
+        }
+
+        .desktopColumn, .tabletColumn {
+            display: none;
+        }
+
+        .detailTable .btnPlay {
+            margin: 0;
+        }
+
+        .detailTableButtonsCell {
+            white-space: nowrap;
+        }
+
+        .detailTableButtonsCell button {
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+
+        .detailTableButtonsCell button + button {
+            margin-left: .5em;
+        }
+
+        @media all and (min-width:600px) {
+            .tabletColumn {
+                display: table-cell;
             }
+        }
 
-            .detailTableContainer {
-                width: 100%;
-                text-align: center;
+        @media all and (min-width:1100px) {
+            .desktopColumn {
+                display: table-cell;
             }
+        }
 
-            .detailTable, .detailTable th {
-                border-spacing: 0;
-                text-align: left;
-            }
+        .center {
+            text-align: center !important;
+            position: relative;
+        }
 
-            .detailTable {
-                border-collapse: collapse;
-                width: 100%;
-                margin: 10px auto;
-            }
+        .progress-100 {
+            background-color: #5B990D;
+        }
 
-            .stretchedDetailTable {
-                width: 100%;
-            }
+        .progress-80 {
+            background-color: #9DB269;
+        }
 
-            .detailTable a {
-                text-decoration: none;
-            }
+        .progress-60 {
+            background-color: #F2A70D;
+        }
 
-                .detailTable a:hover {
-                    text-decoration: underline;
-                }
+        .progress-40 {
+            background-color: #F2700D;
+        }
 
-            .detailTable td {
-                border-spacing: 0;
-                padding: 5px;
-            }
-
-            .detailTable th {
-                padding: 5px;
-                font-weight: 700;
-                vertical-align: top;
-            }
-
-            .userDataCell {
-                width: 130px;
-                text-align: right;
-            }
-
-            .desktopColumn, .tabletColumn {
-                display: none;
-            }
-
-            .detailTable .btnPlay {
-                margin: 0;
-            }
-
-            .detailTableButtonsCell {
-                white-space: nowrap;
-            }
-
-                .detailTableButtonsCell button {
-                    margin-top: 0;
-                    margin-bottom: 0;
-                }
-
-                    .detailTableButtonsCell button + button {
-                        margin-left: .5em;
-                    }
-
-            @media all and (min-width:600px) {
-                .tabletColumn {
-                    display: table-cell;
-                }
-            }
-
-            @media all and (min-width:1100px) {
-                .desktopColumn {
-                    display: table-cell;
-                }
-            }
-
-            .detailTable tbody tr:nth-child(odd) td, .detailTable tbody tr:nth-child(odd) th {
-                background-color: #eee;
-                background-color: rgba(0,0,0,.1);
-            }
-
-            .stripedTable tbody tr:nth-child(odd) td, .stripedTable tbody tr:nth-child(odd) th {
-                background-color: #eee;
-                background-color: rgba(0,0,0,.04);
-            }
-
-            .progress-100 {
-                background-image: -moz-linear-gradient(#A6CF41, #5B990D);
-                background-image: linear-gradient(#A6CF41, #5B990D);
-                background-image: -webkit-linear-gradient(#A6CF41, #5B990D);
-                background-image: -o-linear-gradient(#A6CF41, #5B990D);
-                -moz-border-radius: 3px;
-                -webkit-border-radius: 3px;
-                border-radius: 3px;
-            }
-
-            .progress-80 {
-                background-image: -moz-linear-gradient(#E1FF97, #9DB269);
-                background-image: linear-gradient(#E1FF97, #9DB269);
-                background-image: -webkit-linear-gradient(#E1FF97, #9DB269);
-                background-image: -o-linear-gradient(#E1FF97, #9DB269);
-                -moz-border-radius: 3px;
-                -webkit-border-radius: 3px;
-                border-radius: 3px;
-            }
-
-            .progress-60 {
-                background-image: -moz-linear-gradient(#FAD440, #F2A70D);
-                background-image: linear-gradient(#FAD440, #F2A70D);
-                background-image: -webkit-linear-gradient(#FAD440, #F2A70D);
-                background-image: -o-linear-gradient(#FAD440, #F2A70D);
-                -moz-border-radius: 3px;
-                -webkit-border-radius: 3px;
-                border-radius: 3px;
-            }
-
-            .progress-40 {
-                background-image: -moz-linear-gradient(#FAB543, #F2700D);
-                background-image: linear-gradient(#FAB543, #F2700D);
-                background-image: -webkit-linear-gradient(#FAB543, #F2700D);
-                background-image: -o-linear-gradient(#FAB543, #F2700D);
-                -moz-border-radius: 3px;
-                -webkit-border-radius: 3px;
-                border-radius: 3px;
-            }
-
-            .progress-20 {
-                background-image: -moz-linear-gradient(#DA5945, #B11A10);
-                background-image: linear-gradient(#DA5945, #B11A10);
-                background-image: -webkit-linear-gradient(#DA5945, #B11A10);
-                background-image: -o-linear-gradient(#DA5945, #B11A10);
-                -moz-border-radius: 3px;
-                -webkit-border-radius: 3px;
-                border-radius: 3px;
-            }
-        </style>
+        .progress-20 {
+            background-color: #B11A10;
+        }
+    </style>
         <!-- ReSharper disable once PossiblyUnassignedProperty -->
         <script type="text/javascript">
 
+            function showInfo(text, title) {
+                Dashboard.alert({ message: text, title: title });
+            }
+
             (function (c) {
-                c.fn.stupidtable = function (b) { return this.each(function () { var a = c(this); b = b || {}; b = c.extend({}, c.fn.stupidtable.default_sort_fns, b); a.data("sortFns", b); a.on("click.stupidtable", "thead th", function () { c(this).stupidsort() }) }) }; c.fn.stupidsort = function (b) {
+                c.fn.stupidtable = function (b) { return this.each(function () { var a = c(this); b = b || {}; b = c.extend({}, c.fn.stupidtable.default_sort_fns, b); a.data("sortFns", b); a.on("click.stupidtable", "thead th span", function () { c(this).parent().stupidsort() }) }) }; c.fn.stupidsort = function (b) {
                     var a = c(this), g = 0, f = c.fn.stupidtable.dir, e = a.closest("table"), k = a.data("sort") || null; if (null !== k) {
                         a.parents("tr").find("th").slice(0, c(this).index()).each(function () { var a = c(this).attr("colspan") || 1; g += parseInt(a, 10) }); var d; 1 == arguments.length ?
             d = b : (d = b || a.data("sort-default") || f.ASC, a.data("sort-dir") && (d = a.data("sort-dir") === f.ASC ? f.DESC : f.ASC)); if (a.data("sort-dir") !== d) return a.data("sort-dir", d), e.trigger("beforetablesort", { column: g, direction: d }), e.css("display"), setTimeout(function () {
@@ -213,10 +187,14 @@
                                 var html = '<tr>';
                                 html += '<td data-sort-value="' + v.SortName + '">' + v.Name + '</td>';
                                 html += '<td>' + v.StartYear + '</td>';
-                                html += '<td data-sort-value="' + v.Watched + '" class="' + ShowProgressPage.calculateProgressClass(v.Watched) + '">' + v.Watched + '%</td>';
-                                html += '<td>' + v.SeenEpisodes + ' / ' + v.Episodes + '</td>';
-                                html += '<td>' + v.SeenSpecials + ' / ' + v.Specials + '</td>';
-                                html += '<td data-sort-value="' + v.Collected + '" class="' + ShowProgressPage.calculateProgressClass(v.Collected) + '">' + v.Collected + '%</td>';
+                                html += '<td data-sort-value="' + v.Watched + '" class="center ' + ShowProgressPage.calculateProgressClass(v.Watched) + '">' + v.SeenEpisodes + ' / ' + v.Episodes + ' (' + v.Watched + '%)';
+                                if (v.SeenSpecials > 0)
+                                    html += ' +' + v.SeenSpecials + ' sp';
+                                html += '</td>';
+                                html += '<td data-sort-value="' + v.Collected + '" class="center ' + ShowProgressPage.calculateProgressClass(v.Collected) + '">' + v.Episodes + ' / ' + v.Total + ' (' + v.Collected + '%)';
+                                if (v.Specials > 0)
+                                    html += ' +' + v.Specials + ' sp';
+                                html+= '</td>';
                                 html += '<td>' + v.Score + '</td>';
                                 html += '<td>' + v.Status + '</td>';
                                 html += '</tr>';

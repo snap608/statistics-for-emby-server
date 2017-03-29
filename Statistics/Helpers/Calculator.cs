@@ -463,12 +463,18 @@ namespace Statistics.Helpers
         {
             var movies = GetAllMovies();
             var oldest = movies.Where(x => x.PremiereDate.HasValue).Aggregate((curMin, x) => (curMin == null || (x.PremiereDate ?? DateTime.MaxValue) < curMin.PremiereDate ? x : curMin));
-            var oldestDate = oldest.PremiereDate.Value;
-            var numberOfTotalMonths = (DateTime.Now.Year - oldestDate.Year) * 12 + DateTime.Now.Month - oldestDate.Month;
-            var numberOfYears = Math.Floor(numberOfTotalMonths / (decimal)12);
-            var numberOfMonth = Math.Ceiling((numberOfTotalMonths / (decimal)12 - numberOfYears) * 12);
 
-            var value = CheckMaxLength($"{CheckForPlural("year", numberOfYears, "", false)} {CheckForPlural("month", numberOfMonth, "and")} ago - {oldest.Name}");
+            var value = Constants.NoData;
+            if (oldest != null && oldest.PremiereDate.HasValue)
+            {
+                var oldestDate = oldest.PremiereDate.Value;
+                var numberOfTotalMonths = (DateTime.Now.Year - oldestDate.Year) * 12 + DateTime.Now.Month - oldestDate.Month;
+                var numberOfYears = Math.Floor(numberOfTotalMonths / (decimal)12);
+                var numberOfMonth = Math.Ceiling((numberOfTotalMonths / (decimal)12 - numberOfYears) * 12);
+
+                value = CheckMaxLength($"{CheckForPlural("year", numberOfYears, "", false)} {CheckForPlural("month", numberOfMonth, "and")} ago - {oldest.Name}");
+            }
+            
             return new ValueGroup()
             {
                 Title = Constants.OldesPremieredtMovie,
@@ -481,8 +487,14 @@ namespace Statistics.Helpers
         {
             var movies = GetAllMovies();
             var youngest = movies.Where(x => x.PremiereDate.HasValue).Aggregate((curMax, x) => (curMax == null || (x.PremiereDate ?? DateTime.MinValue) > curMax.PremiereDate ? x : curMax));
-            var numberOfTotalDays = DateTime.Now.Date - youngest.PremiereDate.Value;
-            var value = CheckMaxLength($"{CheckForPlural("day", numberOfTotalDays.Days, "")} ago - {youngest.Name}");
+
+            var value = Constants.NoData;
+            if (youngest != null)
+            {
+                var numberOfTotalDays = DateTime.Now.Date - youngest.PremiereDate.Value;
+                value = CheckMaxLength($"{CheckForPlural("day", numberOfTotalDays.Days, "")} ago - {youngest.Name}");
+            }
+
             return new ValueGroup()
             {
                 Title = Constants.NewestPremieredMovie,
@@ -495,9 +507,18 @@ namespace Statistics.Helpers
         {
             var movies = GetAllMovies();
             var youngest = movies.Aggregate((curMax, x) => (curMax == null || x.DateCreated > curMax.DateCreated ? x : curMax));
-            var numberOfTotalDays = DateTime.Now - youngest.DateCreated;
 
-            var value = CheckMaxLength(numberOfTotalDays.Days == 0 ? $"Today - {youngest.Name}" : $"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - {youngest.Name}");
+            var value = Constants.NoData;
+            if (youngest != null)
+            {
+                var numberOfTotalDays = DateTime.Now - youngest.DateCreated;
+
+                value =
+                    CheckMaxLength(numberOfTotalDays.Days == 0
+                        ? $"Today - {youngest.Name}"
+                        : $"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - {youngest.Name}");
+            }
+
             return new ValueGroup()
             {
                 Title = Constants.NewestAddedMovie,
@@ -510,9 +531,18 @@ namespace Statistics.Helpers
         {
             var episodes = GetAllOwnedEpisodes();
             var youngest = episodes.Aggregate((curMax, x) => (curMax == null || x.DateCreated > curMax.DateCreated ? x : curMax));
-            var numberOfTotalDays = DateTime.Now.Date - youngest.DateCreated;
 
-            var value = CheckMaxLength(numberOfTotalDays.Days == 0 ? $"Today - {youngest.Name}" : $"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - S{youngest.AiredSeasonNumber} E{youngest.DvdEpisodeNumber} - {youngest.Series.Name}");
+            var value = Constants.NoData;
+            if (youngest != null)
+            {
+                var numberOfTotalDays = DateTime.Now.Date - youngest.DateCreated;
+
+                value =
+                    CheckMaxLength(numberOfTotalDays.Days == 0
+                        ? $"Today - {youngest.Name}"
+                        : $"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - S{youngest.AiredSeasonNumber} E{youngest.DvdEpisodeNumber} - {youngest.Series.Name}");
+            }
+
             return new ValueGroup()
             {
                 Title = Constants.NewestAddedEpisode,
@@ -528,8 +558,11 @@ namespace Statistics.Helpers
         public ValueGroup CalculateHighestRating()
         {
             var movies = GetAllMovies();
-            var highestRatedMovie = movies.Where(x => x.CommunityRating.HasValue).OrderByDescending(x => x.CommunityRating).First();
-            var value = CheckMaxLength($"{highestRatedMovie.CommunityRating} - {highestRatedMovie.Name}");
+            var highestRatedMovie = movies.Where(x => x.CommunityRating.HasValue).OrderByDescending(x => x.CommunityRating).FirstOrDefault();
+
+            var value = Constants.NoData;
+            if (highestRatedMovie != null)
+                value = CheckMaxLength($"{highestRatedMovie.CommunityRating} - {highestRatedMovie.Name}");
 
             return new ValueGroup()
             {
@@ -542,8 +575,11 @@ namespace Statistics.Helpers
         public ValueGroup CalculateLowestRating()
         {
             var movies = GetAllMovies();
-            var highestRatedMovie = movies.Where(x => x.CommunityRating.HasValue && x.CommunityRating != 0).OrderBy(x => x.CommunityRating).First();
-            var value = CheckMaxLength($"{highestRatedMovie.CommunityRating} - {highestRatedMovie.Name}");
+            var highestRatedMovie = movies.Where(x => x.CommunityRating.HasValue && x.CommunityRating != 0).OrderBy(x => x.CommunityRating).FirstOrDefault();
+
+            var value = Constants.NoData;
+            if(highestRatedMovie != null)
+                value = CheckMaxLength($"{highestRatedMovie.CommunityRating} - {highestRatedMovie.Name}");
 
             return new ValueGroup()
             {
