@@ -42,10 +42,10 @@
                 text-decoration: underline;
             }
 
-             .detailTableContainer {
-                 width: 100%;
-                 text-align: center;
-             }
+            .detailTableContainer {
+                width: 100%;
+                text-align: center;
+            }
 
             .detailTable, .detailTable th {
                 border-spacing: 0;
@@ -66,9 +66,9 @@
                 text-decoration: none;
             }
 
-            .detailTable a:hover {
-                text-decoration: underline;
-            }
+                .detailTable a:hover {
+                    text-decoration: underline;
+                }
 
             .detailTable td {
                 border-spacing: 0;
@@ -98,14 +98,14 @@
                 white-space: nowrap;
             }
 
-            .detailTableButtonsCell button {
-                margin-top: 0;
-                margin-bottom: 0;
-            }
+                .detailTableButtonsCell button {
+                    margin-top: 0;
+                    margin-bottom: 0;
+                }
 
-            .detailTableButtonsCell button + button {
-                margin-left: .5em;
-            }
+                    .detailTableButtonsCell button + button {
+                        margin-left: .5em;
+                    }
 
             @media all and (min-width:600px) {
                 .tabletColumn {
@@ -127,6 +127,56 @@
             .stripedTable tbody tr:nth-child(odd) td, .stripedTable tbody tr:nth-child(odd) th {
                 background-color: #eee;
                 background-color: rgba(0,0,0,.04);
+            }
+
+            .progress-100 {
+                background-image: -moz-linear-gradient(#A6CF41, #5B990D);
+                background-image: linear-gradient(#A6CF41, #5B990D);
+                background-image: -webkit-linear-gradient(#A6CF41, #5B990D);
+                background-image: -o-linear-gradient(#A6CF41, #5B990D);
+                -moz-border-radius: 3px;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+            }
+
+            .progress-80 {
+                background-image: -moz-linear-gradient(#E1FF97, #9DB269);
+                background-image: linear-gradient(#E1FF97, #9DB269);
+                background-image: -webkit-linear-gradient(#E1FF97, #9DB269);
+                background-image: -o-linear-gradient(#E1FF97, #9DB269);
+                -moz-border-radius: 3px;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+            }
+
+            .progress-60 {
+                background-image: -moz-linear-gradient(#FAD440, #F2A70D);
+                background-image: linear-gradient(#FAD440, #F2A70D);
+                background-image: -webkit-linear-gradient(#FAD440, #F2A70D);
+                background-image: -o-linear-gradient(#FAD440, #F2A70D);
+                -moz-border-radius: 3px;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+            }
+
+            .progress-40 {
+                background-image: -moz-linear-gradient(#FAB543, #F2700D);
+                background-image: linear-gradient(#FAB543, #F2700D);
+                background-image: -webkit-linear-gradient(#FAB543, #F2700D);
+                background-image: -o-linear-gradient(#FAB543, #F2700D);
+                -moz-border-radius: 3px;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
+            }
+
+            .progress-20 {
+                background-image: -moz-linear-gradient(#DA5945, #B11A10);
+                background-image: linear-gradient(#DA5945, #B11A10);
+                background-image: -webkit-linear-gradient(#DA5945, #B11A10);
+                background-image: -o-linear-gradient(#DA5945, #B11A10);
+                -moz-border-radius: 3px;
+                -webkit-border-radius: 3px;
+                border-radius: 3px;
             }
         </style>
         <!-- ReSharper disable once PossiblyUnassignedProperty -->
@@ -163,10 +213,10 @@
                                 var html = '<tr>';
                                 html += '<td data-sort-value="' + v.SortName + '">' + v.Name + '</td>';
                                 html += '<td>' + v.StartYear + '</td>';
-                                html += '<td data-sort-value="' + v.Watched + '">' + v.Watched + '%</td>';
+                                html += '<td data-sort-value="' + v.Watched + '" class="' + ShowProgressPage.calculateProgressClass(v.Watched) + '">' + v.Watched + '%</td>';
                                 html += '<td>' + v.SeenEpisodes + ' / ' + v.Episodes + '</td>';
                                 html += '<td>' + v.SeenSpecials + ' / ' + v.Specials + '</td>';
-                                html += '<td data-sort-value="' + v.Collected + '">' + v.Collected + '%</td>';
+                                html += '<td data-sort-value="' + v.Collected + '" class="' + ShowProgressPage.calculateProgressClass(v.Collected) + '">' + v.Collected + '%</td>';
                                 html += '<td>' + v.Score + '</td>';
                                 html += '<td>' + v.Status + '</td>';
                                 html += '</tr>';
@@ -176,6 +226,20 @@
                             Dashboard.hideLoadingMsg();
                         }
                     });
+                },
+                calculateProgressClass: function (value) {
+                    if (value == 0)
+                        return "";
+                    else if (value < 40)
+                        return "progress-20";
+                    else if (value < 60)
+                        return "progress-40";
+                    else if (value < 80)
+                        return "progress-60";
+                    else if (value < 100)
+                        return "progress-80";
+                    else
+                        return "progress-100";
                 }
             };
 
@@ -187,7 +251,7 @@
                     const user = $(this).find("option:selected").text();
                     ShowProgressPage.loadStats(page, user);
 
-                    var $th_to_sort =table.find("thead th").eq(0);
+                    var $th_to_sort = table.find("thead th").eq(0);
                     $th_to_sort.stupidsort('asc');
 
                 });
