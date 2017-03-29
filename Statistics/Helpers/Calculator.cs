@@ -496,7 +496,8 @@ namespace Statistics.Helpers
             var movies = GetAllMovies();
             var youngest = movies.Aggregate((curMax, x) => (curMax == null || x.DateCreated > curMax.DateCreated ? x : curMax));
             var numberOfTotalDays = DateTime.Now - youngest.DateCreated;
-            var value = CheckMaxLength($"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - {youngest.Name}");
+
+            var value = CheckMaxLength(numberOfTotalDays.Days == 0 ? $"Today - {youngest.Name}" : $"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - {youngest.Name}");
             return new ValueGroup()
             {
                 Title = Constants.NewestAddedMovie,
@@ -510,7 +511,8 @@ namespace Statistics.Helpers
             var episodes = GetAllOwnedEpisodes();
             var youngest = episodes.Aggregate((curMax, x) => (curMax == null || x.DateCreated > curMax.DateCreated ? x : curMax));
             var numberOfTotalDays = DateTime.Now.Date - youngest.DateCreated;
-            var value = CheckMaxLength($"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - S{youngest.AiredSeasonNumber} E{youngest.AbsoluteEpisodeNumber} - {youngest.Series.Name}");
+
+            var value = CheckMaxLength(numberOfTotalDays.Days == 0 ? $"Today - {youngest.Name}" : $"{CheckForPlural("day", numberOfTotalDays.Days, "", false)} ago - S{youngest.AiredSeasonNumber} E{youngest.DvdEpisodeNumber} - {youngest.Series.Name}");
             return new ValueGroup()
             {
                 Title = Constants.NewestAddedEpisode,
@@ -555,8 +557,8 @@ namespace Statistics.Helpers
 
         private string CheckMaxLength(string value)
         {
-            if (value.Length > 83)
-                return value.Substring(0, 80) + "...";
+            if (value.Length > 46)
+                return value.Substring(0, 43) + "...";
             return value;;
         }
 
