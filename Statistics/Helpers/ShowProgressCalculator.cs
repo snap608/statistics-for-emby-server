@@ -152,8 +152,11 @@ namespace Statistics.Helpers
             };
 
             var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            return seasons.Sum(x => x.Children.Count(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null))
-                + show.Children.OfType<Episode>().Count(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null);
+            var episodes = seasons.SelectMany(x => x.Children.OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null)).Concat(show.Children.OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null));
+
+            var distinctList = episodes.GroupBy(x => x.Id).Select(e => e.First()).ToList();
+
+            return distinctList.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
         }
 
         private int GetPlayedEpisodeCount(Series show)
@@ -169,8 +172,11 @@ namespace Statistics.Helpers
             };
 
             var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            return seasons.Sum(x => x.Children.Count(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User)))
-                + show.Children.OfType<Episode>().Count(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User));
+            var episodes = seasons.SelectMany(x => x.Children.OfType<Episode>().Where(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User))).Concat(show.Children.OfType<Episode>().Where(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User)));
+
+            var distinctList = episodes.GroupBy(x => x.Id).Select(e => e.First()).ToList();
+
+            return distinctList.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
         }
 
         private int GetOwnedSpecials(Series show)

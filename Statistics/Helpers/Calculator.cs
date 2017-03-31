@@ -127,8 +127,8 @@ namespace Statistics.Helpers
             {
                 Title = Constants.FavoriteMovieGenres,
                 Value = string.Join(", ", result.OrderByDescending(g => g.Value).Take(3).Select(g => g.Key).ToList()),
-                ExtraInformation = User != null ? Constants.HelpUserTopMovieGenres : null
-
+                ExtraInformation = User != null ? Constants.HelpUserTopMovieGenres : null,
+                Size = "large"
             };
         }
 
@@ -246,6 +246,18 @@ namespace Statistics.Helpers
                 ExtraInformation = User != null ? Constants.HelpUserTotalEpisode : null
             };
         }
+
+        public ValueGroup CalculateTotalBoxsets()
+        {
+            return new ValueGroup
+            {
+                Title = Constants.TotalCollections,
+                Value = $"{GetBoxsets().Count()}",
+                ExtraInformation = User != null ? Constants.HelpUserTotalCollections : null
+            };
+        }
+
+        
 
         #endregion
 

@@ -71,7 +71,7 @@ namespace Statistics.ScheduledTasks
             Plugin.Instance.SaveConfiguration();
 
 
-            var chartCalculator = new ChartsCalculator(_userManager, _libraryManager, _userDataManager);
+            //var chartCalculator = new ChartsCalculator(_userManager, _libraryManager, _userDataManager);
 
             // purely for progress reporting
             var percentPerUser = 100 / (users.Count + 3);
@@ -84,7 +84,7 @@ namespace Statistics.ScheduledTasks
             {
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateMovieQualities());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalMovies());
-                PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalShows());
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalBoxsets());
             }
 
             numComplete++;
@@ -116,6 +116,7 @@ namespace Statistics.ScheduledTasks
                             MovieStats = new List<ValueGroup>
                             {
                                 calculator.CalculateTotalMovies(),
+                                calculator.CalculateTotalBoxsets(),
                                 calculator.CalculateFavoriteYears(),
                                 calculator.CalculateFavoriteMovieGenres(),
                                 calculator.CalculateMovieTime(),
@@ -146,6 +147,7 @@ namespace Statistics.ScheduledTasks
             using (var calculator = new Calculator(null, _userManager, _libraryManager, _userDataManager))
             {
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateMostActiveUsers(activeUsers));
+                PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalShows());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateTotalOwnedEpisodes());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateBiggestShow());
                 PluginConfiguration.GeneralStat.Add(calculator.CalculateLongestShow()); 

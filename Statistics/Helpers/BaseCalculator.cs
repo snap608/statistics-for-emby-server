@@ -16,6 +16,7 @@ namespace Statistics.Helpers
         private IEnumerable<Movie> _movieCache;
         private IEnumerable<Series> _seriesCache;
         private IEnumerable<Episode> _episodeCache;
+        private IEnumerable<BoxSet> _boxsetCache;
 
         private IEnumerable<Movie> _viewedMovieCache;
         private IEnumerable<Episode> _ownedEpisodeCache;
@@ -88,6 +89,11 @@ namespace Statistics.Helpers
             return LibraryManager.GetCount(query);
         }
 
+        protected IEnumerable<BoxSet> GetBoxsets()
+        {
+            return _boxsetCache ?? (_boxsetCache = GetItems<BoxSet>());
+        }
+
         private IEnumerable<T> GetItems<T>()
         {
             var query = new InternalItemsQuery(User)
@@ -131,6 +137,7 @@ namespace Statistics.Helpers
             User = null;
             _episodeCache = null;
             _movieCache = null;
+            _boxsetCache = null;
             _ownedEpisodeCache = null;
             _viewedEpisodeCache = null;
             _viewedMovieCache = null;

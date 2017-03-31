@@ -16,6 +16,7 @@
         internal const string FavoriteYears = "Favorite Movie Years";
         internal const string MostActiveUsers = "Most Active Users";
         internal const string TotalMovies = "Total Movies";
+        internal const string TotalCollections = "Total Collections";
         internal const string TotalShows = "Total TV Series";
         internal const string TotalEpisodes = "Total Episodes";
         internal const string MediaQualities = "Media Qualities";
@@ -35,6 +36,7 @@
         internal const string HelpUserTotalMovies = "Total movies this user can see in his/her Emby library.";
         internal const string HelpUserTotalShows = "Total TV Series this user can see in his/her Emby library.";
         internal const string HelpUserTotalEpisode = "Total episodes this user can see in his/her Emby library.";
+        internal const string HelpUserTotalCollections = "Total collections this user can see in his/her Emby library.";
         internal const string HelpUserToMovieYears = "Top 5 years the user watched movies.";
         internal const string HelpUserTopMovieGenres = "Top 5 movie genres the user watched.";
         internal const string HelpUserTopShowGenres = "Top 5 show genres the user watched.";
