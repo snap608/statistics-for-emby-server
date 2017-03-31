@@ -129,7 +129,7 @@ namespace Statistics.Api
                         x =>
                             DateTime.Now.Date >=
                             Convert.ToDateTime(StringToDateTime(x.Descendants("FirstAired").FirstOrDefault()?.Value)))
-                    .Sum(x => x.Descendants("Combined_season").Count(y => y.Value != "0"));
+                    .Sum(x => x.Descendants("SeasonNumber").Count(y => y.Value != "0"));
             }
         }
 
