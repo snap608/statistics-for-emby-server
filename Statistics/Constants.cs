@@ -16,9 +16,12 @@
         internal const string FavoriteYears = "Favorite Movie Years";
         internal const string MostActiveUsers = "Most Active Users";
         internal const string TotalMovies = "Total Movies";
+        internal const string TotalMoviesWatched = "Total Movies Watched";
         internal const string TotalCollections = "Total Collections";
         internal const string TotalShows = "Total TV Series";
         internal const string TotalEpisodes = "Total Episodes";
+        internal const string TotalEpisodesWatched = "Total Episodes Watched";
+        internal const string TotalShowsFinished = "Total Series Finished";
         internal const string MediaQualities = "Media Qualities";
         internal const string LongestMovie = "Longest Movie Runtime";
         internal const string LongestShow = "Longest TV Series Runtime";
@@ -34,6 +37,9 @@
         //Help text for stats
         internal const string HelpMostActiveUsers = "Top 5 users that are the most active on the Emby server. This includes viewing movies and episodes.";
         internal const string HelpUserTotalMovies = "Total movies this user can see in his/her Emby library.";
+        internal const string HelpUserTotalMoviesWatched = "Total movies this user has watched.";
+        internal const string HelpUserTotalEpisodesWatched = "Total episodes this user has watched.";
+        internal const string HelpUserTotalShowsFinished = "Total shows this user has finished watching. Only normal episodes, so no specials are needed to be watched.";
         internal const string HelpUserTotalShows = "Total TV Series this user can see in his/her Emby library.";
         internal const string HelpUserTotalEpisode = "Total episodes this user can see in his/her Emby library.";
         internal const string HelpUserTotalCollections = "Total collections this user can see in his/her Emby library.";

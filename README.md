@@ -5,3 +5,11 @@ This is a plugin for Emby server. If you do not already have Emby server install
 ## Build
 
 When you build the project it will copy the dll to the Emby server plugin folder (%appdata%/Emby-Server/Plugins). Just restart Emby after you build and you should see the plugin installed. If not, check the copy command or copy the dll yourself.
+
+## Installation
+
+### Windows
+Copy the dll file into the "%appdata%/Emby-Server/Plugins" folder, restart your Emby server and the new plugin should be visible.
+
+### Unix
+Copy the dll file into the "/var/lib/emby-server/plugins" folder, restart your Emby server and the new plugin should be visible.

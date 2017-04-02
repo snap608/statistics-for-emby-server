@@ -117,6 +117,7 @@ namespace Statistics.ScheduledTasks
                             {
                                 calculator.CalculateTotalMovies(),
                                 calculator.CalculateTotalBoxsets(),
+                                calculator.CalculateTotalMoviesWatched(),
                                 calculator.CalculateFavoriteYears(),
                                 calculator.CalculateFavoriteMovieGenres(),
                                 calculator.CalculateMovieTime(),
@@ -127,6 +128,8 @@ namespace Statistics.ScheduledTasks
                             {
                                 calculator.CalculateTotalShows(),
                                 calculator.CalculateTotalOwnedEpisodes(),
+                                calculator.CalculateTotalEpiosodesWatched(),
+                                calculator.CalculateTotalFinishedShows(PluginConfiguration.TotalEpisodeCounts),
                                 calculator.CalculateFavoriteShowGenres(),
                                 calculator.CalculateShowTime(),
                                 calculator.CalculateShowTime(false),

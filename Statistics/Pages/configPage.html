@@ -26,6 +26,7 @@
         <style>
             .statCard-stats-title {
                 font-size: 1.2rem;
+                padding-bottom: 5px;
             }
 
             .medium .statCard .statCard-stats-title, .large .statCard .statCard-stats-title {
@@ -168,7 +169,6 @@
                                             v.Size +
                                             '"><div class="statCard"><div class="statCard-content">';
 
-                                        console.log(v.ExtraInformation);
                                         if (v.ExtraInformation !== undefined)
                                             html += "<div class=\"infoBlock\" onclick=\"showInfo('" +
                                                 v.ExtraInformation +
@@ -179,7 +179,9 @@
                                         html += '<div class="statCard-stats-title">' +
                                             v.Title +
                                             '</div><div class="statCard-stats-number inside">' +
-                                            v.Value +
+                                            v.ValueLineOne +
+                                            '</div><div class="statCard-stats-number inside">' +
+                                            v.ValueLineTwo +
                                             '</div></div></div></div>';
 
                                         $("#generalStat", page).append(html);

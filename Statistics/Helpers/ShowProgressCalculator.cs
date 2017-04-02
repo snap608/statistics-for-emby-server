@@ -91,7 +91,7 @@ namespace Statistics.Helpers
             if (User == null)
                 return null;
 
-            var showList = GetAllSeries().OrderBy(x => x.SortName);
+            var showList = GetAllSeries();
             var showProgress = new List<ShowProgress>();
             
             foreach (var show in showList)
@@ -137,79 +137,6 @@ namespace Statistics.Helpers
             }
 
             return showProgress;
-        }
-
-        private int GetOwnedEpisodesCount(Series show)
-        {
-            var query = new InternalItemsQuery(User)
-            {
-                IncludeItemTypes = new[] { typeof(Season).Name },
-                Recursive = true,
-                ParentId = show.Id,
-                IsSpecialSeason = false,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
-            };
-
-            var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            var episodes = seasons.SelectMany(x => x.Children.OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null)).Concat(show.Children.OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null));
-
-            var distinctList = episodes.GroupBy(x => x.Id).Select(e => e.First()).ToList();
-
-            return distinctList.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
-        }
-
-        private int GetPlayedEpisodeCount(Series show)
-        {
-            var query = new InternalItemsQuery(User)
-            {
-                IncludeItemTypes = new[] { typeof(Season).Name },
-                Recursive = true,
-                ParentId = show.Id,
-                IsSpecialSeason = false,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
-            };
-
-            var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            var episodes = seasons.SelectMany(x => x.Children.OfType<Episode>().Where(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User))).Concat(show.Children.OfType<Episode>().Where(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User)));
-
-            var distinctList = episodes.GroupBy(x => x.Id).Select(e => e.First()).ToList();
-
-            return distinctList.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
-        }
-
-        private int GetOwnedSpecials(Series show)
-        {
-            var query = new InternalItemsQuery(User)
-            {
-                IncludeItemTypes = new[] { typeof(Season).Name },
-                Recursive = true,
-                ParentId = show.Id,
-                IsSpecialSeason = true,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
-            };
-
-            var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            return seasons.Sum(x => x.Children.Count(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null));
-        }
-
-        private int GetPlayedSpecials(Series show)
-        {
-            var query = new InternalItemsQuery(User)
-            {
-                IncludeItemTypes = new[] { typeof(Season).Name },
-                Recursive = true,
-                ParentId = show.Id,
-                IsSpecialSeason = true,
-                MaxPremiereDate = DateTime.Now,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
-            };
-
-            var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            return seasons.Sum(x => x.Children.Count(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User)));
         }
     }
 }

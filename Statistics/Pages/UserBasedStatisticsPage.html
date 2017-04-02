@@ -16,6 +16,7 @@
                         <div style="visibility: hidden;">0</div><i class="md-icon selectArrow"></i>
                     </div>
                 </div>
+                <button is="emby-button" type="button" class="raised button-cancel block emby-button" onclick="Emby.Page.back();">Go back</button>
 
                 <h2 id="UserTitle"></h2>
                 <h3 id="OverallTitle"></h3>
@@ -38,6 +39,7 @@
         <style>
             .statCard-stats-title {
                 font-size: 1.2rem;
+                padding-bottom: 5px;
             }
 
             .medium .statCard .statCard-stats-title, .large .statCard .statCard-stats-title {
@@ -103,12 +105,15 @@
                     width: 33.3333333333%;
                 }
 
+                 .statRow .col.mediumThin {
+                    width: 66.6666666666%;
+                }
 
                 .statRow .col.half {
                     width: 50%;
                 }
 
-                    .statRow .col.small .statCard-content, .statRow .col.half .statCard-content {
+                    .statRow .col.small .statCard-content, .statRow .col.half .statCard-content, .statRow .col.mediumThin .statCard-content{
                         height: 75px;
                         align-items: center;
                         justify-content: center;
@@ -172,7 +177,7 @@
                         if (v.ExtraInformation !== undefined)
                             html += "<div class=\"infoBlock\" onclick=\"showInfo('" + v.ExtraInformation + "', '" + v.Title + "');\"><i class=\"md-icon\">info_outline</i></div>";
 
-                        html += '<div class="statCard-stats-title">' + v.Title + '</div><div class="statCard-stats-number">' + v.Value + '</div></div></div></div>';
+                        html += '<div class="statCard-stats-title">' + v.Title + '</div><div class="statCard-stats-number">' + v.ValueLineOne + '</div></div></div></div>';
 
                         $(div, page).append(html);
                     }
