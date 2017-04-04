@@ -20,7 +20,7 @@
                 <table id="ShowsTable" class="tblLibraryReport stripedTable ui-responsive table-stroke detailTable ui-table ui-table-reflow" style="display: table;">
                     <thead>
                         <tr>
-                            <th data-priority="persist" data-colstart="1" data-sort="string" class="center"><span>Name</span></th>
+                            <th data-priority="persist" data-colstart="1" data-sort="string" class="center" id="defaultColumn"><span>Name</span></th>
                             <th data-priority="persist" data-colstart="2" data-sort="int" class="center"><span>Started</span></th>
                             <th data-priority="persist" data-colstart="3" data-sort="float" class="center"><span>Watched</span><div class="infoBlock" onclick="showInfo('This column displays the number of watched episodes and the number of collected episodes. You will have 100% when you viewed all normal episodes (no specials, only aired)<br/><br/>If any special episodes are watched it will be displayed as \'+1 sp\'. ', 'Watched episodes');"><i class="md-icon">info_outline</i></div></th>
                             <th data-priority="persist" data-colstart="6" data-sort="float" class="center"><span>Collected</span><div class="infoBlock" onclick="showInfo('This column displays the number of collected episodes and the number of episodes aired on THETVDB. You will have 100% when you collected all normal episodes (no specials, only aired)<br/><br/>If any special episodes are collected it will be displayed as \'+1 sp\'. ', 'Collected episodes');"><i class="md-icon">info_outline</i></div></th>
@@ -229,9 +229,8 @@
                     const user = $(this).find("option:selected").text();
                     ShowProgressPage.loadStats(page, user);
 
-                    var $th_to_sort = table.find("thead th").eq(0);
-                    $th_to_sort.stupidsort('asc');
 
+                    $("#defaultColumn span").parent().stupidsort('asc');
                 });
             });
 
@@ -241,13 +240,13 @@
                 table = $("#ShowsTable").stupidtable();
 
                 table.on("aftertablesort", function (event, data) {
+                    console.log("SORTED");
                     var th = $(this).find("th");
                     th.removeClass("selectLabelFocused");
                     th.eq(data.column).addClass('selectLabelFocused');
                 });
 
-                var th_to_sort = table.find("thead th").eq(0);
-                th_to_sort.stupidsort('asc');
+                $("#defaultColumn span").parent().stupidsort('asc');
 
                 ApiClient.getUsers().then(function (users) {
                     $('#selectUserShowProgress', page).html(users.map(function (user) {

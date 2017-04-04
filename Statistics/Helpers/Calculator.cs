@@ -573,7 +573,7 @@ namespace Statistics.Helpers
                 var oldestDate = oldest.PremiereDate.Value;
                 var numberOfTotalMonths = (DateTime.Now.Year - oldestDate.Year) * 12 + DateTime.Now.Month - oldestDate.Month;
                 var numberOfYears = Math.Floor(numberOfTotalMonths / (decimal)12);
-                var numberOfMonth = Math.Ceiling((numberOfTotalMonths / (decimal)12 - numberOfYears) * 12);
+                var numberOfMonth = Math.Floor((numberOfTotalMonths / (decimal)12 - numberOfYears) * 12);
 
                 valueLineOne = CheckMaxLength($"{CheckForPlural("year", numberOfYears, "", "", false)} {CheckForPlural("month", numberOfMonth, "and")} ago");
                 valueLineTwo = CheckMaxLength($"{oldest.Name}");

@@ -91,7 +91,7 @@ namespace Statistics.Helpers
             if (User == null)
                 return null;
 
-            var showList = GetAllSeries();
+            var showList = GetAllSeries().OrderBy(x => x.SortName);
             var showProgress = new List<ShowProgress>();
             
             foreach (var show in showList)

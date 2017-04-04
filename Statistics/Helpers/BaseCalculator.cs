@@ -82,7 +82,7 @@ namespace Statistics.Helpers
                 IncludeItemTypes = new[] { type.Name },
                 Limit = 0,
                 Recursive = true,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
+                LocationTypes = new[] { LocationType.FileSystem },
                 SourceTypes = new[] { SourceType.Library }
             };
 
@@ -100,40 +100,33 @@ namespace Statistics.Helpers
         {
             var query = new InternalItemsQuery(User)
             {
-                IncludeItemTypes = new[] { typeof(Season).Name },
+                IncludeItemTypes = new[] { typeof(Episode).Name },
                 Recursive = true,
                 ParentId = show.Id,
                 IsSpecialSeason = false,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
+                SourceTypes = new[] { SourceType.Library },
+                LocationTypes = new[] { LocationType.FileSystem }
             };
 
-            var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            var episodes = seasons.SelectMany(x => x.Children.OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null)).Concat(show.Children.OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null));
-
-            var distinctList = episodes.GroupBy(x => x.Id).Select(e => e.First()).ToList();
-
-            return distinctList.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
+            var episodes = LibraryManager.GetItemList(query).OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null);
+            return episodes.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
         }
 
         protected int GetPlayedEpisodeCount(Series show)
         {
             var query = new InternalItemsQuery(User)
             {
-                IncludeItemTypes = new[] { typeof(Season).Name },
+                IncludeItemTypes = new[] { typeof(Episode).Name },
                 Recursive = true,
                 ParentId = show.Id,
                 IsSpecialSeason = false,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
+                SourceTypes = new[] { SourceType.Library },
+                LocationTypes = new[] { LocationType.FileSystem },
+                IsPlayed = true
             };
 
-            var seasons = LibraryManager.GetItemList(query).OfType<Season>();
-            var episodes = seasons.SelectMany(x => x.Children.OfType<Episode>().Where(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User))).Concat(show.Children.OfType<Episode>().Where(e => (e.PremiereDate <= DateTime.Now || e.PremiereDate == null) && e.IsPlayed(User)));
-
-            var distinctList = episodes.GroupBy(x => x.Id).Select(e => e.First()).ToList();
-
-            return distinctList.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
+            var episodes = LibraryManager.GetItemList(query).OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null);
+            return episodes.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
         }
 
         protected int GetOwnedSpecials(Series show)
@@ -144,7 +137,7 @@ namespace Statistics.Helpers
                 Recursive = true,
                 ParentId = show.Id,
                 IsSpecialSeason = true,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
+                LocationTypes = new[] { LocationType.FileSystem },
                 SourceTypes = new[] { SourceType.Library }
             };
 
@@ -161,7 +154,7 @@ namespace Statistics.Helpers
                 ParentId = show.Id,
                 IsSpecialSeason = true,
                 MaxPremiereDate = DateTime.Now,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
+                LocationTypes = new[] { LocationType.FileSystem },
                 SourceTypes = new[] { SourceType.Library }
             };
 
