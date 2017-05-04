@@ -566,7 +566,7 @@ namespace Statistics.Helpers
         public ValueGroup CalculateOldestMovie()
         {
             var movies = GetAllMovies();
-            var oldest = movies.Where(x => x.PremiereDate.HasValue).Aggregate((curMin, x) => (curMin == null || (x.PremiereDate ?? DateTime.MaxValue) < curMin.PremiereDate ? x : curMin));
+            var oldest = movies.Where(x => x.PremiereDate.HasValue && x.PremiereDate.Value > DateTime.MinValue).Aggregate((curMin, x) => (curMin == null || (x.PremiereDate ?? DateTime.MaxValue) < curMin.PremiereDate ? x : curMin));
 
             var valueLineOne = Constants.NoData;
             var valueLineTwo = "";
