@@ -48,9 +48,12 @@
 
             .statCard-stats-number {
                 font-size: 1.2rem;
-                line-height: 2.0rem;
                 font-weight: 500;
             }
+
+                .statCard-stats-number table {
+                    width: 100%;
+                }
 
             .small .statCard .statCard-stats-number {
                 text-align: center;
@@ -98,14 +101,13 @@
                 padding-left: 0.75rem;
                 padding-right: 0.75rem;
                 padding-top: 0.75rem;
-                min-height: 1px;
             }
 
                 .statRow .col.small {
                     width: 33.3333333333%;
                 }
 
-                 .statRow .col.mediumThin {
+                .statRow .col.mediumThin {
                     width: 66.6666666666%;
                 }
 
@@ -113,7 +115,7 @@
                     width: 50%;
                 }
 
-                    .statRow .col.small .statCard-content, .statRow .col.half .statCard-content, .statRow .col.mediumThin .statCard-content{
+                    .statRow .col.small .statCard-content, .statRow .col.half .statCard-content, .statRow .col.mediumThin .statCard-content {
                         height: 75px;
                         align-items: center;
                         justify-content: center;
@@ -124,13 +126,34 @@
                 }
 
                     .statRow .col.medium .statCard-content, .statRow .col.large .statCard-content {
-                        height: 190px;
+                        min-height: 210px;
                     }
 
                 .statRow .col.large {
                     width: 100%;
                 }
 
+            @media screen and (max-width: 900px) {
+                .statRow .col.small, .statRow .col.medium, .statRow .col.mediumThin, .statRow .col.half, .statRow .col.large {
+                    width: 100%;
+                }
+
+                    .statRow .col.small .statCard-content, .statRow .col.half .statCard-content {
+                        min-height: 1px;
+                    }
+            }
+
+            @media screen and (max-width: 680px) {
+                .statCard-stats-title {
+                    font-size: 0.8rem;
+                    padding-bottom: 5px;
+                }
+
+                .statCard-stats-number {
+                    font-size: 1rem;
+                    font-weight: 500;
+                }
+            }
 
             .statRow {
                 margin-left: auto;

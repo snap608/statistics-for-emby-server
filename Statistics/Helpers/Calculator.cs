@@ -177,7 +177,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalWatchableTime,
-                ValueLineOne = runTime.ToString(),
+                ValueLineOne = runTime.ToLongString(),
                 ValueLineTwo = "",
                 Size = "half"
             };
@@ -197,7 +197,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalWatchableTime,
-                ValueLineOne = runTime.ToString(),
+                ValueLineOne = runTime.ToLongString(),
                 ValueLineTwo = "",
                 Size = "half"
             };
@@ -217,7 +217,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = onlyPlayed ? Constants.TotalWatched : Constants.TotalWatchableTime,
-                ValueLineOne = runTime.ToString(),
+                ValueLineOne = runTime.ToLongString(),
                 ValueLineTwo = "",
                 Raw = runTime.Ticks,
                 Size = "half"

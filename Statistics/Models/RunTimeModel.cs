@@ -37,6 +37,21 @@ namespace Statistics.ViewModel
             return $"<td>{Days}</td><td>{Hours}</td><td>{Minutes}</td>";
         }
 
+        public string ToLongString()
+        {
+            var days = Days != 1
+                   ? $"{Days} days"
+                   : $"{Days} day";
+            var hours = Hours != 1
+                ? $"{Hours} hours"
+                : $"{Hours} hour";
+            var minutes = Minutes != 1
+                ? $"{Minutes} minutes"
+                : $"{Minutes} minute";
+            return $"{days}, {hours} and {minutes}";
+
+        }
+
         public int CompareTo(RunTime other)
         {
             if (ReferenceEquals(this, other)) return 0;
