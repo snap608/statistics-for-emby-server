@@ -41,10 +41,7 @@ namespace Statistics.Models
                     break;
             }
 
-            var movieText = Movies == 1 ? "Movie" : "Movies";
-            var episodeText = Episodes == 1 ? "Episode" : "Episodes";
-
-            return $"{quality}: {Movies} {movieText}, {Episodes} {episodeText}";
+            return $"<tr><td>{quality}</td><td>{Movies}</td><td>{Episodes}</td></tr>";
         }
     }
 }

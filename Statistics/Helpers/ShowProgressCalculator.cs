@@ -68,7 +68,7 @@ namespace Statistics.Helpers
             {
                 IsCalculationFailed = true;
             }
-
+            
             return result;
         }
 

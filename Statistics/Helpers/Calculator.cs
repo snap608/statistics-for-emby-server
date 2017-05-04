@@ -343,10 +343,12 @@ namespace Statistics.Helpers
         {
             var mostActiveUsers = users.OrderByDescending(x => x.Value).Take(6);
 
+            var tempList = mostActiveUsers.Select(x => $"<tr><td>{x.Key}</td>{x.Value.ToString()}</tr>");
+
             return new ValueGroup
             {
                 Title = Constants.MostActiveUsers,
-                ValueLineOne = string.Join("<br/>", mostActiveUsers.Select(x => $"{x.Key}: {x.Value.ToString()}")),
+                ValueLineOne =$"<table><tr><td></td><td>Days</td><td>Hours</td><td>Minutes</td></tr>{string.Join("", tempList)}</table>",
                 ValueLineTwo = "",
                 Size = "medium",
                 ExtraInformation = Constants.HelpMostActiveUsers
@@ -418,7 +420,7 @@ namespace Statistics.Helpers
             return new ValueGroup
             {
                 Title = Constants.MediaQualities,
-                ValueLineOne = string.Join("<br/>", qualityList),
+                ValueLineOne = $"<table><tr><td></td><td>Movies</td><td>Episodes</td></tr>{string.Join("", qualityList)}</table>" ,
                 ValueLineTwo = "",
                 Size = "medium"
             };
