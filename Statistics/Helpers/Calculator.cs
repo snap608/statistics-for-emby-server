@@ -65,7 +65,7 @@ namespace Statistics.Helpers
                                 UserManager.Users.First(
                                     u => m.IsPlayed(u) && UserDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m)
                             .LastPlayedDate)
-                .Take(6).ToList();
+                .Take(8).ToList();
 
             var lastSeenList = viewedEpisodes
                 .Select(item => new LastSeenModel
@@ -94,7 +94,7 @@ namespace Statistics.Helpers
                                 UserManager.Users.First(
                                     u => m.IsPlayed(u) && UserDataManager.GetUserData(u, m).LastPlayedDate.HasValue), m)
                             .LastPlayedDate)
-                .Take(6).ToList();
+                .Take(8).ToList();
 
             var lastSeenList = viewedMovies
                 .Select(item => new LastSeenModel

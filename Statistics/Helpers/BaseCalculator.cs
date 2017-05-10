@@ -82,7 +82,7 @@ namespace Statistics.Helpers
                 IncludeItemTypes = new[] { type.Name },
                 Limit = 0,
                 Recursive = true,
-                LocationTypes = new[] { LocationType.FileSystem },
+                IsVirtualItem = false,
                 SourceTypes = new[] { SourceType.Library }
             };
 
@@ -105,11 +105,11 @@ namespace Statistics.Helpers
                 ParentId = show.Id,
                 IsSpecialSeason = false,
                 SourceTypes = new[] { SourceType.Library },
-                LocationTypes = new[] { LocationType.FileSystem }
+                IsVirtualItem = false
             };
 
             var episodes = LibraryManager.GetItemList(query).OfType<Episode>().Where(e => e.PremiereDate <= DateTime.Now || e.PremiereDate == null);
-            return episodes.Sum(r => (r.IndexNumberEnd ?? r.IndexNumber) - r.IndexNumber + 1) ?? 0;
+            return episodes.Sum(r => (r.IndexNumberEnd == null || r.IndexNumberEnd < r.IndexNumber ? r.IndexNumber : r.IndexNumberEnd) - r.IndexNumber + 1) ?? 0;
         }
 
         protected int GetPlayedEpisodeCount(Series show)
@@ -121,7 +121,7 @@ namespace Statistics.Helpers
                 ParentId = show.Id,
                 IsSpecialSeason = false,
                 SourceTypes = new[] { SourceType.Library },
-                LocationTypes = new[] { LocationType.FileSystem },
+                IsVirtualItem = false,
                 IsPlayed = true
             };
 
@@ -137,7 +137,7 @@ namespace Statistics.Helpers
                 Recursive = true,
                 ParentId = show.Id,
                 IsSpecialSeason = true,
-                LocationTypes = new[] { LocationType.FileSystem },
+                IsVirtualItem = false,
                 SourceTypes = new[] { SourceType.Library }
             };
 
@@ -154,7 +154,7 @@ namespace Statistics.Helpers
                 ParentId = show.Id,
                 IsSpecialSeason = true,
                 MaxPremiereDate = DateTime.Now,
-                LocationTypes = new[] { LocationType.FileSystem },
+                IsVirtualItem = false,
                 SourceTypes = new[] { SourceType.Library }
             };
 
@@ -170,7 +170,8 @@ namespace Statistics.Helpers
             {
                 IncludeItemTypes = new[] { typeof(T).Name },
                 Recursive = true,
-                SourceTypes = new[] { SourceType.Library }
+                SourceTypes = new[] { SourceType.Library },
+                IsVirtualItem = false
             };
             
             return LibraryManager.GetItemList(query).OfType<T>();
@@ -183,8 +184,8 @@ namespace Statistics.Helpers
                 IncludeItemTypes = new[] { typeof(T).Name },
                 IsPlayed = isPLayed,
                 Recursive = true,
-                LocationTypes = new[] { LocationType.FileSystem, LocationType.Offline, LocationType.Remote },
-                SourceTypes = new[] { SourceType.Library }
+                SourceTypes = new[] { SourceType.Library },
+                IsVirtualItem = false
             };
 
             return LibraryManager.GetItemsResult(query).Items.OfType<T>().ToList();

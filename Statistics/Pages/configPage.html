@@ -177,6 +177,8 @@
                                     message:
                                         'No configuration found, please run the statistics task on the Scheduled Tasks page and come back for the results.'
                                 });
+                                $('#GoToUserStats', page).css("display", "none");
+                                $('#GoToShowProgress', page).css("display", "none");
                                 Dashboard.hideLoadingMsg();
                             } else {
                                 console.log(config.IsTheTvdbCallFailed);
