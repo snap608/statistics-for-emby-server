@@ -1,4 +1,5 @@
 # Statistics plugin for Emby Server
+![alt text](https://github.com/mregni/statistics-for-emby-server/blob/master/Statistics/Images/statistics-thumb.png?raw=true)
 
 This is a plugin for Emby server. If you do not already have Emby server installed please go to emby.media and download the server. Otherwise this plugin will be very useless for you.
 
