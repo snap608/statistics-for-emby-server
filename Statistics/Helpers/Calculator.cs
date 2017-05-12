@@ -454,7 +454,7 @@ namespace Statistics.Helpers
 
             maxSize = maxSize / 1073741824; //Byte to Gb
             var valueLineOne = CheckMaxLength($"{maxSize:F1} Gb");
-            var valueLineTwo = CheckMaxLength($"{biggestMovie.OriginalTitle}");
+            var valueLineTwo = CheckMaxLength($"{biggestMovie.Name}");
 
             return new ValueGroup
             {
@@ -516,7 +516,7 @@ namespace Statistics.Helpers
 
             var maxMovie = movies.Where(x => x.RunTimeTicks != null).OrderByDescending(x => x.RunTimeTicks).First();
             var valueLineOne = CheckMaxLength(new TimeSpan(maxMovie.RunTimeTicks ?? 0).ToString(@"hh\:mm\:ss"));
-            var valueLineTwo = CheckMaxLength($"{maxMovie.OriginalTitle}");
+            var valueLineTwo = CheckMaxLength($"{maxMovie.Name}");
             return new ValueGroup
             {
                 Title = Constants.LongestMovie,
