@@ -151,7 +151,7 @@ namespace Statistics.Helpers
 
             return new ValueGroup
             {
-                Title = Constants.favoriteShowGenres,
+                Title = Constants.FavoriteShowGenres,
                 ValueLineOne = string.Join(", ", result.OrderByDescending(g => g.Value).Take(3).Select(g => g.Key).ToList()),
                 ValueLineTwo = "",
                 ExtraInformation = User != null ? Constants.HelpUserTopShowGenres : null,
