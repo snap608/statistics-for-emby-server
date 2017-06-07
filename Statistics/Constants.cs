@@ -8,7 +8,7 @@
         internal const string Description = "Get statistics from your collection";
 
         internal const string FavoriteMovieGenres = "Favorite Movie Genres";
-        internal const string favoriteShowGenres = "Favorite Show Genres";
+        internal const string FavoriteShowGenres = "Favorite Show Genres";
         internal const string LastSeenMovies = "Last Seen Movies";
         internal const string LastSeenShows = "Last Seen TV Series";
         internal const string TotalWatched = "Total Time Watched";
